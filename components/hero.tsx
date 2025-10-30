@@ -17,7 +17,9 @@ export function Hero() {
           <NextLogo />
         </a>
       </div>
-      <h1 className="sr-only">Supabase and Next.js Starter Template</h1>
+      <h1 className="text-4xl lg:text-5xl font-bold !leading-tight mx-auto max-w-xl text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        Yalla, let's Build Ship & Grow!
+      </h1>
       <p className="text-3xl lg:text-4xl !leading-tight mx-auto max-w-xl text-center">
         The fastest way to build apps with{" "}
         <a
