@@ -5,27 +5,56 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { z } from "zod";
 
-interface OnboardingResponses {
-  question1: string;
-  question2: string;
-  question3: string;
-}
+// Zod schema for validation
+const onboardingSchema = z.object({
+  question1: z
+    .string()
+    .refine(
+      (val) => val !== "" && ["productivity", "learning", "collaboration", "other"].includes(val),
+      "Please select your primary goal"
+    ),
+  question2: z
+    .string()
+    .refine(
+      (val) => val !== "" && ["search", "social", "friend", "ad", "other"].includes(val),
+      "Please tell us how you heard about us"
+    ),
+  question3: z
+    .string()
+    .refine(
+      (val) => val !== "" && ["beginner", "intermediate", "advanced", "expert"].includes(val),
+      "Please select your experience level"
+    ),
+});
+
+// Infer TypeScript type from Zod schema
+type OnboardingResponses = z.infer<typeof onboardingSchema>;
 
 export function OnboardingForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [responses, setResponses] = useState<OnboardingResponses>({
+  const [responses, setResponses] = useState({
     question1: "",
     question2: "",
     question3: "",
   });
+  const [errors, setErrors] = useState<{
+    question1?: string;
+    question2?: string;
+    question3?: string;
+  }>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrors({}); // Clear previous errors
 
     try {
+      // Validate form data with Zod
+      const validatedData = onboardingSchema.parse(responses);
+
       const supabase = createClient();
       const {
         data: { user },
@@ -41,7 +70,7 @@ export function OnboardingForm() {
         .upsert(
           {
             user_id: user.id,
-            responses: responses,
+            responses: validatedData,
             completed_at: new Date().toISOString(),
           },
           {
@@ -55,8 +84,19 @@ export function OnboardingForm() {
       router.push("/dashboard");
       router.refresh();
     } catch (error) {
-      console.error("Error saving onboarding:", error);
-      alert("Failed to save responses. Please try again.");
+      // Handle Zod validation errors
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            fieldErrors[issue.path[0] as string] = issue.message;
+          }
+        });
+        setErrors(fieldErrors);
+      } else {
+        console.error("Error saving onboarding:", error);
+        alert("Failed to save responses. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -80,12 +120,17 @@ export function OnboardingForm() {
             </Label>
             <select
               id="q1"
-              required
               value={responses.question1}
-              onChange={(e) =>
-                setResponses({ ...responses, question1: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+              onChange={(e) => {
+                setResponses({ ...responses, question1: e.target.value });
+                // Clear error when user makes a selection
+                if (errors.question1) {
+                  setErrors({ ...errors, question1: undefined });
+                }
+              }}
+              className={`w-full px-3 py-2 border bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring ${
+                errors.question1 ? "border-red-500" : "border-input"
+              }`}
             >
               <option value="">Select an option</option>
               <option value="productivity">Increase productivity</option>
@@ -93,6 +138,9 @@ export function OnboardingForm() {
               <option value="collaboration">Team collaboration</option>
               <option value="other">Other</option>
             </select>
+            {errors.question1 && (
+              <p className="text-sm text-red-500">{errors.question1}</p>
+            )}
           </div>
 
           {/* Question 2 */}
@@ -100,12 +148,17 @@ export function OnboardingForm() {
             <Label htmlFor="q2">2. How did you hear about us?</Label>
             <select
               id="q2"
-              required
               value={responses.question2}
-              onChange={(e) =>
-                setResponses({ ...responses, question2: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+              onChange={(e) => {
+                setResponses({ ...responses, question2: e.target.value });
+                // Clear error when user makes a selection
+                if (errors.question2) {
+                  setErrors({ ...errors, question2: undefined });
+                }
+              }}
+              className={`w-full px-3 py-2 border bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring ${
+                errors.question2 ? "border-red-500" : "border-input"
+              }`}
             >
               <option value="">Select an option</option>
               <option value="search">Search engine</option>
@@ -114,6 +167,9 @@ export function OnboardingForm() {
               <option value="ad">Advertisement</option>
               <option value="other">Other</option>
             </select>
+            {errors.question2 && (
+              <p className="text-sm text-red-500">{errors.question2}</p>
+            )}
           </div>
 
           {/* Question 3 */}
@@ -121,12 +177,17 @@ export function OnboardingForm() {
             <Label htmlFor="q3">3. What&apos;s your experience level?</Label>
             <select
               id="q3"
-              required
               value={responses.question3}
-              onChange={(e) =>
-                setResponses({ ...responses, question3: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+              onChange={(e) => {
+                setResponses({ ...responses, question3: e.target.value });
+                // Clear error when user makes a selection
+                if (errors.question3) {
+                  setErrors({ ...errors, question3: undefined });
+                }
+              }}
+              className={`w-full px-3 py-2 border bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring ${
+                errors.question3 ? "border-red-500" : "border-input"
+              }`}
             >
               <option value="">Select an option</option>
               <option value="beginner">Beginner</option>
@@ -134,6 +195,9 @@ export function OnboardingForm() {
               <option value="advanced">Advanced</option>
               <option value="expert">Expert</option>
             </select>
+            {errors.question3 && (
+              <p className="text-sm text-red-500">{errors.question3}</p>
+            )}
           </div>
 
           <Button type="submit" disabled={loading} className="w-full">
