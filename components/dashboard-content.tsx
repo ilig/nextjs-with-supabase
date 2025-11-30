@@ -89,8 +89,8 @@ type ClassMember = {
 type Parent = {
   id: string;
   name: string;
-  phone?: string;
-  user_id?: string;
+  phone: string | null;
+  user_id: string | null;
 };
 
 type Payment = {
