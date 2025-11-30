@@ -80,8 +80,8 @@ export function OnboardingForm() {
 
       if (error) throw error;
 
-      // Redirect to dashboard after successful completion
-      router.push("/dashboard");
+      // Redirect to class creation wizard after successful completion
+      router.push("/create-class");
       router.refresh();
     } catch (error) {
       // Handle Zod validation errors

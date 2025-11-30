@@ -1,11 +1,17 @@
 import { LoginForm } from "@/components/login-form";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 
 export default function Page() {
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        <LoginForm />
+    <div className="min-h-screen flex flex-col bg-[#FFF9F0]">
+      <Header />
+      <div className="flex-1 flex items-center justify-center p-6 md:p-10">
+        <div className="w-full max-w-md">
+          <LoginForm />
+        </div>
       </div>
+      <Footer />
     </div>
   );
 }

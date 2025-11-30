@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingForm } from "@/components/onboarding-form";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 
 export default async function OnboardingPage() {
   const supabase = await createClient();
@@ -27,8 +29,12 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <OnboardingForm />
+    <div className="min-h-screen flex flex-col bg-[#FFF9F0]">
+      <Header />
+      <div className="flex-1 flex items-center justify-center p-4">
+        <OnboardingForm />
+      </div>
+      <Footer />
     </div>
   );
 }

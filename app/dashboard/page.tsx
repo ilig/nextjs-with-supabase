@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { DashboardContent } from "@/components/dashboard-content";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -9,43 +12,119 @@ export default async function DashboardPage() {
     redirect("/auth/login");
   }
 
-  // Check if user completed onboarding
+  // Get authenticated user
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user) {
-    const { data: onboarding } = await supabase
-      .from("user_onboarding")
-      .select("responses")
-      .eq("user_id", user.id)
-      .single();
-
-    // If no onboarding data, redirect to onboarding page
-    if (!onboarding) {
-      redirect("/onboarding");
-    }
-
-    // You can access their responses here for personalization
-    const goal = onboarding.responses.question1;
-    const experienceLevel = onboarding.responses.question3;
-
-    return (
-      <div className="flex-1 w-full flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">
-            Welcome to Ilan&apos;s New Project!
-          </h1>
-          <p className="text-muted-foreground mb-2">
-            You&apos;re successfully authenticated.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Your goal: {goal} | Experience: {experienceLevel}
-          </p>
-        </div>
-      </div>
-    );
+  if (!user) {
+    redirect("/auth/login");
   }
 
-  return null;
+  // Fetch user's classes
+  const { data: classes } = await supabase
+    .from("classes")
+    .select("*")
+    .eq("created_by", user.id)
+    .order("created_at", { ascending: false });
+
+  // If no classes, redirect to class creation
+  if (!classes || classes.length === 0) {
+    redirect("/create-class");
+  }
+
+  // Get the first class (or we can add class selection later)
+  const currentClass = classes[0];
+
+  // Fetch children first (including birthday)
+  const { data: children } = await supabase
+    .from("children")
+    .select("*")
+    .eq("class_id", currentClass.id)
+    .order("name", { ascending: true });
+
+  // Get all parent IDs from child_parents relationship
+  const { data: childParentsRelations } = await supabase
+    .from("child_parents")
+    .select("parent_id")
+    .in("child_id", (children || []).map((c: any) => c.id));
+
+  const parentIds = [...new Set((childParentsRelations || []).map((cp: any) => cp.parent_id))];
+
+  // Fetch all related data for the class
+  const [
+    { data: staff },
+    { data: events },
+    { data: childParents },
+    { data: classMembers },
+    { data: parents },
+    { data: payments },
+  ] = await Promise.all([
+    supabase
+      .from("staff")
+      .select("*")
+      .eq("class_id", currentClass.id)
+      .order("role", { ascending: true }),
+    supabase
+      .from("events")
+      .select("*")
+      .eq("class_id", currentClass.id)
+      .order("event_date", { ascending: true }),
+    supabase
+      .from("child_parents")
+      .select(`
+        *,
+        children (name),
+        parents (name, phone)
+      `)
+      .in("child_id", (children || []).map((c: any) => c.id)),
+    supabase
+      .from("class_members")
+      .select(`
+        *,
+        user_id
+      `)
+      .eq("class_id", currentClass.id),
+    supabase
+      .from("parents")
+      .select("*")
+      .in("id", parentIds.length > 0 ? parentIds : ["00000000-0000-0000-0000-000000000000"]),
+    supabase
+      .from("payments")
+      .select("*")
+      .eq("class_id", currentClass.id)
+      .order("payment_date", { ascending: false }),
+  ]);
+
+  // Calculate budget metrics
+  const totalBudget = currentClass.total_budget || 0;
+  const allocatedBudget = events?.reduce((sum, event) => sum + (event.allocated_budget || 0), 0) || 0;
+  const spentBudget = events?.reduce((sum, event) => sum + (event.spent_amount || 0), 0) || 0;
+  const remainingBudget = totalBudget - allocatedBudget;
+
+  return (
+    <div dir="rtl" className="min-h-screen bg-[#FFF9F0] flex flex-col">
+      <Header />
+
+      <DashboardContent
+        classData={currentClass}
+        classes={classes}
+        children={children || []}
+        staff={staff || []}
+        events={events || []}
+        childParents={childParents || []}
+        classMembers={classMembers || []}
+        parents={parents || []}
+        payments={payments || []}
+        budgetMetrics={{
+          total: totalBudget,
+          allocated: allocatedBudget,
+          spent: spentBudget,
+          remaining: remainingBudget,
+        }}
+      />
+
+      <Footer />
+    </div>
+  );
 }
