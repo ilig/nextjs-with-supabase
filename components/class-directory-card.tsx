@@ -49,7 +49,7 @@ type ClassDirectoryCardProps = {
   isAdmin?: boolean;
 };
 
-type ViewMode = "children" | "staff";
+type ViewMode = "children" | "parents" | "staff";
 
 export function ClassDirectoryCard({
   classId,
