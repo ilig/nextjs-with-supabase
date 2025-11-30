@@ -1018,10 +1018,12 @@ export function ClassDirectoryCard({
     </div>
   );
 
-  const getViewIcon = () => {
+  const getViewIcon = (): React.ComponentType<{ className?: string }> => {
     switch (viewMode) {
       case "children":
         return Baby;
+      case "parents":
+        return Users;
       case "staff":
         return GraduationCap;
     }
@@ -1033,6 +1035,8 @@ export function ClassDirectoryCard({
     switch (viewMode) {
       case "children":
         return "ילדים והורים";
+      case "parents":
+        return "הורים";
       case "staff":
         return "צוות";
     }
@@ -1042,6 +1046,8 @@ export function ClassDirectoryCard({
     switch (viewMode) {
       case "children":
         return children.length;
+      case "parents":
+        return parents.length;
       case "staff":
         return staff.length;
     }
