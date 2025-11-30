@@ -73,9 +73,9 @@ type ChildParent = {
   id: string;
   child_id: string;
   parent_id: string;
-  relationship: string;
+  relationship: "parent1" | "parent2";
   children?: { name: string };
-  parents?: { name: string; phone: string };
+  parents?: { name: string; phone: string | null };
 };
 
 type ClassMember = {
