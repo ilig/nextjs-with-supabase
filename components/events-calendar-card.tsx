@@ -12,7 +12,7 @@ type Event = {
   name: string;
   event_type: string;
   icon: string | null;
-  event_date: string;
+  event_date: string | null;
   allocated_budget: number;
   spent_amount: number;
 };
@@ -76,6 +76,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
 
   const getEventsForDay = (day: number) => {
     return events.filter((event) => {
+      if (!event.event_date) return false;
       const eventDate = new Date(event.event_date);
       return (
         eventDate.getDate() === day &&
@@ -88,12 +89,13 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
   // Filter upcoming events (next 60 days)
   const upcomingEvents = events
     .filter((event) => {
+      if (!event.event_date) return false;
       const eventDate = new Date(event.event_date);
       const today = new Date();
       const sixtyDaysFromNow = new Date(today.getTime() + 60 * 24 * 60 * 60 * 1000);
       return eventDate >= today && eventDate <= sixtyDaysFromNow;
     })
-    .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+    .sort((a, b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime());
 
   const getDaysUntilEvent = (eventDate: string) => {
     const event = new Date(eventDate);
