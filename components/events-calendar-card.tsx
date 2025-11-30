@@ -226,8 +226,8 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
               </div>
             ) : (
               upcomingEvents.map((event) => {
-                const daysUntil = getDaysUntilEvent(event.event_date);
-                const eventDate = new Date(event.event_date);
+                const daysUntil = getDaysUntilEvent(event.event_date!);
+                const eventDate = new Date(event.event_date!);
 
                 return (
                   <div
@@ -342,8 +342,8 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
             <div className="p-6 overflow-y-auto max-h-[calc(80vh-100px)]">
               <div className="space-y-4">
                 {selectedDay.events.map((event) => {
-                  const eventDate = new Date(event.event_date);
-                  const daysUntil = getDaysUntilEvent(event.event_date);
+                  const eventDate = new Date(event.event_date!);
+                  const daysUntil = getDaysUntilEvent(event.event_date!);
 
                   return (
                     <div
