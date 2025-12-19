@@ -1,29 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
-  TrendingUp,
   TrendingDown,
-  Users,
-  Calendar,
-  Wallet,
-  Scale,
-  Coins,
-  UserCheck,
-  Copy,
-  Download,
-  Plus,
-  Mail,
-  Phone
+  X
 } from "lucide-react";
-import { PaymentTrackingCard } from "@/components/payment-tracking-card";
 import { EventsCalendarCard } from "@/components/events-calendar-card";
 import { ClassDirectoryCard } from "@/components/class-directory-card";
+import { BudgetHubWrapper } from "@/components/budget-hub-wrapper";
+import { GiftCatalogCard } from "@/components/gift-catalog-card";
+import { ClassNavigationBar, type NavigationSection } from "@/components/class-navigation-bar";
+import { InviteParentsTask } from "@/components/setup-tasks/invite-parents-task";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import type { PaymentRoundWithPayments, ExpenseWithEvent } from "@/lib/types/budget";
 
 type Class = {
   id: string;
@@ -122,406 +112,253 @@ type DashboardContentProps = {
   parents: Parent[];
   payments: Payment[];
   budgetMetrics: BudgetMetrics;
+  paymentRounds: PaymentRoundWithPayments[];
+  expenses: ExpenseWithEvent[];
 };
 
 export function DashboardContent({
   classData,
-  classes,
   children,
   staff,
   events,
   childParents,
-  classMembers,
   parents,
-  payments,
   budgetMetrics,
+  paymentRounds,
+  expenses,
 }: DashboardContentProps) {
-  const [copiedInvite, setCopiedInvite] = useState(false);
+  const [openSection, setOpenSection] = useState<NavigationSection>(null);
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
 
-  const copyInviteLink = () => {
-    const inviteLink = `${window.location.origin}/join/${classData.invite_code}`;
-    navigator.clipboard.writeText(inviteLink);
-    setCopiedInvite(true);
-    setTimeout(() => setCopiedInvite(false), 2000);
-  };
+  // Memoize date calculations to prevent hydration mismatch
+  // The empty dependency array ensures consistent values between server and client
+  const { allEvents } = useMemo(() => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
 
-  // Convert children birthdays into event objects
-  const birthdayEvents: Event[] = children
-    .filter((child) => child.birthday)
-    .map((child) => {
-      const birthday = new Date(child.birthday!);
-      const currentYear = new Date().getFullYear();
-      const nextBirthday = new Date(currentYear, birthday.getMonth(), birthday.getDate());
+    // Convert children birthdays into event objects
+    // Create both current year and next year birthdays for calendar display
+    const childBirthdays: Event[] = children
+      .filter((child) => child.birthday)
+      .flatMap((child) => {
+        // Parse birthday as local date (YYYY-MM-DD format from DB)
+        // Split the date string to avoid timezone issues
+        const [birthYear, month, day] = child.birthday!.split("-").map(Number);
 
-      // If birthday already passed this year, use next year
-      if (nextBirthday < new Date()) {
-        nextBirthday.setFullYear(currentYear + 1);
-      }
+        // Create birthday date strings (avoids timezone issues)
+        const thisYearDateStr = `${currentYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        const nextYearDateStr = `${currentYear + 1}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
-      // Calculate age
-      const age = currentYear - birthday.getFullYear();
-      const displayAge = nextBirthday.getFullYear() - birthday.getFullYear();
+        // For comparison, create a Date object
+        const thisYearBirthday = new Date(currentYear, month - 1, day);
 
-      return {
-        id: `birthday-${child.id}`,
-        class_id: classData.id,
-        name: `${child.name} (גיל ${displayAge})`,
-        event_type: "birthday",
-        icon: "🎂",
-        allocated_budget: 0,
-        spent_amount: 0,
-        event_date: nextBirthday.toISOString(),
-        created_at: child.created_at,
-      };
-    });
+        // Calculate display ages
+        const thisYearAge = currentYear - birthYear;
+        const nextYearAge = currentYear + 1 - birthYear;
 
-  // Merge birthday events with regular events
-  const allEvents = [...events, ...birthdayEvents];
+        const events: Event[] = [
+          {
+            id: `birthday-child-${child.id}-${currentYear}`,
+            class_id: classData.id,
+            name: `${child.name} (גיל ${thisYearAge})`,
+            event_type: "birthday",
+            icon: "🎂",
+            allocated_budget: 0,
+            spent_amount: 0,
+            event_date: thisYearDateStr,
+            created_at: child.created_at,
+          },
+        ];
 
-  // Calculate upcoming events (within next 30 days) - including birthdays
-  const upcomingEvents = allEvents.filter((event) => {
-    if (!event.event_date) return false;
-    const eventDate = new Date(event.event_date);
-    const today = new Date();
-    const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
-    return eventDate >= today && eventDate <= thirtyDaysFromNow;
-  });
+        // Add next year's birthday if this year's has passed
+        if (thisYearBirthday < now) {
+          events.push({
+            id: `birthday-child-${child.id}-${currentYear + 1}`,
+            class_id: classData.id,
+            name: `${child.name} (גיל ${nextYearAge})`,
+            event_type: "birthday",
+            icon: "🎂",
+            allocated_budget: 0,
+            spent_amount: 0,
+            event_date: nextYearDateStr,
+            created_at: child.created_at,
+          });
+        }
+
+        return events;
+      });
+
+    // Convert staff birthdays into event objects
+    // Create both current year and next year birthdays for calendar display
+    const staffBirthdays: Event[] = staff
+      .filter((member) => member.birthday)
+      .flatMap((member) => {
+        // Parse birthday as local date (YYYY-MM-DD format from DB)
+        // Split the date string to avoid timezone issues
+        const [, month, day] = member.birthday!.split("-").map(Number);
+        const roleLabel = member.role === "teacher" ? "גננת" : "סייעת";
+
+        // Create birthday for current year using date string (avoids timezone issues)
+        const thisYearDateStr = `${currentYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        // Create birthday for next year
+        const nextYearDateStr = `${currentYear + 1}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+        // Check if this year's birthday has passed
+        const thisYearBirthday = new Date(currentYear, month - 1, day);
+
+        const events: Event[] = [
+          {
+            id: `birthday-staff-${member.id}-${currentYear}`,
+            class_id: classData.id,
+            name: `${member.name} (${roleLabel})`,
+            event_type: "staff-birthday",
+            icon: "🎉",
+            allocated_budget: 0,
+            spent_amount: 0,
+            event_date: thisYearDateStr,
+            created_at: member.created_at,
+          },
+        ];
+
+        // Add next year's birthday if this year's has passed
+        if (thisYearBirthday < now) {
+          events.push({
+            id: `birthday-staff-${member.id}-${currentYear + 1}`,
+            class_id: classData.id,
+            name: `${member.name} (${roleLabel})`,
+            event_type: "staff-birthday",
+            icon: "🎉",
+            allocated_budget: 0,
+            spent_amount: 0,
+            event_date: nextYearDateStr,
+            created_at: member.created_at,
+          });
+        }
+
+        return events;
+      });
+    return { allEvents: [...events, ...childBirthdays, ...staffBirthdays] };
+  }, [children, staff, classData.id, events]);
 
   // Calculate budget health
-  const budgetHealthPercentage = (budgetMetrics.allocated / budgetMetrics.total) * 100;
   const isOverBudget = budgetMetrics.remaining < 0;
 
-
   return (
-    <div className="flex-1 w-full mx-auto px-4 py-8">
-      {/* Header Section */}
-      <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h1 className="text-4xl font-extrabold text-[#222222] mb-2">
-              {classData.name}
-            </h1>
-            <p className="text-lg text-gray-600">
-              {classData.school_name} • {classData.city} • שנת {classData.year}
-            </p>
+    <div className="flex-1 w-full mx-auto px-4 py-8 relative" dir="rtl">
+      {/* Header */}
+      <div className="max-w-7xl mx-auto mb-6">
+        <h1 className="text-4xl font-extrabold text-[#222222] mb-2">
+          {classData.name}
+        </h1>
+        <p className="text-lg text-gray-600 mb-6">
+          {classData.school_name} • {classData.city} • שנת {classData.year}
+        </p>
+
+        {/* Navigation Bar */}
+        <ClassNavigationBar
+          activeSection={openSection}
+          onSectionChange={setOpenSection}
+        />
+
+        {/* Active Section Content - Shows BELOW the navigation bar */}
+        {openSection && (
+          <div className="bg-white rounded-2xl border-2 border-blue-300 shadow-xl p-6 relative animate-slide-down mt-6">
+            {/* Close Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setOpenSection(null)}
+              className="absolute top-4 left-4 rounded-full z-10"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+
+            {/* Section Content */}
+            <div>
+              {openSection === "budget" && (
+                <BudgetHubWrapper
+                  classId={classData.id}
+                  budgetMetrics={budgetMetrics}
+                  events={events}
+                  children={children.map(c => ({
+                    id: c.id,
+                    name: c.name,
+                    parents: childParents
+                      .filter(cp => cp.child_id === c.id)
+                      .map(cp => ({
+                        name: cp.parents?.name || "",
+                        phone: cp.parents?.phone || null
+                      }))
+                  }))}
+                  paymentRounds={paymentRounds}
+                  expenses={expenses}
+                  className="border-0 shadow-none"
+                />
+              )}
+
+              {openSection === "directory" && (
+                <ClassDirectoryCard
+                  classId={classData.id}
+                  children={children}
+                  parents={parents}
+                  staff={staff}
+                  childParents={childParents}
+                  isAdmin={true}
+                  className="border-0 shadow-none"
+                  onInviteParents={() => setShowInviteDialog(true)}
+                />
+              )}
+
+              {openSection === "events" && (
+                <EventsCalendarCard events={allEvents} hideHeader={true} />
+              )}
+
+              {openSection === "gifts" && (
+                <GiftCatalogCard className="border-0 shadow-none" />
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Budget Warning */}
         {isOverBudget && (
-          <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-4 mb-6">
-            <p className="text-red-700 font-semibold flex items-center gap-2">
-              <TrendingDown className="h-5 w-5" />
+          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-3 mt-4">
+            <p className="text-red-700 font-semibold flex items-center gap-2 text-sm">
+              <TrendingDown className="h-4 w-4" />
               שים לב! התקציב המוקצה חורג מהתקציב הכולל ב-₪{Math.abs(budgetMetrics.remaining).toLocaleString()}
             </p>
           </div>
         )}
       </div>
 
-      {/* Quick Stats Cards */}
-      <div className="max-w-7xl mx-auto mb-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {/* Budget Used / Total */}
-          <Card className="bg-gradient-to-br from-[#E9D5FF] to-[#DDD6FE] border-0 shadow-lg">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-gray-700 font-medium">תקציב</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Wallet className="h-5 w-5 text-[#A78BFA]" />
-                <p className="text-2xl font-extrabold text-[#222222]" dir="ltr">
-                  ₪{budgetMetrics.spent.toLocaleString()} / ₪{budgetMetrics.total.toLocaleString()}
-                </p>
-              </div>
-              <p className="text-xs text-gray-600 mt-1">
-                {((budgetMetrics.spent / budgetMetrics.total) * 100).toFixed(0)}% נוצל
-              </p>
-            </CardContent>
-          </Card>
+      <style jsx global>{`
+        @keyframes slide-down {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-slide-down {
+          animation: slide-down 0.3s ease-out;
+        }
+      `}</style>
 
-          {/* Children Count */}
-          <Card className="bg-gradient-to-br from-[#FED7AA] to-[#FDBA74] border-0 shadow-lg">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-gray-700 font-medium">ילדים</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-orange-600" />
-                <p className="text-2xl font-extrabold text-[#222222]">
-                  {children.length}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Staff Count */}
-          <Card className="bg-gradient-to-br from-[#FDE68A] to-[#FCD34D] border-0 shadow-lg">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-gray-700 font-medium">צוות</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <UserCheck className="h-5 w-5 text-yellow-600" />
-                <p className="text-2xl font-extrabold text-[#222222]">
-                  {staff.length}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Upcoming Events */}
-          <Card className="bg-gradient-to-br from-[#FBE4FF] to-[#F5D0FE] border-0 shadow-lg">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-gray-700 font-medium">אירועים קרובים</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-fuchsia-600" />
-                <p className="text-2xl font-extrabold text-[#222222]">
-                  {upcomingEvents.length}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Main Content - Two Column Layout */}
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-6">
-        {/* Left Column - Primary Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Collapsible Payment Tracking */}
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="payments" className="border-0">
-              <Card className="shadow-xl rounded-3xl border-2 border-gray-100">
-                <AccordionTrigger className="hover:no-underline px-6 pt-6 pb-6">
-                  <CardHeader className="p-0 w-full">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600">
-                        <Coins className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="text-right">
-                        <CardTitle className="text-lg">מעקב תשלומים</CardTitle>
-                        <CardDescription>מצב תשלומים והורים</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <CardContent className="pt-0">
-                    <PaymentTrackingCard
-                      payments={payments}
-                      parents={parents}
-                      expectedPaymentPerParent={classData.expected_payment_per_parent || classData.budget_amount || 0}
-                    />
-                  </CardContent>
-                </AccordionContent>
-              </Card>
-            </AccordionItem>
-          </Accordion>
-
-          {/* Collapsible Events Calendar */}
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="events" className="border-0">
-              <Card className="shadow-xl rounded-3xl border-2 border-gray-100">
-                <AccordionTrigger className="hover:no-underline px-6 pt-6 pb-6">
-                  <CardHeader className="p-0 w-full">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 rounded-lg bg-gradient-to-br from-pink-500 to-rose-600">
-                        <Calendar className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="text-right">
-                        <CardTitle className="text-lg">אירועים קרובים</CardTitle>
-                        <CardDescription>{upcomingEvents.length} אירועים בחודשיים הקרובים</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <CardContent className="pt-0">
-                    <EventsCalendarCard events={allEvents} hideHeader={true} />
-                  </CardContent>
-                </AccordionContent>
-              </Card>
-            </AccordionItem>
-          </Accordion>
-
-          {/* Collapsible Class Directory */}
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="directory" className="border-0">
-              <Card className="shadow-xl rounded-3xl border-2 border-gray-100">
-                <AccordionTrigger className="hover:no-underline px-6 pt-6 pb-6">
-                  <CardHeader className="p-0 w-full">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-600">
-                        <Users className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="text-right">
-                        <CardTitle className="text-lg">מדריך הכיתה</CardTitle>
-                        <CardDescription>ילדים, הורים וצוות</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <CardContent className="pt-0">
-                    <ClassDirectoryCard
-                      classId={classData.id}
-                      children={children}
-                      parents={parents}
-                      staff={staff}
-                      childParents={childParents}
-                      isAdmin={true}
-                    />
-                  </CardContent>
-                </AccordionContent>
-              </Card>
-            </AccordionItem>
-          </Accordion>
-
-          {/* Collapsible Budget Breakdown */}
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="budget" className="border-0">
-              <Card className="shadow-xl rounded-3xl border-2 border-gray-100">
-                <AccordionTrigger className="hover:no-underline px-6 pt-6 pb-6">
-                  <CardHeader className="p-0 w-full">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600">
-                        <Wallet className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="text-right">
-                        <CardTitle className="text-lg">חלוקת תקציב לפי אירועים</CardTitle>
-                        <CardDescription>התקציב המוקצה והמנוצל לכל אירוע</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <CardContent className="pt-4">
-                    {events.length === 0 ? (
-                      <div className="text-center py-12">
-                        <Calendar className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-                        <p className="text-gray-500 mb-4">טרם נוספו אירועים</p>
-                        <Button className="bg-[#A78BFA] hover:bg-[#9333EA] rounded-2xl">
-                          <Plus className="ml-2 h-4 w-4" />
-                          הוסף אירוע ראשון
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {events.map((event) => {
-                          const spentPercentage = event.allocated_budget > 0
-                            ? (event.spent_amount / event.allocated_budget) * 100
-                            : 0;
-                          const isOverspent = event.spent_amount > event.allocated_budget;
-
-                          return (
-                            <div key={event.id} className="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#A78BFA] transition-colors">
-                              <div className="flex items-start justify-between mb-3">
-                                <div className="flex items-center gap-3">
-                                  <div className="text-3xl">{event.icon || "📅"}</div>
-                                  <div>
-                                    <h4 className="font-bold text-lg text-[#222222]">{event.name}</h4>
-                                    {event.event_date && (
-                                      <p className="text-sm text-gray-500">
-                                        {new Date(event.event_date).toLocaleDateString('he-IL', {
-                                          year: 'numeric',
-                                          month: 'long',
-                                          day: 'numeric'
-                                        })}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="text-left">
-                                  <p className="text-sm text-gray-600">מנוצל</p>
-                                  <p className={`text-lg font-bold ${isOverspent ? 'text-red-600' : 'text-[#A78BFA]'}`}>
-                                    ₪{event.spent_amount.toLocaleString()}
-                                  </p>
-                                  <p className="text-xs text-gray-500">
-                                    מתוך ₪{event.allocated_budget.toLocaleString()}
-                                  </p>
-                                </div>
-                              </div>
-
-                              {/* Progress Bar */}
-                              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full transition-all ${
-                                    isOverspent ? 'bg-red-500' : 'bg-gradient-to-r from-[#A78BFA] to-[#60A5FA]'
-                                  }`}
-                                  style={{ width: `${Math.min(spentPercentage, 100)}%` }}
-                                />
-                              </div>
-                              <p className="text-xs text-gray-500 mt-1">
-                                {spentPercentage.toFixed(0)}% נוצל
-                              </p>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </CardContent>
-                </AccordionContent>
-              </Card>
-            </AccordionItem>
-          </Accordion>
-        </div>
-
-        {/* Right Column - Quick Access */}
-        <div className="space-y-6">
-          {/* Quick Actions */}
-          <Card className="shadow-xl rounded-3xl border-2 border-gray-100">
-            <CardHeader>
-              <CardTitle className="text-xl font-extrabold text-[#222222]">
-                פעולות מהירות
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button
-                onClick={copyInviteLink}
-                className="w-full bg-[#A78BFA] hover:bg-[#9333EA] rounded-2xl justify-start"
-              >
-                {copiedInvite ? (
-                  <>
-                    <Mail className="ml-2 h-4 w-4" />
-                    הקישור הועתק!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="ml-2 h-4 w-4" />
-                    העתק קישור הזמנה
-                  </>
-                )}
-              </Button>
-
-              <Button
-                variant="outline"
-                className="w-full rounded-2xl justify-start border-2"
-              >
-                <Plus className="ml-2 h-4 w-4" />
-                הוסף ילד חדש
-              </Button>
-
-              <Button
-                variant="outline"
-                className="w-full rounded-2xl justify-start border-2"
-              >
-                <Plus className="ml-2 h-4 w-4" />
-                הוסף הוצאה
-              </Button>
-
-              <Button
-                variant="outline"
-                className="w-full rounded-2xl justify-start border-2"
-              >
-                <Download className="ml-2 h-4 w-4" />
-                הורד רשימת ילדים
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      {/* Invite Parents Dialog */}
+      <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
+        <DialogContent className="max-w-xl">
+          <DialogTitle className="sr-only">הזמנת הורים לפלטפורמה</DialogTitle>
+          <InviteParentsTask
+            classId={classData.id}
+            className={classData.name}
+            onComplete={() => setShowInviteDialog(false)}
+            onCancel={() => setShowInviteDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

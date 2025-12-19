@@ -17,6 +17,8 @@ CREATE TABLE classes (
   total_budget DECIMAL(10, 2),
   budget_type TEXT CHECK (budget_type IN ('per-child', 'total')),
   budget_amount DECIMAL(10, 2),
+  number_of_children INTEGER,
+  number_of_staff INTEGER,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

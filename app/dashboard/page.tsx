@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { DashboardContent } from "@/components/dashboard-content";
+import { DashboardWithSetup } from "@/components/dashboard-with-setup";
+import { getPaymentRoundsWithPayments, getExpensesWithEvents } from "@/app/actions/budget";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -96,17 +97,26 @@ export default async function DashboardPage() {
       .order("payment_date", { ascending: false }),
   ]);
 
+  // Fetch payment rounds and expenses for the budget hub
+  const [paymentRoundsResult, expensesResult] = await Promise.all([
+    getPaymentRoundsWithPayments(currentClass.id),
+    getExpensesWithEvents(currentClass.id),
+  ]);
+
+  const paymentRounds = paymentRoundsResult.data || [];
+  const expenses = expensesResult.data || [];
+
   // Calculate budget metrics
   const totalBudget = currentClass.total_budget || 0;
   const allocatedBudget = events?.reduce((sum, event) => sum + (event.allocated_budget || 0), 0) || 0;
-  const spentBudget = events?.reduce((sum, event) => sum + (event.spent_amount || 0), 0) || 0;
+  const spentBudget = expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
   const remainingBudget = totalBudget - allocatedBudget;
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#FFF9F0] flex flex-col">
       <Header />
 
-      <DashboardContent
+      <DashboardWithSetup
         classData={currentClass}
         classes={classes}
         children={children || []}
@@ -122,6 +132,8 @@ export default async function DashboardPage() {
           spent: spentBudget,
           remaining: remainingBudget,
         }}
+        paymentRounds={paymentRounds}
+        expenses={expenses}
       />
 
       <Footer />

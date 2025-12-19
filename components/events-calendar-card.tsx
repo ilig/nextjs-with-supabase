@@ -74,32 +74,59 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
     );
   };
 
+  const isPastDay = (day: number) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    return checkDate < today;
+  };
+
+  // Helper to parse date string without timezone issues
+  // Handles both YYYY-MM-DD (date strings) and ISO format (from DB events)
+  const parseEventDate = (dateStr: string): { year: number; month: number; day: number } => {
+    // Check if it's a simple YYYY-MM-DD format (no time component)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      const [year, month, day] = dateStr.split("-").map(Number);
+      return { year, month: month - 1, day }; // month is 0-indexed
+    }
+    // For ISO format or other formats, parse as Date but extract local components
+    const date = new Date(dateStr);
+    return { year: date.getFullYear(), month: date.getMonth(), day: date.getDate() };
+  };
+
   const getEventsForDay = (day: number) => {
     return events.filter((event) => {
       if (!event.event_date) return false;
-      const eventDate = new Date(event.event_date);
-      return (
-        eventDate.getDate() === day &&
-        eventDate.getMonth() === currentDate.getMonth() &&
-        eventDate.getFullYear() === currentDate.getFullYear()
-      );
+      const { year, month, day: eventDay } = parseEventDate(event.event_date);
+      return eventDay === day &&
+        month === currentDate.getMonth() &&
+        year === currentDate.getFullYear();
     });
   };
 
-  // Filter upcoming events (next 60 days)
+  // Filter upcoming events (today + next 30 days)
   const upcomingEvents = events
     .filter((event) => {
       if (!event.event_date) return false;
-      const eventDate = new Date(event.event_date);
+      const { year, month, day } = parseEventDate(event.event_date);
+      const eventDate = new Date(year, month, day);
       const today = new Date();
-      const sixtyDaysFromNow = new Date(today.getTime() + 60 * 24 * 60 * 60 * 1000);
-      return eventDate >= today && eventDate <= sixtyDaysFromNow;
+      today.setHours(0, 0, 0, 0); // Start of today
+      const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+      return eventDate >= today && eventDate <= thirtyDaysFromNow;
     })
-    .sort((a, b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime());
+    .sort((a, b) => {
+      const aDate = parseEventDate(a.event_date!);
+      const bDate = parseEventDate(b.event_date!);
+      return new Date(aDate.year, aDate.month, aDate.day).getTime() -
+             new Date(bDate.year, bDate.month, bDate.day).getTime();
+    });
 
   const getDaysUntilEvent = (eventDate: string) => {
-    const event = new Date(eventDate);
+    const { year, month, day } = parseEventDate(eventDate);
+    const event = new Date(year, month, day);
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const diffTime = event.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
@@ -120,6 +147,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
     for (let day = 1; day <= daysInMonth; day++) {
       const dayEvents = getEventsForDay(day);
       const hasEvents = dayEvents.length > 0;
+      const isPast = isPastDay(day);
 
       days.push(
         <div
@@ -127,6 +155,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
           className={cn(
             "p-2 min-h-[80px] border border-gray-100 relative cursor-pointer hover:bg-gray-50 transition-colors",
             isToday(day) && "bg-purple-50 border-purple-300",
+            isPast && !isToday(day) && "bg-gray-50",
             hasEvents && "hover:border-pink-300"
           )}
           onClick={() => {
@@ -138,7 +167,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
           <div
             className={cn(
               "text-sm font-medium mb-1",
-              isToday(day) ? "text-purple-700" : "text-gray-700"
+              isToday(day) ? "text-purple-700" : isPast ? "text-gray-400" : "text-gray-700"
             )}
           >
             {day}
@@ -147,7 +176,10 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
             {dayEvents.slice(0, 2).map((event) => (
               <div
                 key={event.id}
-                className="text-xs bg-pink-100 text-pink-800 rounded px-1 py-0.5 truncate"
+                className={cn(
+                  "text-xs rounded px-1 py-0.5 truncate",
+                  isPast ? "bg-gray-200 text-gray-600" : "bg-pink-100 text-pink-800"
+                )}
               >
                 {event.icon} {event.name}
               </div>
@@ -165,7 +197,38 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
 
   return (
     <div className={className}>
-      {!hideHeader && (
+      {hideHeader ? (
+        <div>
+          {/* Main Header - always shown when hideHeader is true */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600">
+              <Calendar className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-extrabold text-[#222222]">אירועים וחגים</h2>
+              <p className="text-base text-gray-600">לוח שנה, ימי חופש ואירועים</p>
+            </div>
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex gap-2 mb-6">
+            <Button
+              variant={viewMode === "list" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("list")}
+            >
+              רשימה
+            </Button>
+            <Button
+              variant={viewMode === "calendar" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("calendar")}
+            >
+              לוח שנה
+            </Button>
+          </div>
+        </div>
+      ) : (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -175,7 +238,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                 </div>
                 <div>
                   <CardTitle className="text-lg">אירועים קרובים</CardTitle>
-                  <CardDescription>{upcomingEvents.length} אירועים בחודשיים הקרובים</CardDescription>
+                  <CardDescription>{upcomingEvents.length} אירועים ב-30 הימים הקרובים</CardDescription>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -198,27 +261,14 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
           </CardHeader>
         </Card>
       )}
-      {hideHeader && (
-        <div className="flex gap-2 justify-end mb-4">
-          <Button
-            variant={viewMode === "list" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("list")}
-          >
-            רשימה
-          </Button>
-          <Button
-            variant={viewMode === "calendar" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("calendar")}
-          >
-            לוח שנה
-          </Button>
-        </div>
-      )}
+
       <div>
         {viewMode === "list" ? (
           <div className="space-y-3">
+            {/* List view header showing the date range */}
+            <div className="text-sm text-muted-foreground mb-4">
+              מציג אירועים מהיום ועד 30 יום קדימה ({upcomingEvents.length} אירועים)
+            </div>
             {upcomingEvents.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <PartyPopper className="h-12 w-12 mx-auto mb-2 opacity-50" />
@@ -227,7 +277,8 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
             ) : (
               upcomingEvents.map((event) => {
                 const daysUntil = getDaysUntilEvent(event.event_date!);
-                const eventDate = new Date(event.event_date!);
+                const { year, month, day } = parseEventDate(event.event_date!);
+                const eventDate = new Date(year, month, day);
 
                 return (
                   <div
@@ -256,7 +307,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                       >
                         {daysUntil === 0 ? "היום!" : daysUntil === 1 ? "מחר" : `בעוד ${daysUntil} ימים`}
                       </Badge>
-                      {event.allocated_budget > 0 && event.event_type !== "birthday" && (
+                      {event.allocated_budget > 0 && event.event_type !== "birthday" && event.event_type !== "staff-birthday" && (
                         <div className="text-xs text-muted-foreground mt-1">
                           תקציב: ₪{event.allocated_budget.toLocaleString()}
                         </div>
@@ -297,14 +348,18 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
             <div className="grid grid-cols-7 gap-1">{renderCalendar()}</div>
 
             {/* Legend */}
-            <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2 border-t">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2 border-t flex-wrap">
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-purple-50 border border-purple-300 rounded"></div>
                 <span>היום</span>
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-pink-100 rounded"></div>
-                <span>יש אירוע</span>
+                <span>אירוע קרוב</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-gray-200 rounded"></div>
+                <span>אירוע שעבר</span>
               </div>
             </div>
           </div>
@@ -342,7 +397,8 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
             <div className="p-6 overflow-y-auto max-h-[calc(80vh-100px)]">
               <div className="space-y-4">
                 {selectedDay.events.map((event) => {
-                  const eventDate = new Date(event.event_date!);
+                  const { year, month, day } = parseEventDate(event.event_date!);
+                  const eventDate = new Date(year, month, day);
                   const daysUntil = getDaysUntilEvent(event.event_date!);
 
                   return (
@@ -366,13 +422,19 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                           </div>
                         </div>
                         <Badge
-                          variant={daysUntil <= 7 ? "destructive" : "secondary"}
+                          variant={daysUntil < 0 ? "outline" : daysUntil <= 7 ? "destructive" : "secondary"}
                           className="whitespace-nowrap"
                         >
-                          {daysUntil === 0 ? "היום!" : daysUntil === 1 ? "מחר" : `בעוד ${daysUntil} ימים`}
+                          {daysUntil < 0
+                            ? `לפני ${Math.abs(daysUntil)} ימים`
+                            : daysUntil === 0
+                              ? "היום!"
+                              : daysUntil === 1
+                                ? "מחר"
+                                : `בעוד ${daysUntil} ימים`}
                         </Badge>
                       </div>
-                      {event.allocated_budget > 0 && event.event_type !== "birthday" && (
+                      {event.allocated_budget > 0 && event.event_type !== "birthday" && event.event_type !== "staff-birthday" && (
                         <div className="flex items-center justify-between bg-purple-50 rounded-lg p-3 mt-3">
                           <div>
                             <p className="text-xs text-gray-600">תקציב מוקצה</p>

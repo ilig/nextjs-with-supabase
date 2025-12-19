@@ -1,4 +1,4 @@
-import { ClassOnboardingFlow } from "@/components/class-onboarding-flow";
+import { SimplifiedClassWizard } from "@/components/simplified-class-wizard";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { createClient } from "@/lib/supabase/server";
@@ -12,25 +12,28 @@ export default async function CreateClassPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // If user is logged in, check if they already have classes
-  if (user) {
-    const { data: classes } = await supabase
-      .from("classes")
-      .select("id")
-      .eq("created_by", user.id)
-      .limit(1);
+  // If user is not logged in, redirect to sign up
+  if (!user) {
+    redirect("/auth/sign-up");
+  }
 
-    // If they have at least one class, redirect to dashboard
-    if (classes && classes.length > 0) {
-      redirect("/dashboard");
-    }
+  // If user is logged in, check if they already have classes
+  const { data: classes } = await supabase
+    .from("classes")
+    .select("id")
+    .eq("created_by", user.id)
+    .limit(1);
+
+  // If they have at least one class, redirect to dashboard
+  if (classes && classes.length > 0) {
+    redirect("/dashboard");
   }
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <div className="flex-1">
-        <ClassOnboardingFlow />
+        <SimplifiedClassWizard />
       </div>
       <Footer />
     </div>
