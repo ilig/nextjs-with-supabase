@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -23,8 +24,8 @@ export type SetupTask = {
   title: string;
   description: string;
   status: "completed" | "in_progress" | "pending";
-  estimatedTime: string;
   icon: string;
+  iconType?: "emoji" | "image";
   whyImportant?: string[];
   actionButton?: string;
   onAction?: () => void;
@@ -70,7 +71,6 @@ export function SetupChecklist({
         title: "פרטי כיתה בסיסיים",
         description: `הושלם`,
         status: "completed",
-        estimatedTime: "הושלם",
         icon: "✅",
       },
       {
@@ -80,7 +80,6 @@ export function SetupChecklist({
           ? `נוספו ${childrenCount} מתוך ${estimatedChildren} ילדים`
           : `יש לכם ${estimatedChildren} ילדים בכיתה, אבל עדיין לא הוספתם את הפרטים`,
         status: childrenCount >= estimatedChildren ? "completed" : (childrenCount > 0 ? "in_progress" : "pending"),
-        estimatedTime: childrenCount >= estimatedChildren ? "הושלם" : "3 דקות",
         icon: "👨‍👩‍👧‍👦",
         whyImportant: [
           "תוכלו לעקוב אחרי תשלומים לפי הורה",
@@ -88,6 +87,21 @@ export function SetupChecklist({
           "לשלוח עדכונים בקלות",
         ],
         actionButton: "📤 העלאה מאקסל",
+      },
+      {
+        id: "parent_form_links",
+        title: "מילוי פרטי ילדים על ידי הורים",
+        description: childrenCount > 0
+          ? "שלחו קישור לכל הורה למילוי פרטי הילד/ה"
+          : "יש להוסיף ילדים לפני שליחת קישורים",
+        status: completedTasks.includes("parent_form_links") ? "completed" : (childrenCount > 0 ? "pending" : "pending"),
+        icon: "📝",
+        whyImportant: [
+          "ההורים ימלאו בעצמם את הפרטים המדויקים",
+          "תקבלו תאריכי לידה, כתובות ופרטי קשר",
+          "חוסך לכם זמן ומונע טעויות",
+        ],
+        actionButton: "📤 שלח קישורים להורים",
       },
       {
         id: "add_staff",
@@ -98,7 +112,6 @@ export function SetupChecklist({
           ? `נוספו ${currentStaffCount} אנשי צוות - לחצו לעריכה או אישור`
           : `יש לכם ${estimatedStaff} אנשי צוות - בואו נוסיף שמות ותאריכי לידה`,
         status: completedTasks.includes("add_staff") ? "completed" : (currentStaffCount > 0 ? "in_progress" : "pending"),
-        estimatedTime: completedTasks.includes("add_staff") ? "הושלם" : "2 דקות",
         icon: "👩‍🏫",
         whyImportant: [
           "תקבלו תזכורות לימי הולדת של הצוות",
@@ -111,7 +124,6 @@ export function SetupChecklist({
         title: "בניית תקציב",
         description: "הגדירו כמה כסף תרצו לאסוף ואילו אירועים יתוקצבו",
         status: completedTasks.includes("setup_budget") ? "completed" : "pending",
-        estimatedTime: "4 דקות",
         icon: "💰",
         whyImportant: [
           "תדעו תמיד כמה כסף נשאר",
@@ -122,10 +134,9 @@ export function SetupChecklist({
       },
       {
         id: "invite_parents",
-        title: "הזמנת הורים לפלטפורמה",
-        description: "שלחו קישור הזמנה לקבוצת הווטסאפ",
+        title: "הזמנת הורים לועד",
+        description: "שלחו קישור הזמנה למערכת",
         status: completedTasks.includes("invite_parents") ? "completed" : "pending",
-        estimatedTime: "1 דקה",
         icon: "📧",
         whyImportant: [
           "ההורים יראו עדכונים בזמן אמת",
@@ -133,6 +144,19 @@ export function SetupChecklist({
           "יקבלו התראות על תשלומים",
         ],
         actionButton: "📧 קבל קישור הזמנה",
+      },
+      {
+        id: "request_payment",
+        title: "שליחת בקשת תשלום",
+        description: "שלחו להורים בקשה להעביר את התשלום דרך PayBox",
+        status: completedTasks.includes("request_payment") ? "completed" : "pending",
+        icon: "💳",
+        whyImportant: [
+          "ההורים יקבלו את הסכום המדויק לתשלום",
+          "קישור ישיר ל-PayBox לתשלום נוח",
+          "תוכלו לעקוב אחרי מי שילם",
+        ],
+        actionButton: "💳 שלח בקשת תשלום",
       },
     ];
 
@@ -174,7 +198,7 @@ export function SetupChecklist({
     // Update local state to reflect the change
     setTasks(prevTasks =>
       prevTasks.map(t =>
-        t.id === taskId ? { ...t, status: "completed" as const, estimatedTime: "דולג" } : t
+        t.id === taskId ? { ...t, status: "completed" as const } : t
       )
     );
   };
@@ -278,7 +302,7 @@ export function SetupChecklist({
                   <p className="font-medium text-sm">{task.title}</p>
                 </div>
                 <Badge variant="secondary" className="text-xs">
-                  {task.estimatedTime}
+                  הושלם
                 </Badge>
               </div>
             );
@@ -303,15 +327,14 @@ export function SetupChecklist({
                   {getStatusIcon(task.status)}
 
                   <div className="flex-1 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                      {task.iconType === "image" ? (
+                        <Image src={task.icon} alt="" width={24} height={24} className="w-6 h-6" />
+                      ) : (
                         <span>{task.icon}</span>
-                        {task.title}
-                      </h3>
-                      <Badge variant="outline" className="text-xs">
-                        {task.estimatedTime}
-                      </Badge>
-                    </div>
+                      )}
+                      {task.title}
+                    </h3>
                     <p className="text-sm text-gray-600">{task.description}</p>
                   </div>
 
@@ -441,16 +464,6 @@ export function SetupChecklist({
             )}
           </button>
         )}
-
-        <div className="pt-4 border-t">
-          <Button
-            onClick={onSkip}
-            variant="ghost"
-            className="w-full"
-          >
-            דלג על זה בינתיים - אני רוצה לראות את הדשבורד
-          </Button>
-        </div>
       </CardContent>
     </Card>
   );

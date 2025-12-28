@@ -12,6 +12,8 @@ import { ChildrenUploadTask } from "./setup-tasks/children-upload-task";
 import { StaffAdditionTask } from "./setup-tasks/staff-addition-task";
 import { BudgetSetupTask } from "./setup-tasks/budget-setup-task";
 import { InviteParentsTask } from "./setup-tasks/invite-parents-task";
+import { PaymentRequestTask } from "./setup-tasks/payment-request-task";
+import { ParentFormLinksTask } from "./setup-tasks/parent-form-links-task";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { X, CheckCircle } from "lucide-react";
@@ -78,7 +80,7 @@ export function DashboardWithSetup(props: DashboardWithSetupProps) {
   useEffect(() => {
     const storedProgress = localStorage.getItem(`setup_progress_${classData.id}`);
     const completedTasks: string[] = storedProgress ? JSON.parse(storedProgress).completedTasks || [] : [];
-    const requiredTasks = ['upload_children', 'add_staff', 'setup_budget', 'invite_parents'];
+    const requiredTasks = ['upload_children', 'parent_form_links', 'add_staff', 'setup_budget', 'invite_parents', 'request_payment'];
     const allTasksCompleted = requiredTasks.every(task => completedTasks.includes(task));
     const hasData = children.length > 0 && staff.length > 0 && classData.total_budget > 0 && events.length > 0;
 
@@ -374,12 +376,37 @@ export function DashboardWithSetup(props: DashboardWithSetupProps) {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={activeTask === "parent_form_links"} onOpenChange={() => setActiveTask(null)}>
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+          <DialogTitle className="sr-only">שליחת קישורים להורים למילוי פרטים</DialogTitle>
+          <ParentFormLinksTask
+            classId={classData.id}
+            className={classData.name}
+            onComplete={handleTaskComplete}
+            onCancel={() => setActiveTask(null)}
+          />
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={activeTask === "invite_parents"} onOpenChange={() => setActiveTask(null)}>
         <DialogContent className="max-w-xl">
-          <DialogTitle className="sr-only">הזמנת הורים לפלטפורמה</DialogTitle>
+          <DialogTitle className="sr-only">הזמנת הורים לועד</DialogTitle>
           <InviteParentsTask
             classId={classData.id}
             className={classData.name}
+            onComplete={handleTaskComplete}
+            onCancel={() => setActiveTask(null)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={activeTask === "request_payment"} onOpenChange={() => setActiveTask(null)}>
+        <DialogContent className="max-w-xl">
+          <DialogTitle className="sr-only">שליחת בקשת תשלום</DialogTitle>
+          <PaymentRequestTask
+            classId={classData.id}
+            className={classData.name}
+            amountPerChild={classData.budget_amount || 200}
             onComplete={handleTaskComplete}
             onCancel={() => setActiveTask(null)}
           />
