@@ -73,6 +73,7 @@ export function ClassDirectoryCard({
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
+  const [showOnlyIncomplete, setShowOnlyIncomplete] = useState(false);
 
   // Format birthday from YYYY-MM-DD to DD/MM (for staff - no year)
   const formatBirthdayDisplay = (birthday: string | null) => {
@@ -110,6 +111,26 @@ export function ClassDirectoryCard({
       .filter(Boolean) as Parent[];
   };
 
+  // Check if a child has complete info (name + birthday + parent1 name + parent1 phone)
+  const isChildComplete = (child: Child) => {
+    // Must have birthday
+    if (!child.birthday) return false;
+
+    // Get parents linked to this child
+    const childParentsList = getParentsForChild(child.id);
+    if (childParentsList.length === 0) return false;
+
+    // Must have at least one parent with both name AND phone
+    return childParentsList.some(p =>
+      p.name && p.name.trim() !== "" &&
+      p.phone && p.phone.trim() !== ""
+    );
+  };
+
+  // Count children with incomplete info
+  const incompleteChildrenCount = children.filter(c => !isChildComplete(c)).length;
+  const completeChildrenCount = children.length - incompleteChildrenCount;
+
   // Get children for a specific parent
   const getChildrenForParent = (parentId: string) => {
     return childParents
@@ -118,10 +139,12 @@ export function ClassDirectoryCard({
       .filter(Boolean) as Child[];
   };
 
-  // Filter based on search
-  const filteredChildren = children.filter((child) =>
-    child.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter based on search and completion status
+  const filteredChildren = children.filter((child) => {
+    const matchesSearch = child.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesIncompleteFilter = showOnlyIncomplete ? !isChildComplete(child) : true;
+    return matchesSearch && matchesIncompleteFilter;
+  });
 
   const filteredParents = parents.filter((parent) =>
     parent.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -359,7 +382,30 @@ export function ClassDirectoryCard({
   };
 
   const renderChildrenView = () => (
-    <div className="space-y-1">
+    <div className="space-y-3">
+      {/* Incomplete children banner */}
+      {incompleteChildrenCount > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span className="text-sm text-amber-800">
+              ל-{incompleteChildrenCount} מתוך {children.length} ילדים חסרים פרטים מלאים
+            </span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowOnlyIncomplete(!showOnlyIncomplete)}
+            className={cn(
+              "text-xs h-7",
+              showOnlyIncomplete && "bg-amber-100 border-amber-400"
+            )}
+          >
+            {showOnlyIncomplete ? "הצג הכל" : "הצג רק חסרים"}
+          </Button>
+        </div>
+      )}
+
       {isAdding && (
         <Card className="p-4 space-y-3 border-2 border-blue-200 bg-blue-50/30 mb-3">
           <div className="flex items-center justify-between">
@@ -496,6 +542,7 @@ export function ClassDirectoryCard({
           const childParentsList = getParentsForChild(child.id);
           const isEditing = editingId === child.id;
           const isExpanded = expandedChildId === child.id || isEditing;
+          const isComplete = isChildComplete(child);
 
           return (
             <div
@@ -504,7 +551,9 @@ export function ClassDirectoryCard({
                 "rounded-lg border transition-colors",
                 isExpanded
                   ? "border-orange-300 bg-orange-50 p-4"
-                  : "border-gray-200 hover:border-orange-200 hover:bg-orange-50/50"
+                  : isComplete
+                  ? "border-gray-200 hover:border-orange-200 hover:bg-orange-50/50"
+                  : "border-amber-200 bg-amber-50/30 hover:border-amber-300 hover:bg-amber-50/50"
               )}
             >
               {/* Compact row - always visible */}
@@ -522,6 +571,11 @@ export function ClassDirectoryCard({
                 <div className="flex items-center gap-2 flex-1">
                   <Baby className="h-4 w-4 text-orange-600 flex-shrink-0" />
                   <span className="font-medium text-foreground">{child.name}</span>
+                  {isComplete ? (
+                    <span className="text-green-600 text-xs" title="פרטים מלאים">✓</span>
+                  ) : (
+                    <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" title="חסרים פרטים"></span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1">
                   {isAdmin && !isEditing && (
@@ -585,6 +639,7 @@ export function ClassDirectoryCard({
                           value={editData.name || child.name}
                           onChange={(e) => setEditData({ ...editData, name: e.target.value })}
                           placeholder="שם הילד"
+                          className="text-right"
                         />
                       </div>
                       <div>
@@ -593,6 +648,7 @@ export function ClassDirectoryCard({
                           value={editData.address || child.address || ""}
                           onChange={(e) => setEditData({ ...editData, address: e.target.value })}
                           placeholder="כתובת"
+                          className="text-right"
                         />
                       </div>
                       <div className="border-t pt-2">
@@ -675,28 +731,30 @@ export function ClassDirectoryCard({
                           </div>
                         </div>
                       </div>
-                      {childParentsList.length > 0 && (
-                        <>
-                          {childParentsList.map((parent, idx) => (
-                            <div key={parent.id} className="border-t pt-2">
-                              <label className="text-xs font-medium text-gray-600 mb-1 block">הורה {idx + 1}</label>
-                              <div className="space-y-2">
-                                <Input
-                                  value={editData[`parent${idx + 1}_name`] || parent.name}
-                                  onChange={(e) => setEditData({ ...editData, [`parent${idx + 1}_name`]: e.target.value })}
-                                  placeholder={`שם הורה ${idx + 1}`}
-                                />
-                                <Input
-                                  value={editData[`parent${idx + 1}_phone`] || parent.phone || ""}
-                                  onChange={(e) => setEditData({ ...editData, [`parent${idx + 1}_phone`]: e.target.value })}
-                                  placeholder={`טלפון הורה ${idx + 1}`}
-                                  type="tel"
-                                />
-                              </div>
+                      {/* Always show parent fields - use existing parents or empty slots */}
+                      {[0, 1].map((idx) => {
+                        const parent = childParentsList[idx];
+                        return (
+                          <div key={idx} className="border-t pt-2">
+                            <label className="text-xs font-medium text-gray-600 mb-1 block">הורה {idx + 1}</label>
+                            <div className="space-y-2">
+                              <Input
+                                value={editData[`parent${idx + 1}_name`] ?? parent?.name ?? ""}
+                                onChange={(e) => setEditData({ ...editData, [`parent${idx + 1}_name`]: e.target.value })}
+                                placeholder={`שם הורה ${idx + 1}`}
+                                className="text-right"
+                              />
+                              <Input
+                                value={editData[`parent${idx + 1}_phone`] ?? parent?.phone ?? ""}
+                                onChange={(e) => setEditData({ ...editData, [`parent${idx + 1}_phone`]: e.target.value })}
+                                placeholder={`טלפון הורה ${idx + 1}`}
+                                type="tel"
+                                className="text-right"
+                              />
                             </div>
-                          ))}
-                        </>
-                      )}
+                          </div>
+                        );
+                      })}
                       {saveError && editingId === child.id && (
                         <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
                           {saveError}
@@ -728,6 +786,50 @@ export function ClassDirectoryCard({
                     </div>
                   ) : (
                     <div className="space-y-2">
+                      {/* Show missing fields notice for incomplete children */}
+                      {!isComplete && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                            <span className="text-sm font-medium text-amber-800">חסרים פרטים:</span>
+                          </div>
+                          <ul className="text-sm text-amber-700 space-y-1 mr-4">
+                            {!child.birthday && <li>• תאריך לידה</li>}
+                            {!child.address && <li>• כתובת</li>}
+                            {childParentsList.length === 0 && <li>• פרטי הורה</li>}
+                            {childParentsList.length > 0 && !childParentsList.some(p => p.phone && p.phone.trim() !== "") && (
+                              <li>• טלפון של לפחות הורה אחד</li>
+                            )}
+                          </ul>
+                          {isAdmin && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const birthdayParts = child.birthday ? formatBirthdayFull(child.birthday).split('/') : ['', '', ''];
+                                const editDataObj: any = {
+                                  name: child.name,
+                                  address: child.address,
+                                  birthdayDisplay: formatBirthdayFull(child.birthday),
+                                  birthdayDay: birthdayParts[0] ? String(parseInt(birthdayParts[0])) : '',
+                                  birthdayMonth: birthdayParts[1] ? String(parseInt(birthdayParts[1])) : '',
+                                  birthdayYear: birthdayParts[2] || '',
+                                };
+                                childParentsList.forEach((parent, idx) => {
+                                  editDataObj[`parent${idx + 1}_name`] = parent.name;
+                                  editDataObj[`parent${idx + 1}_phone`] = parent.phone;
+                                });
+                                handleStartEdit(child.id, editDataObj);
+                              }}
+                              className="mt-2 text-amber-700 border-amber-300 hover:bg-amber-100"
+                            >
+                              <Edit2 className="h-3 w-3 ml-1" />
+                              השלם פרטים
+                            </Button>
+                          )}
+                        </div>
+                      )}
                       {child.birthday && (
                         <div className="text-sm text-muted-foreground">
                           🎂 תאריך לידה: {formatBirthdayFull(child.birthday)}
