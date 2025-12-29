@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, ChevronLeft, ChevronRight, Clock, PartyPopper, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getJewishHolidays, type JewishHoliday } from "@/lib/jewish-holidays";
 
 type Event = {
   id: string;
@@ -15,6 +16,19 @@ type Event = {
   event_date: string | null;
   allocated_budget: number;
   spent_amount: number;
+};
+
+type CalendarItem = {
+  id: string;
+  name: string;
+  icon: string | null;
+  event_date: string;
+  isHoliday: boolean;
+  isSchoolOff?: boolean;
+  // Event-specific fields
+  event_type?: string;
+  allocated_budget?: number;
+  spent_amount?: number;
 };
 
 type EventsCalendarCardProps = {
@@ -27,7 +41,46 @@ type EventsCalendarCardProps = {
 export function EventsCalendarCard({ events, className, onEventClick, hideHeader }: EventsCalendarCardProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
-  const [selectedDay, setSelectedDay] = useState<{ day: number; events: Event[] } | null>(null);
+  const [selectedDay, setSelectedDay] = useState<{ day: number; items: CalendarItem[] } | null>(null);
+
+  // Get Jewish holidays (memoized to avoid recalculating on every render)
+  const jewishHolidays = useMemo(() => getJewishHolidays(), []);
+
+  // Convert holidays to CalendarItem format
+  const holidayItems: CalendarItem[] = useMemo(() =>
+    jewishHolidays.map((h) => ({
+      id: h.id,
+      name: h.name,
+      icon: h.icon,
+      event_date: h.dateString,
+      isHoliday: true,
+      isSchoolOff: h.isSchoolOff,
+    })),
+    [jewishHolidays]
+  );
+
+  // Convert events to CalendarItem format
+  const eventItems: CalendarItem[] = useMemo(() =>
+    events
+      .filter((e) => e.event_date)
+      .map((e) => ({
+        id: e.id,
+        name: e.name,
+        icon: e.icon,
+        event_date: e.event_date!,
+        isHoliday: false,
+        event_type: e.event_type,
+        allocated_budget: e.allocated_budget,
+        spent_amount: e.spent_amount,
+      })),
+    [events]
+  );
+
+  // Combine all calendar items
+  const allCalendarItems = useMemo(() =>
+    [...eventItems, ...holidayItems],
+    [eventItems, holidayItems]
+  );
 
   // Calendar helpers
   const getDaysInMonth = (date: Date) => {
@@ -94,33 +147,34 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
     return { year: date.getFullYear(), month: date.getMonth(), day: date.getDate() };
   };
 
-  const getEventsForDay = (day: number) => {
-    return events.filter((event) => {
-      if (!event.event_date) return false;
-      const { year, month, day: eventDay } = parseEventDate(event.event_date);
-      return eventDay === day &&
+  const getItemsForDay = (day: number): CalendarItem[] => {
+    return allCalendarItems.filter((item) => {
+      const { year, month, day: itemDay } = parseEventDate(item.event_date);
+      return itemDay === day &&
         month === currentDate.getMonth() &&
         year === currentDate.getFullYear();
     });
   };
 
-  // Filter upcoming events (today + next 30 days)
-  const upcomingEvents = events
-    .filter((event) => {
-      if (!event.event_date) return false;
-      const { year, month, day } = parseEventDate(event.event_date);
-      const eventDate = new Date(year, month, day);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Start of today
-      const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
-      return eventDate >= today && eventDate <= thirtyDaysFromNow;
-    })
-    .sort((a, b) => {
-      const aDate = parseEventDate(a.event_date!);
-      const bDate = parseEventDate(b.event_date!);
-      return new Date(aDate.year, aDate.month, aDate.day).getTime() -
-             new Date(bDate.year, bDate.month, bDate.day).getTime();
-    });
+  // Filter upcoming items (today + next 30 days) - includes both events and holidays
+  const upcomingItems = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    return allCalendarItems
+      .filter((item) => {
+        const { year, month, day } = parseEventDate(item.event_date);
+        const itemDate = new Date(year, month, day);
+        return itemDate >= today && itemDate <= thirtyDaysFromNow;
+      })
+      .sort((a, b) => {
+        const aDate = parseEventDate(a.event_date);
+        const bDate = parseEventDate(b.event_date);
+        return new Date(aDate.year, aDate.month, aDate.day).getTime() -
+               new Date(bDate.year, bDate.month, bDate.day).getTime();
+      });
+  }, [allCalendarItems]);
 
   const getDaysUntilEvent = (eventDate: string) => {
     const { year, month, day } = parseEventDate(eventDate);
@@ -145,8 +199,10 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
 
     // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const dayEvents = getEventsForDay(day);
-      const hasEvents = dayEvents.length > 0;
+      const dayItems = getItemsForDay(day);
+      const hasItems = dayItems.length > 0;
+      const hasHolidays = dayItems.some(item => item.isHoliday);
+      const hasEvents = dayItems.some(item => !item.isHoliday);
       const isPast = isPastDay(day);
 
       days.push(
@@ -156,11 +212,12 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
             "p-2 min-h-[80px] border border-gray-100 relative cursor-pointer hover:bg-gray-50 transition-colors",
             isToday(day) && "bg-purple-50 border-purple-300",
             isPast && !isToday(day) && "bg-gray-50",
-            hasEvents && "hover:border-pink-300"
+            hasEvents && "hover:border-pink-300",
+            hasHolidays && !hasEvents && "hover:border-orange-300"
           )}
           onClick={() => {
-            if (hasEvents) {
-              setSelectedDay({ day, events: dayEvents });
+            if (hasItems) {
+              setSelectedDay({ day, items: dayItems });
             }
           }}
         >
@@ -173,19 +230,23 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
             {day}
           </div>
           <div className="space-y-1">
-            {dayEvents.slice(0, 2).map((event) => (
+            {dayItems.slice(0, 2).map((item) => (
               <div
-                key={event.id}
+                key={item.id}
                 className={cn(
                   "text-xs rounded px-1 py-0.5 truncate",
-                  isPast ? "bg-gray-200 text-gray-600" : "bg-pink-100 text-pink-800"
+                  isPast
+                    ? "bg-gray-200 text-gray-600"
+                    : item.isHoliday
+                      ? "bg-orange-100 text-orange-800"
+                      : "bg-pink-100 text-pink-800"
                 )}
               >
-                {event.icon} {event.name}
+                {item.icon} {item.name}
               </div>
             ))}
-            {dayEvents.length > 2 && (
-              <div className="text-xs text-gray-500">+{dayEvents.length - 2} נוספים</div>
+            {dayItems.length > 2 && (
+              <div className="text-xs text-gray-500">+{dayItems.length - 2} נוספים</div>
             )}
           </div>
         </div>
@@ -237,8 +298,8 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                   <Calendar className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">אירועים קרובים</CardTitle>
-                  <CardDescription>{upcomingEvents.length} אירועים ב-30 הימים הקרובים</CardDescription>
+                  <CardTitle className="text-lg">אירועים וחגים קרובים</CardTitle>
+                  <CardDescription>{upcomingItems.length} פריטים ב-30 הימים הקרובים</CardDescription>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -267,32 +328,55 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
           <div className="space-y-3">
             {/* List view header showing the date range */}
             <div className="text-sm text-muted-foreground mb-4">
-              מציג אירועים מהיום ועד 30 יום קדימה ({upcomingEvents.length} אירועים)
+              מציג אירועים וחגים מהיום ועד 30 יום קדימה ({upcomingItems.length})
             </div>
-            {upcomingEvents.length === 0 ? (
+            {upcomingItems.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <PartyPopper className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p>אין אירועים קרובים</p>
               </div>
             ) : (
-              upcomingEvents.map((event) => {
-                const daysUntil = getDaysUntilEvent(event.event_date!);
-                const { year, month, day } = parseEventDate(event.event_date!);
-                const eventDate = new Date(year, month, day);
+              upcomingItems.map((item) => {
+                const daysUntil = getDaysUntilEvent(item.event_date);
+                const { year, month, day } = parseEventDate(item.event_date);
+                const itemDate = new Date(year, month, day);
 
                 return (
                   <div
-                    key={event.id}
-                    className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-pink-300 hover:bg-pink-50 transition-colors cursor-pointer"
-                    onClick={() => onEventClick?.(event)}
+                    key={item.id}
+                    className={cn(
+                      "flex items-center justify-between p-4 rounded-lg border transition-colors cursor-pointer",
+                      item.isHoliday
+                        ? "border-orange-200 hover:border-orange-400 hover:bg-orange-50"
+                        : "border-gray-200 hover:border-pink-300 hover:bg-pink-50"
+                    )}
+                    onClick={() => {
+                      if (!item.isHoliday && onEventClick) {
+                        // Find the original event and pass it
+                        const originalEvent = events.find(e => e.id === item.id);
+                        if (originalEvent) onEventClick(originalEvent);
+                      }
+                    }}
                   >
                     <div className="flex items-center gap-3 flex-1">
-                      <div className="text-3xl">{event.icon || "📅"}</div>
+                      <div className="text-3xl">{item.icon || "📅"}</div>
                       <div className="flex-1">
-                        <div className="font-semibold text-foreground">{event.name}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-foreground">{item.name}</span>
+                          {item.isHoliday && (
+                            <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
+                              חג
+                            </Badge>
+                          )}
+                          {item.isSchoolOff && (
+                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-300">
+                              חופש
+                            </Badge>
+                          )}
+                        </div>
                         <div className="text-sm text-muted-foreground flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {eventDate.toLocaleDateString("he-IL", {
+                          {itemDate.toLocaleDateString("he-IL", {
                             weekday: "long",
                             day: "numeric",
                             month: "long",
@@ -307,9 +391,9 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                       >
                         {daysUntil === 0 ? "היום!" : daysUntil === 1 ? "מחר" : `בעוד ${daysUntil} ימים`}
                       </Badge>
-                      {event.allocated_budget > 0 && event.event_type !== "birthday" && event.event_type !== "staff-birthday" && (
+                      {!item.isHoliday && (item.allocated_budget ?? 0) > 0 && item.event_type !== "birthday" && item.event_type !== "staff-birthday" && (
                         <div className="text-xs text-muted-foreground mt-1">
-                          תקציב: ₪{event.allocated_budget.toLocaleString()}
+                          תקציב: ₪{item.allocated_budget.toLocaleString()}
                         </div>
                       )}
                     </div>
@@ -355,18 +439,22 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-pink-100 rounded"></div>
-                <span>אירוע קרוב</span>
+                <span>אירוע</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-orange-100 rounded"></div>
+                <span>חג/מועד</span>
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-gray-200 rounded"></div>
-                <span>אירוע שעבר</span>
+                <span>עבר</span>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Day Events Modal */}
+      {/* Day Items Modal */}
       {selectedDay && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
@@ -379,10 +467,10 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
             <div className="p-6 border-b border-gray-200 flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-gray-900">
-                  אירועים ב-{selectedDay.day} ב{monthNames[currentDate.getMonth()]}
+                  {selectedDay.day} ב{monthNames[currentDate.getMonth()]}
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">
-                  {selectedDay.events.length} {selectedDay.events.length === 1 ? "אירוע" : "אירועים"}
+                  {selectedDay.items.length} {selectedDay.items.length === 1 ? "פריט" : "פריטים"}
                 </p>
               </div>
               <Button
@@ -396,24 +484,41 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
             </div>
             <div className="p-6 overflow-y-auto max-h-[calc(80vh-100px)]">
               <div className="space-y-4">
-                {selectedDay.events.map((event) => {
-                  const { year, month, day } = parseEventDate(event.event_date!);
-                  const eventDate = new Date(year, month, day);
-                  const daysUntil = getDaysUntilEvent(event.event_date!);
+                {selectedDay.items.map((item) => {
+                  const { year, month, day } = parseEventDate(item.event_date);
+                  const itemDate = new Date(year, month, day);
+                  const daysUntil = getDaysUntilEvent(item.event_date);
 
                   return (
                     <div
-                      key={event.id}
-                      className="border-2 border-gray-100 rounded-2xl p-4 hover:border-pink-300 transition-colors"
+                      key={item.id}
+                      className={cn(
+                        "border-2 rounded-2xl p-4 transition-colors",
+                        item.isHoliday
+                          ? "border-orange-200 hover:border-orange-400"
+                          : "border-gray-100 hover:border-pink-300"
+                      )}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="text-4xl">{event.icon || "📅"}</div>
+                          <div className="text-4xl">{item.icon || "📅"}</div>
                           <div>
-                            <h4 className="font-bold text-lg text-gray-900">{event.name}</h4>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-bold text-lg text-gray-900">{item.name}</h4>
+                              {item.isHoliday && (
+                                <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
+                                  חג
+                                </Badge>
+                              )}
+                              {item.isSchoolOff && (
+                                <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-300">
+                                  חופש
+                                </Badge>
+                              )}
+                            </div>
                             <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
                               <Clock className="h-3 w-3" />
-                              {eventDate.toLocaleDateString("he-IL", {
+                              {itemDate.toLocaleDateString("he-IL", {
                                 weekday: "long",
                                 day: "numeric",
                                 month: "long",
@@ -434,27 +539,27 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                                 : `בעוד ${daysUntil} ימים`}
                         </Badge>
                       </div>
-                      {event.allocated_budget > 0 && event.event_type !== "birthday" && event.event_type !== "staff-birthday" && (
+                      {!item.isHoliday && (item.allocated_budget ?? 0) > 0 && item.event_type !== "birthday" && item.event_type !== "staff-birthday" && (
                         <div className="flex items-center justify-between bg-purple-50 rounded-lg p-3 mt-3">
                           <div>
                             <p className="text-xs text-gray-600">תקציב מוקצה</p>
                             <p className="text-lg font-bold text-purple-700">
-                              ₪{event.allocated_budget.toLocaleString()}
+                              ₪{item.allocated_budget!.toLocaleString()}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-gray-600">נוצל</p>
                             <p className="text-lg font-bold text-gray-900">
-                              ₪{event.spent_amount.toLocaleString()}
+                              ₪{(item.spent_amount || 0).toLocaleString()}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-gray-600">יתרה</p>
                             <p className={cn(
                               "text-lg font-bold",
-                              event.spent_amount > event.allocated_budget ? "text-red-600" : "text-green-600"
+                              (item.spent_amount || 0) > item.allocated_budget! ? "text-red-600" : "text-green-600"
                             )}>
-                              ₪{(event.allocated_budget - event.spent_amount).toLocaleString()}
+                              ₪{(item.allocated_budget! - (item.spent_amount || 0)).toLocaleString()}
                             </p>
                           </div>
                         </div>

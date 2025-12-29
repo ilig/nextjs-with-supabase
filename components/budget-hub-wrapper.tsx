@@ -9,6 +9,9 @@ import {
   createExpense,
   deleteExpense,
   updateEventBudget,
+  createEvent,
+  uploadReceipt,
+  getReceiptUrl,
 } from "@/app/actions/budget";
 import type { PaymentRoundWithPayments, ExpenseWithEvent, PaymentStatus } from "@/lib/types/budget";
 
@@ -76,10 +79,17 @@ export function BudgetHubWrapper({
   );
 
   const handleCreateExpense = useCallback(
-    async (data: { description: string; amount: number; expense_date: string; event_id?: string }) => {
+    async (data: { description: string; amount: number; expense_date: string; event_id?: string; receipt_url?: string }) => {
       await createExpense({ classId, ...data });
     },
     [classId]
+  );
+
+  const handleUploadReceipt = useCallback(
+    async (formData: FormData) => {
+      return await uploadReceipt(formData);
+    },
+    []
   );
 
   const handleDeleteExpense = useCallback(async (expenseId: string) => {
@@ -88,6 +98,17 @@ export function BudgetHubWrapper({
 
   const handleUpdateEventBudget = useCallback(async (eventId: string, budget: number) => {
     await updateEventBudget(eventId, budget);
+  }, []);
+
+  const handleCreateEvent = useCallback(
+    async (data: { name: string; icon: string; allocated_budget: number }) => {
+      await createEvent({ classId, ...data });
+    },
+    [classId]
+  );
+
+  const handleGetReceiptUrl = useCallback(async (path: string) => {
+    return await getReceiptUrl(path);
   }, []);
 
   return (
@@ -105,6 +126,9 @@ export function BudgetHubWrapper({
       onCreateExpense={handleCreateExpense}
       onDeleteExpense={handleDeleteExpense}
       onUpdateEventBudget={handleUpdateEventBudget}
+      onCreateEvent={handleCreateEvent}
+      onUploadReceipt={handleUploadReceipt}
+      onGetReceiptUrl={handleGetReceiptUrl}
     />
   );
 }

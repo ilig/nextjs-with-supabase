@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -27,7 +28,11 @@ import {
   ChevronDown,
   ChevronUp,
   Pencil,
-  Trash2
+  Trash2,
+  Upload,
+  FileText,
+  ExternalLink,
+  X
 } from "lucide-react";
 import type {
   BudgetHubTab,
@@ -76,9 +81,12 @@ type BudgetHubCardProps = {
   onCreatePaymentRound?: (data: { name: string; amount_per_child: number; due_date?: string }) => Promise<void>;
   onUpdatePaymentStatus?: (paymentRoundId: string, childId: string, status: PaymentStatus) => Promise<void>;
   onBulkUpdatePayments?: (paymentRoundId: string, childIds: string[], status: PaymentStatus) => Promise<void>;
-  onCreateExpense?: (data: { description: string; amount: number; expense_date: string; event_id?: string }) => Promise<void>;
+  onCreateExpense?: (data: { description: string; amount: number; expense_date: string; event_id?: string; receipt_url?: string }) => Promise<void>;
   onDeleteExpense?: (expenseId: string) => Promise<void>;
   onUpdateEventBudget?: (eventId: string, budget: number) => Promise<void>;
+  onCreateEvent?: (data: { name: string; icon: string; allocated_budget: number }) => Promise<void>;
+  onUploadReceipt?: (formData: FormData) => Promise<{ success: boolean; url?: string; path?: string; error?: string }>;
+  onGetReceiptUrl?: (path: string) => Promise<{ success: boolean; url?: string; error?: string }>;
 };
 
 // ============================================
@@ -157,17 +165,49 @@ function CollectionTab({
     setSelectedChildren(new Set());
   };
 
-  const copyUnpaidToClipboard = (round: PaymentRoundWithPayments) => {
-    const unpaidList = round.payments
-      .filter(p => p.status === "unpaid")
-      .map(p => {
-        const parentNames = p.child.parents?.map(par => par.name).join(", ") || "";
-        return `${p.child.name} (${parentNames})`;
+  const [copiedRoundId, setCopiedRoundId] = useState<string | null>(null);
+
+  const copyUnpaidToClipboard = async (round: PaymentRoundWithPayments) => {
+    const unpaidPayments = round.payments.filter(p => p.status === "unpaid");
+
+    const unpaidList = unpaidPayments
+      .map((p, index) => {
+        const parentNames = p.child.parents?.filter(par => par.name).map(par => par.name).join(" ו") || "";
+        const parentInfo = parentNames ? ` (הורה: ${parentNames})` : "";
+        return `${index + 1}. ${p.child.name}${parentInfo}`;
       })
       .join("\n");
 
-    const message = `שלום,\nתזכורת לתשלום "${round.name}" - ₪${round.amount_per_child}\n\nטרם שילמו:\n${unpaidList}`;
-    navigator.clipboard.writeText(message);
+    const message = `שלום רב 👋
+
+תזכורת ידידותית לתשלום עבור *${round.name}*
+💰 סכום: ₪${round.amount_per_child}
+
+📋 טרם שילמו (${unpaidPayments.length}):
+${unpaidList}
+
+תודה רבה! 🙏`;
+
+    await navigator.clipboard.writeText(message);
+    setCopiedRoundId(round.id);
+    setTimeout(() => setCopiedRoundId(null), 2000);
+  };
+
+  const exportToExcel = (round: PaymentRoundWithPayments) => {
+    import("xlsx").then((XLSX) => {
+      const data = round.payments.map(p => ({
+        "שם הילד": p.child.name,
+        "הורים": p.child.parents?.map(par => par.name).join(", ") || "",
+        "טלפון": p.child.parents?.map(par => par.phone).filter(Boolean).join(", ") || "",
+        "סכום": round.amount_per_child,
+        "סטטוס": p.status === "paid" ? "שולם" : "לא שולם"
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "תשלומים");
+      XLSX.writeFile(wb, `${round.name}_payments.xlsx`);
+    });
   };
 
   const toggleChildSelection = (childId: string) => {
@@ -180,11 +220,21 @@ function CollectionTab({
     setSelectedChildren(newSelection);
   };
 
-  const selectAllUnpaid = (round: PaymentRoundWithPayments) => {
+  const toggleSelectAllUnpaid = (round: PaymentRoundWithPayments) => {
     const unpaidIds = round.payments
       .filter(p => p.status === "unpaid")
       .map(p => p.child.id);
-    setSelectedChildren(new Set(unpaidIds));
+
+    // Check if all unpaid are already selected
+    const allUnpaidSelected = unpaidIds.every(id => selectedChildren.has(id));
+
+    if (allUnpaidSelected) {
+      // Deselect all
+      setSelectedChildren(new Set());
+    } else {
+      // Select all unpaid
+      setSelectedChildren(new Set(unpaidIds));
+    }
   };
 
   if (paymentRounds.length === 0 && children.length === 0) {
@@ -326,42 +376,75 @@ function CollectionTab({
                         variant="outline"
                         size="sm"
                         onClick={() => copyUnpaidToClipboard(round)}
-                        className="rounded-xl"
+                        className={`rounded-xl transition-all ${copiedRoundId === round.id ? "bg-green-100 border-green-500 text-green-700" : ""}`}
                       >
-                        <Copy className="ml-2 h-4 w-4" />
-                        העתק רשימה לוואטסאפ
+                        {copiedRoundId === round.id ? (
+                          <>
+                            <CheckCircle2 className="ml-2 h-4 w-4" />
+                            הועתק!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="ml-2 h-4 w-4" />
+                            העתק רשימה לוואטסאפ
+                          </>
+                        )}
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => exportToExcel(round)}
                         className="rounded-xl"
                       >
                         <Download className="ml-2 h-4 w-4" />
                         ייצוא לאקסל
                       </Button>
                       {selectedChildren.size > 0 && (
-                        <Button
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700 rounded-xl mr-auto"
-                          onClick={() => handleBulkMarkPaid(round.id)}
-                        >
-                          <CheckCircle2 className="ml-2 h-4 w-4" />
-                          סמן {selectedChildren.size} כשילמו
-                        </Button>
+                        <div className="flex gap-2 mr-auto">
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 rounded-xl"
+                            onClick={() => handleBulkMarkPaid(round.id)}
+                          >
+                            <CheckCircle2 className="ml-2 h-4 w-4" />
+                            סמן {selectedChildren.size} כשילמו
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-xl"
+                            onClick={() => {
+                              onBulkUpdatePayments?.(round.id, Array.from(selectedChildren), "unpaid");
+                              setSelectedChildren(new Set());
+                            }}
+                          >
+                            סמן {selectedChildren.size} כלא שילמו
+                          </Button>
+                        </div>
                       )}
                     </div>
 
                     {/* Select All Unpaid */}
-                    {round.summary.unpaid_count > 0 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => selectAllUnpaid(round)}
-                        className="mb-3 text-sm"
-                      >
-                        בחר את כל מי שלא שילם ({round.summary.unpaid_count})
-                      </Button>
-                    )}
+                    {round.summary.unpaid_count > 0 && (() => {
+                      const unpaidIds = round.payments.filter(p => p.status === "unpaid").map(p => p.child.id);
+                      const allUnpaidSelected = unpaidIds.length > 0 && unpaidIds.every(id => selectedChildren.has(id));
+
+                      return (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleSelectAllUnpaid(round)}
+                          className={`mb-3 text-sm border-dashed ${
+                            allUnpaidSelected
+                              ? "border-gray-400 bg-gray-100 hover:bg-gray-200 text-gray-600"
+                              : "border-amber-400 bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-800"
+                          }`}
+                        >
+                          <Users className="ml-2 h-4 w-4" />
+                          {allUnpaidSelected ? "בטל בחירה" : `בחר את כל מי שלא שילם (${round.summary.unpaid_count})`}
+                        </Button>
+                      );
+                    })()}
 
                     {/* Children List */}
                     <div className="space-y-2 max-h-80 overflow-y-auto">
@@ -375,12 +458,10 @@ function CollectionTab({
                           }`}
                         >
                           <div className="flex items-center gap-3">
-                            {payment.status === "unpaid" && (
-                              <Checkbox
-                                checked={selectedChildren.has(payment.child.id)}
-                                onCheckedChange={() => toggleChildSelection(payment.child.id)}
-                              />
-                            )}
+                            <Checkbox
+                              checked={selectedChildren.has(payment.child.id)}
+                              onCheckedChange={() => toggleChildSelection(payment.child.id)}
+                            />
                             <div>
                               <p className="font-medium text-[#222222]">{payment.child.name}</p>
                               {payment.child.parents && payment.child.parents.length > 0 && (
@@ -391,26 +472,13 @@ function CollectionTab({
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            {payment.status === "paid" ? (
-                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                                <CheckCircle2 className="ml-1 h-3 w-3" />
-                                שולם
-                              </Badge>
-                            ) : (
-                              <>
-                                <Badge variant="outline" className="text-gray-600">
-                                  לא שולם
-                                </Badge>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => onUpdatePaymentStatus?.(round.id, payment.child.id, "paid")}
-                                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                >
-                                  <CheckCircle2 className="h-4 w-4" />
-                                </Button>
-                              </>
-                            )}
+                            <span className={`text-sm ${payment.status === "paid" ? "text-green-600 font-medium" : "text-gray-500"}`}>
+                              {payment.status === "paid" ? "שולם" : "לא שולם"}
+                            </span>
+                            <Switch
+                              checked={payment.status === "paid"}
+                              onCheckedChange={(checked) => onUpdatePaymentStatus?.(round.id, payment.child.id, checked ? "paid" : "unpaid")}
+                            />
                           </div>
                         </div>
                       ))}
@@ -431,39 +499,146 @@ function CollectionTab({
 // ============================================
 
 function ExpensesTab({
+  classId,
   expenses,
   events,
   totalSpent,
   onCreateExpense,
   onDeleteExpense,
+  onUploadReceipt,
+  onGetReceiptUrl,
 }: {
+  classId: string;
   expenses: ExpenseWithEvent[];
   events: Event[];
   totalSpent: number;
-  onCreateExpense?: (data: { description: string; amount: number; expense_date: string; event_id?: string }) => Promise<void>;
+  onCreateExpense?: (data: { description: string; amount: number; expense_date: string; event_id?: string; receipt_url?: string }) => Promise<void>;
   onDeleteExpense?: (expenseId: string) => Promise<void>;
+  onUploadReceipt?: (formData: FormData) => Promise<{ success: boolean; url?: string; path?: string; error?: string }>;
+  onGetReceiptUrl?: (path: string) => Promise<{ success: boolean; url?: string; error?: string }>;
 }) {
   const [newDescription, setNewDescription] = useState("");
   const [newAmount, setNewAmount] = useState("");
   const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
   const [newEventId, setNewEventId] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [receiptPreviewUrl, setReceiptPreviewUrl] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+  const [loadingReceipts, setLoadingReceipts] = useState<Set<string>>(new Set());
+
+  // Fetch signed URL for a receipt
+  const fetchSignedUrl = async (expenseId: string, receiptPath: string) => {
+    if (!onGetReceiptUrl || signedUrls[expenseId] || loadingReceipts.has(expenseId)) return;
+
+    setLoadingReceipts(prev => new Set([...prev, expenseId]));
+    try {
+      const result = await onGetReceiptUrl(receiptPath);
+      if (result.success && result.url) {
+        setSignedUrls(prev => ({ ...prev, [expenseId]: result.url! }));
+      }
+    } finally {
+      setLoadingReceipts(prev => {
+        const next = new Set(prev);
+        next.delete(expenseId);
+        return next;
+      });
+    }
+  };
+
+  const handleFile = (file: File) => {
+    // Validate file type
+    if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+      return;
+    }
+    setReceiptFile(file);
+    // Create preview URL for images
+    if (file.type.startsWith("image/")) {
+      setReceiptPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setReceiptPreviewUrl(null);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      handleFile(file);
+    }
+  };
+
+  const clearReceipt = () => {
+    setReceiptFile(null);
+    if (receiptPreviewUrl) {
+      URL.revokeObjectURL(receiptPreviewUrl);
+      setReceiptPreviewUrl(null);
+    }
+  };
 
   const handleCreateExpense = async () => {
     if (!onCreateExpense || !newDescription || !newAmount) return;
     setIsCreating(true);
+
     try {
+      let receiptUrl: string | undefined;
+
+      // Upload receipt if provided
+      if (receiptFile && onUploadReceipt) {
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("file", receiptFile);
+        formData.append("classId", classId);
+
+        const uploadResult = await onUploadReceipt(formData);
+        if (uploadResult.success && uploadResult.url) {
+          receiptUrl = uploadResult.url;
+        }
+        setIsUploading(false);
+      }
+
       await onCreateExpense({
         description: newDescription,
         amount: parseFloat(newAmount),
         expense_date: newDate,
         event_id: newEventId || undefined,
+        receipt_url: receiptUrl,
       });
+
+      // Reset form and close dialog
       setNewDescription("");
       setNewAmount("");
       setNewEventId("");
+      clearReceipt();
+      setIsDialogOpen(false);
     } finally {
       setIsCreating(false);
+      setIsUploading(false);
     }
   };
 
@@ -479,7 +654,7 @@ function ExpensesTab({
   return (
     <div className="space-y-6">
       {/* Add Expense Form */}
-      <Dialog>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button className="w-full bg-[#A78BFA] hover:bg-[#9333EA] rounded-xl">
             <Plus className="ml-2 h-4 w-4" />
@@ -517,6 +692,8 @@ function ExpensesTab({
                 type="date"
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
+                dir="ltr"
+                className="w-full text-right"
               />
             </div>
             <div className="space-y-2">
@@ -535,6 +712,69 @@ function ExpensesTab({
                 ))}
               </select>
             </div>
+
+            {/* Receipt Upload */}
+            <div className="space-y-2">
+              <Label>צרף חשבונית / קבלה (אופציונלי)</Label>
+              {receiptFile ? (
+                <div className="border-2 border-dashed border-green-300 bg-green-50 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {receiptPreviewUrl ? (
+                        <img
+                          src={receiptPreviewUrl}
+                          alt="Preview"
+                          className="h-12 w-12 object-cover rounded"
+                        />
+                      ) : (
+                        <FileText className="h-8 w-8 text-green-600" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-green-800 truncate max-w-[180px]">
+                          {receiptFile.name}
+                        </p>
+                        <p className="text-xs text-green-600">
+                          {(receiptFile.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearReceipt}
+                      className="text-green-700 hover:text-red-600 hover:bg-red-50"
+                      title="הסר קובץ"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <label
+                  className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center gap-2 cursor-pointer transition-colors ${
+                    isDragging
+                      ? "border-[#A78BFA] bg-purple-100 scale-[1.02]"
+                      : "border-gray-300 hover:border-[#A78BFA] hover:bg-purple-50"
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <Upload className={`h-8 w-8 ${isDragging ? "text-[#A78BFA]" : "text-gray-400"}`} />
+                  <span className={`text-sm ${isDragging ? "text-[#A78BFA] font-medium" : "text-gray-600"}`}>
+                    {isDragging ? "שחרר כאן" : "גרור קובץ או לחץ להעלאה"}
+                  </span>
+                  <span className="text-xs text-gray-400">תמונה או PDF</span>
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
@@ -542,10 +782,10 @@ function ExpensesTab({
             </DialogClose>
             <Button
               onClick={handleCreateExpense}
-              disabled={isCreating || !newDescription || !newAmount}
+              disabled={isCreating || isUploading || !newDescription || !newAmount}
               className="bg-[#A78BFA] hover:bg-[#9333EA]"
             >
-              {isCreating ? "שומר..." : "שמור הוצאה"}
+              {isUploading ? "מעלה קובץ..." : isCreating ? "שומר..." : "שמור הוצאה"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -584,6 +824,82 @@ function ExpensesTab({
                         {expense.event.icon} {expense.event.name}
                       </Badge>
                     )}
+                    {expense.receipt_url && (
+                      <div className="inline-flex items-center gap-1">
+                        <button
+                          onClick={async () => {
+                            // Get signed URL and open in new tab
+                            if (signedUrls[expense.id]) {
+                              window.open(signedUrls[expense.id], '_blank');
+                            } else if (onGetReceiptUrl) {
+                              setLoadingReceipts(prev => new Set([...prev, expense.id]));
+                              const result = await onGetReceiptUrl(expense.receipt_url!);
+                              setLoadingReceipts(prev => {
+                                const next = new Set(prev);
+                                next.delete(expense.id);
+                                return next;
+                              });
+                              if (result.success && result.url) {
+                                setSignedUrls(prev => ({ ...prev, [expense.id]: result.url! }));
+                                window.open(result.url, '_blank');
+                              }
+                            }
+                          }}
+                          disabled={loadingReceipts.has(expense.id)}
+                          className="inline-flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-2 py-1 rounded-r-full transition-colors"
+                          title="צפה בחשבונית"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          {loadingReceipts.has(expense.id) ? "טוען..." : "צפה בחשבונית"}
+                        </button>
+                        <button
+                          onClick={async () => {
+                            // Get signed URL and trigger actual file download
+                            let url = signedUrls[expense.id];
+                            if (!url && onGetReceiptUrl) {
+                              setLoadingReceipts(prev => new Set([...prev, `dl-${expense.id}`]));
+                              const result = await onGetReceiptUrl(expense.receipt_url!);
+                              setLoadingReceipts(prev => {
+                                const next = new Set(prev);
+                                next.delete(`dl-${expense.id}`);
+                                return next;
+                              });
+                              if (result.success && result.url) {
+                                setSignedUrls(prev => ({ ...prev, [expense.id]: result.url! }));
+                                url = result.url;
+                              }
+                            }
+                            if (url) {
+                              // Fetch the file as blob and trigger download
+                              try {
+                                const response = await fetch(url);
+                                const blob = await response.blob();
+                                const blobUrl = window.URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = blobUrl;
+                                // Get file extension from receipt_url path
+                                const ext = expense.receipt_url?.split('.').pop() || 'file';
+                                link.download = `חשבונית-${expense.description}.${ext}`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                window.URL.revokeObjectURL(blobUrl);
+                              } catch (err) {
+                                console.error('Download failed:', err);
+                                // Fallback: open in new tab
+                                window.open(url, '_blank');
+                              }
+                            }
+                          }}
+                          disabled={loadingReceipts.has(`dl-${expense.id}`)}
+                          className="inline-flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-2 py-1 rounded-l-full transition-colors border-r border-purple-200"
+                          title="הורד חשבונית"
+                        >
+                          <Download className="h-3 w-3" />
+                          {loadingReceipts.has(`dl-${expense.id}`) ? "טוען..." : "הורד חשבונית"}
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <p className="text-sm text-gray-500">
                     {new Date(expense.expense_date).toLocaleDateString('he-IL')}
@@ -600,7 +916,11 @@ function ExpensesTab({
                     variant="ghost"
                     size="sm"
                     className="mr-2 text-gray-400 hover:text-red-600"
-                    onClick={() => onDeleteExpense(expense.id)}
+                    onClick={() => {
+                      if (window.confirm(`האם למחוק את ההוצאה "${expense.description}"?`)) {
+                        onDeleteExpense(expense.id);
+                      }
+                    }}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -618,19 +938,135 @@ function ExpensesTab({
 // Allocations Tab Component (הקצאות)
 // ============================================
 
+// Event templates for adding new events
+const EVENT_TEMPLATES = [
+  { id: "rosh-hashanah", name: "ראש השנה", icon: "🍎" },
+  { id: "hanukkah", name: "חנוכה", icon: "🕎" },
+  { id: "tu-bishvat", name: 'ט"ו בשבט', icon: "🌳" },
+  { id: "purim", name: "פורים", icon: "🎭" },
+  { id: "pesach", name: "פסח", icon: "🍷" },
+  { id: "yom-hamechanech", name: "יום המחנך", icon: "👩‍🏫" },
+  { id: "yom-haatzmaut", name: "יום העצמאות", icon: "🇮🇱" },
+  { id: "end-of-year", name: "מתנות סוף שנה", icon: "🎓" },
+  { id: "birthdays-kids", name: "ימי הולדת ילדים", icon: "🎂" },
+  { id: "birthdays-staff", name: "ימי הולדת צוות", icon: "🎁" },
+];
+
 function AllocationsTab({
   events,
   totalBudget,
   totalAllocated,
+  childrenCount,
   onUpdateEventBudget,
+  onCreateEvent,
 }: {
   events: Event[];
   totalBudget: number;
   totalAllocated: number;
+  childrenCount: number;
   onUpdateEventBudget?: (eventId: string, budget: number) => Promise<void>;
+  onCreateEvent?: (data: { name: string; icon: string; allocated_budget: number }) => Promise<void>;
 }) {
   const [editingEvent, setEditingEvent] = useState<string | null>(null);
   const [editBudget, setEditBudget] = useState("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+
+  // Multi-select state (like wizard)
+  const [selectedEvents, setSelectedEvents] = useState<Set<string>>(new Set());
+  const [eventPerUnitCost, setEventPerUnitCost] = useState<Record<string, number>>({});
+  const [eventHeadcount, setEventHeadcount] = useState<Record<string, number>>({});
+  const [customEventName, setCustomEventName] = useState("");
+  const [customEvents, setCustomEvents] = useState<{ id: string; name: string; icon: string }[]>([]);
+
+  // Filter out templates that already exist as events
+  const existingEventNames = events.map(e => e.name.toLowerCase());
+  const availableTemplates = EVENT_TEMPLATES.filter(
+    t => !existingEventNames.includes(t.name.toLowerCase())
+  );
+
+  // Get headcount for an event - use custom value if set, otherwise use children count
+  const getHeadcount = (eventId: string) => {
+    if (eventHeadcount[eventId] !== undefined) {
+      return eventHeadcount[eventId];
+    }
+    // Default: 2 for staff events, childrenCount for others
+    const isStaffEvent = eventId === "yom-hamechanech" || eventId === "birthdays-staff";
+    return isStaffEvent ? 2 : childrenCount;
+  };
+
+  const toggleEvent = (eventId: string) => {
+    const newSelected = new Set(selectedEvents);
+    if (newSelected.has(eventId)) {
+      newSelected.delete(eventId);
+    } else {
+      newSelected.add(eventId);
+    }
+    setSelectedEvents(newSelected);
+  };
+
+  const updatePerUnitCost = (eventId: string, amount: number) => {
+    setEventPerUnitCost({
+      ...eventPerUnitCost,
+      [eventId]: Math.max(0, amount),
+    });
+  };
+
+  const updateEventHeadcount = (eventId: string, count: number) => {
+    setEventHeadcount({
+      ...eventHeadcount,
+      [eventId]: Math.max(0, count),
+    });
+  };
+
+  const addCustomEvent = () => {
+    if (!customEventName.trim()) return;
+    const newEvent = {
+      id: `custom-${Date.now()}`,
+      name: customEventName,
+      icon: "✨",
+    };
+    setCustomEvents([...customEvents, newEvent]);
+    setSelectedEvents(new Set([...selectedEvents, newEvent.id]));
+    setCustomEventName("");
+  };
+
+  // Calculate total allocated in dialog
+  const dialogAllocatedBudget = Array.from(selectedEvents).reduce((sum, eventId) => {
+    const perUnit = eventPerUnitCost[eventId] || 0;
+    const headcount = getHeadcount(eventId);
+    return sum + (perUnit * headcount);
+  }, 0);
+
+  const handleAddEvents = async () => {
+    if (!onCreateEvent || selectedEvents.size === 0) return;
+
+    setIsCreating(true);
+    try {
+      const allTemplates = [...availableTemplates, ...customEvents];
+      for (const eventId of selectedEvents) {
+        const template = allTemplates.find(t => t.id === eventId);
+        if (template) {
+          const perUnit = eventPerUnitCost[eventId] || 0;
+          const headcount = getHeadcount(eventId);
+          const budget = perUnit * headcount;
+          await onCreateEvent({
+            name: template.name,
+            icon: template.icon,
+            allocated_budget: budget,
+          });
+        }
+      }
+      // Reset dialog state
+      setIsAddDialogOpen(false);
+      setSelectedEvents(new Set());
+      setEventPerUnitCost({});
+      setEventHeadcount({});
+      setCustomEvents([]);
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   const handleSaveBudget = async (eventId: string) => {
     if (!onUpdateEventBudget) return;
@@ -668,12 +1104,198 @@ function AllocationsTab({
         </div>
       </div>
 
+      {/* Add Event Dialog - Wizard Style */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden flex flex-col" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>הוסף אירועים</DialogTitle>
+          </DialogHeader>
+
+          {/* Budget Summary in Dialog */}
+          <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
+            <div>
+              <p className="text-sm font-semibold">תקציב כולל</p>
+              <p className="text-xl font-bold text-purple-600">₪{totalBudget.toLocaleString()}</p>
+            </div>
+            <div className="text-left">
+              <p className="text-sm">מוקצה קיים: ₪{totalAllocated.toLocaleString()}</p>
+              <p className="text-sm">נבחר כעת: ₪{dialogAllocatedBudget.toLocaleString()}</p>
+              <p className={`text-sm font-semibold ${(totalBudget - totalAllocated - dialogAllocatedBudget) < 0 ? "text-red-600" : "text-green-600"}`}>
+                נותר: ₪{(totalBudget - totalAllocated - dialogAllocatedBudget).toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Column Headers */}
+          <div className="flex items-center gap-3 px-3 text-xs text-gray-500 font-medium">
+            <div className="w-5"></div>
+            <div className="w-7"></div>
+            <div className="flex-1"></div>
+            <div className="flex items-center gap-2">
+              <span className="w-[72px] text-center block">סכום</span>
+              <span className="w-4 text-center">×</span>
+              <span className="w-[60px] text-center block">כמות</span>
+              <span className="w-[80px] text-center block">סה״כ</span>
+            </div>
+          </div>
+
+          {/* Scrollable Event List */}
+          <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
+            {/* Available Templates */}
+            {availableTemplates.map((template) => {
+              const isSelected = selectedEvents.has(template.id);
+              const headcount = getHeadcount(template.id);
+              const perUnit = eventPerUnitCost[template.id] || 0;
+              const totalForEvent = perUnit * headcount;
+
+              return (
+                <div
+                  key={template.id}
+                  className={`p-3 rounded-lg cursor-pointer transition-all border-2 ${
+                    isSelected ? "border-purple-300 bg-purple-50" : "border-gray-200 hover:border-gray-300"
+                  }`}
+                  onClick={() => toggleEvent(template.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <Checkbox checked={isSelected} />
+                    <span className="text-lg">{template.icon}</span>
+                    <div className="flex-1">
+                      <p className="font-medium">{template.name}</p>
+                    </div>
+                    {isSelected && (
+                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            value={perUnit || ""}
+                            onChange={(e) => updatePerUnitCost(template.id, parseInt(e.target.value) || 0)}
+                            placeholder="0"
+                            className="w-[72px] h-8 text-sm text-center pr-6"
+                          />
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">₪</span>
+                        </div>
+                        <span className="text-xs text-gray-500">×</span>
+                        <Input
+                          type="number"
+                          value={headcount || ""}
+                          onChange={(e) => updateEventHeadcount(template.id, parseInt(e.target.value) || 0)}
+                          placeholder="0"
+                          className="w-[60px] h-8 text-sm text-center"
+                        />
+                        <span className="text-sm font-medium text-purple-600 w-[80px] text-center">
+                          = ₪{totalForEvent.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Custom Events */}
+            {customEvents.map((event) => {
+              const isSelected = selectedEvents.has(event.id);
+              const headcount = getHeadcount(event.id);
+              const perUnit = eventPerUnitCost[event.id] || 0;
+              const totalForEvent = perUnit * headcount;
+
+              return (
+                <div
+                  key={event.id}
+                  className={`p-3 rounded-lg cursor-pointer transition-all border-2 ${
+                    isSelected ? "border-purple-300 bg-purple-50" : "border-gray-200 hover:border-gray-300"
+                  }`}
+                  onClick={() => toggleEvent(event.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <Checkbox checked={isSelected} />
+                    <span className="text-lg">{event.icon}</span>
+                    <div className="flex-1">
+                      <p className="font-medium">{event.name}</p>
+                    </div>
+                    {isSelected && (
+                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            value={perUnit || ""}
+                            onChange={(e) => updatePerUnitCost(event.id, parseInt(e.target.value) || 0)}
+                            placeholder="0"
+                            className="w-[72px] h-8 text-sm text-center pr-6"
+                          />
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">₪</span>
+                        </div>
+                        <span className="text-xs text-gray-500">×</span>
+                        <Input
+                          type="number"
+                          value={headcount || ""}
+                          onChange={(e) => updateEventHeadcount(event.id, parseInt(e.target.value) || 0)}
+                          placeholder="0"
+                          className="w-[60px] h-8 text-sm text-center"
+                        />
+                        <span className="text-sm font-medium text-purple-600 w-[80px] text-center">
+                          = ₪{totalForEvent.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Add Custom Event */}
+            <div className="p-3 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={customEventName}
+                  onChange={(e) => setCustomEventName(e.target.value)}
+                  placeholder="הוסף אירוע מותאם אישית"
+                  className="flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") addCustomEvent();
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <Button size="sm" onClick={addCustomEvent} disabled={!customEventName.trim()}>
+                  + הוסף
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Warning if over budget */}
+          {(totalBudget - totalAllocated - dialogAllocatedBudget) < 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-700 font-semibold">
+                ⚠️ עברתם את התקציב ב-₪{Math.abs(totalBudget - totalAllocated - dialogAllocatedBudget).toLocaleString()}
+              </p>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 pt-4 border-t">
+            <DialogClose asChild>
+              <Button variant="outline">ביטול</Button>
+            </DialogClose>
+            <Button
+              onClick={handleAddEvents}
+              disabled={isCreating || selectedEvents.size === 0}
+              className="bg-[#A78BFA] hover:bg-[#9333EA]"
+            >
+              {isCreating ? "מוסיף..." : `הוסף ${selectedEvents.size} אירועים`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Events Allocation List */}
       {events.length === 0 ? (
         <div className="text-center py-12">
           <Calendar className="h-16 w-16 mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500 mb-4">טרם נוספו אירועים</p>
-          <Button className="bg-[#A78BFA] hover:bg-[#9333EA] rounded-2xl">
+          <Button
+            className="bg-[#A78BFA] hover:bg-[#9333EA] rounded-2xl"
+            onClick={() => setIsAddDialogOpen(true)}
+          >
             <Plus className="ml-2 h-4 w-4" />
             הוסף אירוע ראשון
           </Button>
@@ -776,6 +1398,18 @@ function AllocationsTab({
               </div>
             );
           })}
+
+          {/* Add Event Button */}
+          {onCreateEvent && (
+            <Button
+              variant="outline"
+              className="w-full mt-4 border-2 border-[#A78BFA] bg-purple-50 text-[#7C3AED] hover:bg-purple-100 hover:border-[#7C3AED] font-medium shadow-sm"
+              onClick={() => setIsAddDialogOpen(true)}
+            >
+              <Plus className="ml-2 h-5 w-5" />
+              הוסף אירוע
+            </Button>
+          )}
         </div>
       )}
     </div>
@@ -908,6 +1542,9 @@ export function BudgetHubCard({
   onCreateExpense,
   onDeleteExpense,
   onUpdateEventBudget,
+  onCreateEvent,
+  onUploadReceipt,
+  onGetReceiptUrl,
 }: BudgetHubCardProps) {
   const [activeTab, setActiveTab] = useState<BudgetHubTab>("summary");
 
@@ -968,17 +1605,22 @@ export function BudgetHubCard({
               events={events}
               totalBudget={budgetMetrics.total}
               totalAllocated={budgetMetrics.allocated}
+              childrenCount={children.length}
               onUpdateEventBudget={onUpdateEventBudget}
+              onCreateEvent={onCreateEvent}
             />
           </TabsContent>
 
           <TabsContent value="expenses">
             <ExpensesTab
+              classId={classId}
               expenses={expenses}
               events={events}
               totalSpent={totalSpent}
               onCreateExpense={onCreateExpense}
               onDeleteExpense={onDeleteExpense}
+              onUploadReceipt={onUploadReceipt}
+              onGetReceiptUrl={onGetReceiptUrl}
             />
           </TabsContent>
         </Tabs>

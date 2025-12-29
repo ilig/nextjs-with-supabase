@@ -350,7 +350,7 @@ export function DashboardContent({
       {/* Invite Parents Dialog */}
       <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
         <DialogContent className="max-w-xl">
-          <DialogTitle className="sr-only">הזמנת הורים לפלטפורמה</DialogTitle>
+          <DialogTitle className="sr-only">הזמנת הורים למערכת</DialogTitle>
           <InviteParentsTask
             classId={classData.id}
             className={classData.name}

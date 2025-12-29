@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Copy, MessageCircle, Mail, Smartphone } from "lucide-react";
+import { Check, Copy, MessageCircle, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface InviteParentsTaskProps {
@@ -57,7 +57,7 @@ ${inviteUrl}
 
 כך תוכלו:
 ✓ לקבל עדכונים בזמן אמת
-✓ לאשר השתתפות באירועים
+✓ לעזור בניהול הועד
 ✓ לעקוב אחרי תשלומים
 
 מחכים לכם! 🎉`;
@@ -95,11 +95,6 @@ ${inviteUrl}
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 
-  const handleSMSShare = () => {
-    const encodedMessage = encodeURIComponent(inviteMessage);
-    window.location.href = `sms:?body=${encodedMessage}`;
-  };
-
   const handleComplete = async () => {
     try {
       // Update setup progress
@@ -133,7 +128,7 @@ ${inviteUrl}
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold">קישור ההזמנה שלכם</h3>
         <p className="text-sm text-gray-600">
-          שלחו את הקישור הזה להורים בכיתה
+          שלחו את הקישור הזה להורים המעוניינים להצטרף לועד
         </p>
       </div>
 
@@ -167,7 +162,7 @@ ${inviteUrl}
       <div className="space-y-3">
         <p className="text-sm font-semibold text-gray-700">או שלח ישירות:</p>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <Button
             onClick={handleWhatsAppShare}
             variant="outline"
@@ -184,15 +179,6 @@ ${inviteUrl}
           >
             <Mail className="h-5 w-5 text-blue-600" />
             <span className="text-xs">Email</span>
-          </Button>
-
-          <Button
-            onClick={handleSMSShare}
-            variant="outline"
-            className="flex flex-col h-auto py-3 gap-1"
-          >
-            <Smartphone className="h-5 w-5 text-purple-600" />
-            <span className="text-xs">SMS</span>
           </Button>
         </div>
       </div>

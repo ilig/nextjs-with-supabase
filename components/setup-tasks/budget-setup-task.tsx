@@ -269,11 +269,11 @@ export function BudgetSetupTask({
         <div className="w-5"></div>{/* Checkbox space */}
         <div className="w-7"></div>{/* Icon space */}
         <div className="flex-1"></div>{/* Event name space */}
-        <div className="flex items-center gap-2">
-          <span className="w-[72px] text-center">סכום</span>
-          <span className="w-4"></span>{/* × space */}
-          <span className="w-[60px] text-center">כמות</span>
-          <span className="w-[80px] text-center">סה"כ</span>
+        <div className="flex items-center gap-2 ml-3">
+          <span className="w-[72px] text-center block">סכום</span>
+          <span className="w-4 text-center">×</span>
+          <span className="w-[60px] text-center block">כמות</span>
+          <span className="w-[80px] text-center block">סה"כ</span>
         </div>
       </div>
 

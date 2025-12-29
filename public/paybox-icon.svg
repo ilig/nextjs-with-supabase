@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <rect width="24" height="24" rx="4" fill="#29B6F6"/>
+  <!-- Head -->
+  <circle cx="12" cy="6.5" r="2" stroke="white" stroke-width="1.5" fill="none"/>
+  <!-- Arms raised up in V shape -->
+  <path d="M8 8L12 12L16 8" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Body -->
+  <path d="M12 12V18" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Base/legs -->
+  <path d="M9 18H15" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

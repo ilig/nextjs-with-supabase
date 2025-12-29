@@ -155,6 +155,65 @@ export async function bulkUpdatePayments(
 }
 
 // ============================================
+// Receipt Upload Actions
+// ============================================
+
+export async function uploadReceipt(formData: FormData) {
+  const supabase = await createClient();
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated");
+
+    const file = formData.get("file") as File;
+    const classId = formData.get("classId") as string;
+
+    if (!file || !classId) {
+      throw new Error("Missing file or classId");
+    }
+
+    // Generate unique filename
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${classId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("receipts")
+      .upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (uploadError) throw uploadError;
+
+    // Return the path (not public URL) - we'll generate signed URLs when viewing
+    return { success: true, url: uploadData.path, path: uploadData.path };
+  } catch (error) {
+    console.error("Error uploading receipt:", error);
+    return { success: false, error: String(error) };
+  }
+}
+
+export async function getReceiptUrl(path: string) {
+  const supabase = await createClient();
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated");
+
+    const { data, error } = await supabase.storage
+      .from("receipts")
+      .createSignedUrl(path, 3600); // 1 hour expiry
+
+    if (error) throw error;
+
+    return { success: true, url: data.signedUrl };
+  } catch (error) {
+    console.error("Error getting receipt URL:", error);
+    return { success: false, error: String(error) };
+  }
+}
+
+// ============================================
 // Expense Actions
 // ============================================
 
@@ -262,8 +321,44 @@ export async function deleteExpense(expenseId: string) {
 }
 
 // ============================================
-// Event Budget Actions
+// Event Actions
 // ============================================
+
+export async function createEvent(data: {
+  classId: string;
+  name: string;
+  icon: string;
+  allocated_budget: number;
+  event_type?: string;
+}) {
+  const supabase = await createClient();
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated");
+
+    const { data: event, error } = await supabase
+      .from("events")
+      .insert({
+        class_id: data.classId,
+        name: data.name,
+        icon: data.icon,
+        allocated_budget: data.allocated_budget,
+        spent_amount: 0,
+        event_type: data.event_type || "holiday",
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    revalidatePath("/dashboard");
+    return { success: true, event };
+  } catch (error) {
+    console.error("Error creating event:", error);
+    return { success: false, error: String(error) };
+  }
+}
 
 export async function updateEventBudget(eventId: string, budget: number) {
   const supabase = await createClient();
