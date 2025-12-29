@@ -1177,7 +1177,7 @@ export function ClassDirectoryCard({
               <Users className="h-6 w-6 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-extrabold text-[#222222]">מדריך הכיתה</CardTitle>
+              <CardTitle className="text-2xl font-extrabold text-[#222222]">ניהול הכיתה</CardTitle>
               <CardDescription className="text-base">ילדים, הורים וצוות</CardDescription>
             </div>
           </div>

@@ -266,8 +266,8 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
               <Calendar className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-extrabold text-[#222222]">אירועים וחגים</h2>
-              <p className="text-base text-gray-600">לוח שנה, ימי חופש ואירועים</p>
+              <h2 className="text-2xl font-extrabold text-[#222222]">לוח שנה</h2>
+              <p className="text-base text-gray-600">אירועים, חגים וימי חופש</p>
             </div>
           </div>
 
@@ -298,7 +298,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                   <Calendar className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">אירועים וחגים קרובים</CardTitle>
+                  <CardTitle className="text-lg">אירועים קרובים</CardTitle>
                   <CardDescription>{upcomingItems.length} פריטים ב-30 הימים הקרובים</CardDescription>
                 </div>
               </div>
@@ -328,7 +328,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
           <div className="space-y-3">
             {/* List view header showing the date range */}
             <div className="text-sm text-muted-foreground mb-4">
-              מציג אירועים וחגים מהיום ועד 30 יום קדימה ({upcomingItems.length})
+              מציג אירועים מהיום ועד 30 יום קדימה ({upcomingItems.length})
             </div>
             {upcomingItems.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">

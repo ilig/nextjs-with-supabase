@@ -19,22 +19,22 @@ export function ClassNavigationBar({
     {
       id: "budget" as const,
       icon: Wallet,
-      label: "מרכז התקציב",
-      description: "ניהול תקציב, תשלומים והוצאות",
+      label: "ניהול התקציב",
+      description: "מעקב אחר איסופים, תשלומים והוצאות",
       gradient: "from-purple-500 to-blue-600",
     },
     {
       id: "directory" as const,
       icon: Users,
-      label: "מדריך הכיתה",
+      label: "ניהול הכיתה",
       description: "ילדים, הורים וצוות",
       gradient: "from-orange-500 to-amber-600",
     },
     {
       id: "events" as const,
       icon: Calendar,
-      label: "אירועים וחגים",
-      description: "לוח שנה, ימי חופש ואירועים",
+      label: "לוח שנה",
+      description: "אירועים, חגים וימי חופש",
       gradient: "from-pink-500 to-rose-600",
     },
     {

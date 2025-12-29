@@ -1567,8 +1567,8 @@ export function BudgetHubCard({
             <Wallet className="h-6 w-6 text-white" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-extrabold text-[#222222]">מרכז התקציב</CardTitle>
-            <CardDescription className="text-base">ניהול תקציב, גביות והוצאות</CardDescription>
+            <CardTitle className="text-2xl font-extrabold text-[#222222]">ניהול התקציב</CardTitle>
+            <CardDescription className="text-base">מעקב אחר איסופים, תשלומים והוצאות</CardDescription>
           </div>
         </div>
       </CardHeader>

@@ -767,7 +767,7 @@ export function ChildrenUploadTask({
 
       <div className="bg-gray-50 border rounded-lg p-3 text-sm text-gray-600">
         <p>
-          ℹ️ אפשר להשלים פרטי הורים, כתובת וימי הולדת גם אחר כך דרך מדריך הכיתה
+          ℹ️ אפשר להשלים פרטי הורים, כתובת וימי הולדת גם אחר כך דרך ניהול הכיתה
         </p>
       </div>
 
