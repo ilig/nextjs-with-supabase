@@ -393,7 +393,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                       </Badge>
                       {!item.isHoliday && (item.allocated_budget ?? 0) > 0 && item.event_type !== "birthday" && item.event_type !== "staff-birthday" && (
                         <div className="text-xs text-muted-foreground mt-1">
-                          תקציב: ₪{item.allocated_budget.toLocaleString()}
+                          תקציב: ₪{item.allocated_budget!.toLocaleString()}
                         </div>
                       )}
                     </div>
