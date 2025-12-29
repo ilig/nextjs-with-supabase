@@ -1132,10 +1132,10 @@ function AllocationsTab({
             <div className="w-7"></div>
             <div className="flex-1"></div>
             <div className="flex items-center gap-2">
-              <span className="w-[72px] text-center block">סכום</span>
+              <span className="w-[88px] text-center block">סכום</span>
               <span className="w-4 text-center">×</span>
-              <span className="w-[60px] text-center block">כמות</span>
-              <span className="w-[80px] text-center block">סה״כ</span>
+              <span className="w-[72px] text-center block">כמות</span>
+              <span className="w-[90px] text-center block">סה״כ</span>
             </div>
           </div>
 
@@ -1170,7 +1170,7 @@ function AllocationsTab({
                             value={perUnit || ""}
                             onChange={(e) => updatePerUnitCost(template.id, parseInt(e.target.value) || 0)}
                             placeholder="0"
-                            className="w-[72px] h-8 text-sm text-center pr-6"
+                            className="w-[88px] h-8 text-sm text-center pr-6"
                           />
                           <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">₪</span>
                         </div>
@@ -1180,9 +1180,9 @@ function AllocationsTab({
                           value={headcount || ""}
                           onChange={(e) => updateEventHeadcount(template.id, parseInt(e.target.value) || 0)}
                           placeholder="0"
-                          className="w-[60px] h-8 text-sm text-center"
+                          className="w-[72px] h-8 text-sm text-center"
                         />
-                        <span className="text-sm font-medium text-purple-600 w-[80px] text-center">
+                        <span className="text-sm font-medium text-purple-600 w-[90px] text-center">
                           = ₪{totalForEvent.toLocaleString()}
                         </span>
                       </div>
@@ -1221,7 +1221,7 @@ function AllocationsTab({
                             value={perUnit || ""}
                             onChange={(e) => updatePerUnitCost(event.id, parseInt(e.target.value) || 0)}
                             placeholder="0"
-                            className="w-[72px] h-8 text-sm text-center pr-6"
+                            className="w-[88px] h-8 text-sm text-center pr-6"
                           />
                           <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">₪</span>
                         </div>
@@ -1231,9 +1231,9 @@ function AllocationsTab({
                           value={headcount || ""}
                           onChange={(e) => updateEventHeadcount(event.id, parseInt(e.target.value) || 0)}
                           placeholder="0"
-                          className="w-[60px] h-8 text-sm text-center"
+                          className="w-[72px] h-8 text-sm text-center"
                         />
-                        <span className="text-sm font-medium text-purple-600 w-[80px] text-center">
+                        <span className="text-sm font-medium text-purple-600 w-[90px] text-center">
                           = ₪{totalForEvent.toLocaleString()}
                         </span>
                       </div>
