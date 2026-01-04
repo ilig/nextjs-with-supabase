@@ -7,9 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Users, Phone, MapPin, Search, UserCheck, GraduationCap, Baby, Edit2, Trash2, Save, X, Download, Plus, UserPlus, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { addChild, updateChild, deleteChild, addStaff, updateStaff, deleteStaff } from "@/app/actions/manage-directory";
+import { AddChildrenWizard } from "@/components/add-children-wizard";
+import { AddStaffWizard } from "@/components/add-staff-wizard";
 
 type Child = {
   id: string;
@@ -74,6 +78,8 @@ export function ClassDirectoryCard({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
   const [showOnlyIncomplete, setShowOnlyIncomplete] = useState(false);
+  const [showAddChildrenWizard, setShowAddChildrenWizard] = useState(false);
+  const [showAddStaffWizard, setShowAddStaffWizard] = useState(false);
 
   // Format birthday from YYYY-MM-DD to DD/MM (for staff - no year)
   const formatBirthdayDisplay = (birthday: string | null) => {
@@ -265,6 +271,15 @@ export function ClassDirectoryCard({
   };
 
   const handleStartAdd = () => {
+    // Open the appropriate wizard based on current view mode
+    if (viewMode === "children") {
+      setShowAddChildrenWizard(true);
+    } else if (viewMode === "staff") {
+      setShowAddStaffWizard(true);
+    }
+  };
+
+  const handleStartAddLegacy = () => {
     setIsAdding(true);
     setNewEntryData({});
   };
@@ -1233,8 +1248,7 @@ export function ClassDirectoryCard({
               size="sm"
               onClick={handleStartAdd}
               className="px-3 bg-green-50 hover:bg-green-100 border-green-300"
-              title={viewMode === "children" ? "הוסף ילד חדש" : "הוסף איש צוות"}
-              disabled={isAdding}
+              title={viewMode === "children" ? "הוסף ילדים" : "הוסף אנשי צוות"}
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -1266,6 +1280,40 @@ export function ClassDirectoryCard({
         {viewMode === "children" && renderChildrenView()}
         {viewMode === "staff" && renderStaffView()}
       </CardContent>
+
+      {/* Add Children Wizard Dialog */}
+      <Dialog open={showAddChildrenWizard} onOpenChange={setShowAddChildrenWizard}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          <VisuallyHidden>
+            <DialogTitle>הוספת ילדים</DialogTitle>
+          </VisuallyHidden>
+          <AddChildrenWizard
+            classId={classId}
+            onClose={() => setShowAddChildrenWizard(false)}
+            onSuccess={() => {
+              setShowAddChildrenWizard(false);
+              router.refresh();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Staff Wizard Dialog */}
+      <Dialog open={showAddStaffWizard} onOpenChange={setShowAddStaffWizard}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          <VisuallyHidden>
+            <DialogTitle>הוספת אנשי צוות</DialogTitle>
+          </VisuallyHidden>
+          <AddStaffWizard
+            classId={classId}
+            onClose={() => setShowAddStaffWizard(false)}
+            onSuccess={() => {
+              setShowAddStaffWizard(false);
+              router.refresh();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

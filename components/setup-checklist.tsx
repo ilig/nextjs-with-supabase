@@ -369,12 +369,9 @@ export function SetupChecklist({
                           onClick={() => handleTaskAction(task, "excel")}
                           className="bg-white border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-green-500 hover:shadow-md transition-all"
                         >
-                          <div className="text-center space-y-2">
+                          <div className="text-center space-y-3">
                             <FileSpreadsheet className="h-12 w-12 mx-auto text-green-600" />
                             <h4 className="font-semibold text-sm">העלאה מאקסל</h4>
-                            <p className="text-xs text-gray-600">
-                              מהיר וקל - אידיאלי אם יש לכם רשימה קיימת
-                            </p>
                             <div className="bg-black text-white text-xs py-2 px-3 rounded">
                               בחר באפשרות זו
                             </div>
@@ -384,12 +381,9 @@ export function SetupChecklist({
                           onClick={() => handleTaskAction(task, "manual")}
                           className="bg-white border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-blue-500 hover:shadow-md transition-all"
                         >
-                          <div className="text-center space-y-2">
+                          <div className="text-center space-y-3">
                             <Edit3 className="h-12 w-12 mx-auto text-blue-600" />
                             <h4 className="font-semibold text-sm">הזנה ידנית</h4>
-                            <p className="text-xs text-gray-600">
-                              הזינו ילד אחד בכל פעם - טוב לכיתות קטנות
-                            </p>
                             <div className="bg-black text-white text-xs py-2 px-3 rounded">
                               בחר באפשרות זו
                             </div>

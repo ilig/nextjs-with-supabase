@@ -36,6 +36,7 @@ type BudgetMetrics = {
   allocated: number;
   spent: number;
   remaining: number;
+  amountPerChild?: number;
 };
 
 type BudgetHubWrapperProps = {
@@ -46,6 +47,7 @@ type BudgetHubWrapperProps = {
   paymentRounds: PaymentRoundWithPayments[];
   expenses: ExpenseWithEvent[];
   className?: string;
+  onAddChild?: (name: string) => Promise<void>;
 };
 
 export function BudgetHubWrapper({
@@ -56,6 +58,7 @@ export function BudgetHubWrapper({
   paymentRounds,
   expenses,
   className,
+  onAddChild,
 }: BudgetHubWrapperProps) {
   const handleCreatePaymentRound = useCallback(
     async (data: { name: string; amount_per_child: number; due_date?: string }) => {
@@ -129,6 +132,7 @@ export function BudgetHubWrapper({
       onCreateEvent={handleCreateEvent}
       onUploadReceipt={handleUploadReceipt}
       onGetReceiptUrl={handleGetReceiptUrl}
+      onAddChild={onAddChild}
     />
   );
 }

@@ -33,6 +33,7 @@ interface DashboardWithSetupProps {
     allocated: number;
     spent: number;
     remaining: number;
+    amountPerChild?: number;
   };
   paymentRounds: any[];
   expenses: any[];

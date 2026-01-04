@@ -32,14 +32,13 @@ import {
   Upload,
   FileText,
   ExternalLink,
-  X
+  X,
+  UserPlus
 } from "lucide-react";
+import { ChildrenUploadTask } from "@/components/setup-tasks/children-upload-task";
 import type {
-  BudgetHubTab,
-  PaymentRound,
   PaymentRoundWithPayments,
   ExpenseWithEvent,
-  ChildPaymentStatus,
   PaymentStatus
 } from "@/lib/types/budget";
 
@@ -68,6 +67,7 @@ type BudgetMetrics = {
   allocated: number;
   spent: number;
   remaining: number;
+  amountPerChild?: number;
 };
 
 type BudgetHubCardProps = {
@@ -87,6 +87,7 @@ type BudgetHubCardProps = {
   onCreateEvent?: (data: { name: string; icon: string; allocated_budget: number }) => Promise<void>;
   onUploadReceipt?: (formData: FormData) => Promise<{ success: boolean; url?: string; path?: string; error?: string }>;
   onGetReceiptUrl?: (path: string) => Promise<{ success: boolean; url?: string; error?: string }>;
+  onAddChild?: (name: string) => Promise<void>;
 };
 
 // ============================================
@@ -119,43 +120,81 @@ function StatCard({
 }
 
 // ============================================
-// Collection Tab Component (גבייה)
+// Collection Tab Component (איסוף)
 // ============================================
 
 function CollectionTab({
+  classId,
   paymentRounds,
   children,
+  amountPerChild,
+  estimatedChildren,
   onCreatePaymentRound,
   onUpdatePaymentStatus,
   onBulkUpdatePayments,
+  onAddChild,
+  onChildrenAdded,
 }: {
+  classId: string;
   paymentRounds: PaymentRoundWithPayments[];
   children: Child[];
+  amountPerChild?: number;
+  estimatedChildren?: number;
   onCreatePaymentRound?: (data: { name: string; amount_per_child: number; due_date?: string }) => Promise<void>;
   onUpdatePaymentStatus?: (paymentRoundId: string, childId: string, status: PaymentStatus) => Promise<void>;
   onBulkUpdatePayments?: (paymentRoundId: string, childIds: string[], status: PaymentStatus) => Promise<void>;
+  onAddChild?: (name: string) => Promise<void>;
+  onChildrenAdded?: () => void;
 }) {
-  const [expandedRound, setExpandedRound] = useState<string | null>(null);
   const [selectedChildren, setSelectedChildren] = useState<Set<string>>(new Set());
+  const [copiedRoundId, setCopiedRoundId] = useState<string | null>(null);
+  const [showAddChildDialog, setShowAddChildDialog] = useState(false);
+
+  // Quick add children state (inline manual entry)
+  // Initialize with 5 empty rows for new entries
+  const [quickAddNames, setQuickAddNames] = useState<string[]>(["", "", "", "", ""]);
+  const [isSavingQuickAdd, setIsSavingQuickAdd] = useState(false);
+
+  // Track payment status for newly added children (before payment round exists)
+  const [localPaidStatus, setLocalPaidStatus] = useState<Record<string, boolean>>({});
+
+  // Selected payment round state
+  const [selectedRoundId, setSelectedRoundId] = useState<string | null>(null);
+
+  // Create new round dialog state
+  const [showCreateRoundDialog, setShowCreateRoundDialog] = useState(false);
   const [newRoundName, setNewRoundName] = useState("");
   const [newRoundAmount, setNewRoundAmount] = useState("");
-  const [newRoundDueDate, setNewRoundDueDate] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreatingRound, setIsCreatingRound] = useState(false);
 
+  // Find the selected round, or default to "תשלום שנתי" or first round
+  const yearlyRound = paymentRounds.find(r => r.name === "תשלום שנתי") || paymentRounds[0];
+  const selectedRound = selectedRoundId
+    ? paymentRounds.find(r => r.id === selectedRoundId) || yearlyRound
+    : yearlyRound;
+
+  // Use estimatedChildren if larger than actual children count (common during setup)
+  const targetChildrenCount = estimatedChildren || 30;
+  const paidCount = selectedRound?.summary?.paid_count || 0;
+  const totalExpected = selectedRound ? selectedRound.amount_per_child * targetChildrenCount : (amountPerChild ? amountPerChild * targetChildrenCount : 0);
+  const totalCollected = selectedRound?.summary?.total_collected || 0;
+  const progressPercent = targetChildrenCount > 0 ? (paidCount / targetChildrenCount) * 100 : 0;
+
+  // Handle creating a new payment round
   const handleCreateRound = async () => {
-    if (!onCreatePaymentRound || !newRoundName || !newRoundAmount) return;
-    setIsCreating(true);
+    if (!onCreatePaymentRound || !newRoundName.trim() || !newRoundAmount) return;
+
+    setIsCreatingRound(true);
     try {
       await onCreatePaymentRound({
-        name: newRoundName,
+        name: newRoundName.trim(),
         amount_per_child: parseFloat(newRoundAmount),
-        due_date: newRoundDueDate || undefined,
       });
       setNewRoundName("");
       setNewRoundAmount("");
-      setNewRoundDueDate("");
+      setShowCreateRoundDialog(false);
     } finally {
-      setIsCreating(false);
+      setIsCreatingRound(false);
     }
   };
 
@@ -164,8 +203,6 @@ function CollectionTab({
     await onBulkUpdatePayments(roundId, Array.from(selectedChildren), "paid");
     setSelectedChildren(new Set());
   };
-
-  const [copiedRoundId, setCopiedRoundId] = useState<string | null>(null);
 
   const copyUnpaidToClipboard = async (round: PaymentRoundWithPayments) => {
     const unpaidPayments = round.payments.filter(p => p.status === "unpaid");
@@ -225,50 +262,165 @@ ${unpaidList}
       .filter(p => p.status === "unpaid")
       .map(p => p.child.id);
 
-    // Check if all unpaid are already selected
     const allUnpaidSelected = unpaidIds.every(id => selectedChildren.has(id));
 
     if (allUnpaidSelected) {
-      // Deselect all
       setSelectedChildren(new Set());
     } else {
-      // Select all unpaid
       setSelectedChildren(new Set(unpaidIds));
     }
   };
 
-  if (paymentRounds.length === 0 && children.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <PiggyBank className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-        <p className="text-gray-500 mb-2">אין עדיין ילדים בכיתה</p>
-        <p className="text-sm text-gray-400">הוסיפו ילדים לכיתה כדי להתחיל לנהל גביות</p>
-      </div>
-    );
-  }
+  // Quick add name handlers
+  const updateQuickAddName = (index: number, value: string) => {
+    const newNames = [...quickAddNames];
+    newNames[index] = value;
+    setQuickAddNames(newNames);
+  };
 
-  return (
-    <div className="space-y-6">
-      {/* Create New Payment Round */}
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button className="w-full bg-[#A78BFA] hover:bg-[#9333EA] rounded-xl">
-            <Plus className="ml-2 h-4 w-4" />
-            גיוס חדש
-          </Button>
-        </DialogTrigger>
-        <DialogContent dir="rtl">
+  const handleQuickAddKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      // Focus next input or add more rows if at the end
+      if (index === quickAddNames.length - 1) {
+        // Add more rows
+        setQuickAddNames([...quickAddNames, "", "", "", "", ""]);
+        setTimeout(() => {
+          const nextInput = document.getElementById(`quick-add-${index + 1}`);
+          nextInput?.focus();
+        }, 50);
+      } else {
+        const nextInput = document.getElementById(`quick-add-${index + 1}`);
+        nextInput?.focus();
+      }
+    }
+  };
+
+  const saveQuickAddNames = async () => {
+    const namesToAdd = quickAddNames.filter(name => name.trim() !== "");
+    if (namesToAdd.length === 0) return;
+
+    setIsSavingQuickAdd(true);
+    try {
+      // Use the ChildrenUploadTask's save logic by opening the dialog with pre-filled data
+      // For now, we'll save directly using supabase
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+
+      // Check for existing children to prevent duplicates
+      const { data: existingChildren } = await supabase
+        .from("children")
+        .select("name")
+        .eq("class_id", classId);
+
+      const existingNames = new Set(
+        existingChildren?.map(c => c.name.trim().toLowerCase()) || []
+      );
+
+      const uniqueNames = namesToAdd.filter(
+        name => !existingNames.has(name.trim().toLowerCase())
+      );
+
+      if (uniqueNames.length === 0) {
+        alert("כל השמות שהזנתם כבר קיימים במערכת");
+        setIsSavingQuickAdd(false);
+        return;
+      }
+
+      // Insert children
+      const childrenData = uniqueNames.map(name => ({
+        class_id: classId,
+        name: name.trim(),
+      }));
+
+      const { error } = await supabase.from("children").insert(childrenData);
+
+      if (error) {
+        console.error("Error saving children:", error);
+        alert("שגיאה בשמירת הילדים");
+      } else {
+        setQuickAddNames(["", "", "", "", ""]);
+        onChildrenAdded?.();
+      }
+    } finally {
+      setIsSavingQuickAdd(false);
+    }
+  };
+
+  const filledQuickAddCount = quickAddNames.filter(n => n.trim() !== "").length;
+
+  // Render progress header - focused on selected round (default: תשלום שנתי)
+  const renderProgressHeader = () => (
+    <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 border border-purple-200">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600">
+            <PiggyBank className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            {/* Round selector dropdown if multiple rounds exist */}
+            {paymentRounds.length > 1 ? (
+              <select
+                value={selectedRound?.id || ""}
+                onChange={(e) => setSelectedRoundId(e.target.value)}
+                className="font-bold text-lg text-[#222222] bg-transparent border-none cursor-pointer focus:outline-none focus:ring-0 pr-1"
+              >
+                {paymentRounds.map((round) => (
+                  <option key={round.id} value={round.id}>
+                    {round.name} ({round.summary.paid_count}/{round.summary.total_children || targetChildrenCount})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <h4 className="font-bold text-lg text-[#222222]">
+                {selectedRound?.name || "תשלום שנתי"}
+              </h4>
+            )}
+            <p className="text-sm text-gray-500">₪{selectedRound?.amount_per_child || amountPerChild || 0} לילד</p>
+          </div>
+        </div>
+        <div className="text-left">
+          <p className="text-2xl font-bold text-[#A78BFA]">
+            {paidCount}/{targetChildrenCount}
+          </p>
+          <p className="text-xs text-gray-500">שילמו</p>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="space-y-1">
+        <Progress value={progressPercent} className="h-2" />
+        <div className="flex justify-between text-xs text-gray-500">
+          <span>₪{totalCollected.toLocaleString()} נאסף</span>
+          <span>₪{totalExpected.toLocaleString()} צפוי</span>
+        </div>
+      </div>
+
+      {/* Add new round link - subtle */}
+      <div className="mt-3 pt-2 border-t border-purple-200/50">
+        <button
+          onClick={() => setShowCreateRoundDialog(true)}
+          className="text-xs text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1"
+        >
+          <Plus className="h-3 w-3" />
+          הוספת סכום חדש לאיסוף
+        </button>
+      </div>
+
+      {/* Create Round Dialog */}
+      <Dialog open={showCreateRoundDialog} onOpenChange={setShowCreateRoundDialog}>
+        <DialogContent dir="rtl" className="max-w-md">
           <DialogHeader>
-            <DialogTitle>יצירת גיוס חדש</DialogTitle>
+            <DialogTitle>איסוף חדש</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="round-name">שם הגיוס</Label>
+              <Label htmlFor="round-name">שם האיסוף</Label>
               <Input
                 id="round-name"
-                placeholder='לדוגמה: "תשלום שנתי" או "גיוס לטיול"'
                 value={newRoundName}
                 onChange={(e) => setNewRoundName(e.target.value)}
+                placeholder="לדוגמה: טיול שנתי, מתנה לגננת"
               />
             </div>
             <div className="space-y-2">
@@ -276,20 +428,19 @@ ${unpaidList}
               <Input
                 id="round-amount"
                 type="number"
-                placeholder="0"
                 value={newRoundAmount}
                 onChange={(e) => setNewRoundAmount(e.target.value)}
+                placeholder="50"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="round-date">תאריך יעד (אופציונלי)</Label>
-              <Input
-                id="round-date"
-                type="date"
-                value={newRoundDueDate}
-                onChange={(e) => setNewRoundDueDate(e.target.value)}
-              />
-            </div>
+            {newRoundAmount && (
+              <div className="bg-purple-50 rounded-lg p-3 text-sm">
+                <p className="text-purple-700">
+                  סה״כ צפוי לאיסוף: <span className="font-bold">₪{(parseFloat(newRoundAmount) * targetChildrenCount).toLocaleString()}</span>
+                </p>
+                <p className="text-purple-600 text-xs">({targetChildrenCount} ילדים × ₪{newRoundAmount})</p>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <DialogClose asChild>
@@ -297,199 +448,285 @@ ${unpaidList}
             </DialogClose>
             <Button
               onClick={handleCreateRound}
-              disabled={isCreating || !newRoundName || !newRoundAmount}
+              disabled={isCreatingRound || !newRoundName.trim() || !newRoundAmount}
               className="bg-[#A78BFA] hover:bg-[#9333EA]"
             >
-              {isCreating ? "יוצר..." : "צור גיוס"}
+              {isCreatingRound ? "יוצר..." : "צור איסוף"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
 
-      {/* Payment Rounds List */}
-      {paymentRounds.length === 0 ? (
-        <div className="text-center py-8">
-          <PiggyBank className="h-12 w-12 mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500">טרם נוצרו גיוסים</p>
-          <p className="text-sm text-gray-400">לחצו על &quot;גיוס חדש&quot; כדי להתחיל</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {paymentRounds.map((round) => {
-            const isExpanded = expandedRound === round.id;
-            const progressPercent = round.summary.progress_percentage;
+  // Unified view: Show existing children (if any) + quick add form
+  // This works whether or not a payment round exists
 
-            return (
+  // If no payment round OR no children - show the unified inline entry view
+  if (!selectedRound || children.length === 0) {
+    return (
+      <div className="space-y-4">
+        {renderProgressHeader()}
+
+        {/* Inline Children List with Quick Add */}
+        <div className="bg-white rounded-xl border-2 border-purple-200 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-purple-500" />
+              <h4 className="font-semibold text-[#222222]">רשימת ילדים</h4>
+            </div>
+            <span className="text-sm text-gray-500">
+              {children.length}/{targetChildrenCount} ילדים
+            </span>
+          </div>
+
+          <p className="text-sm text-gray-500 mb-3">
+            הקלידו שמות ולחצו Enter למעבר לשורה הבאה. סמנו מי שילם.
+          </p>
+
+          <div className="space-y-2 max-h-80 overflow-y-auto">
+            {/* Existing children first */}
+            {children.map((child, index) => (
               <div
-                key={round.id}
-                className="border-2 border-gray-100 rounded-2xl overflow-hidden"
+                key={child.id}
+                className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                  localPaidStatus[child.id] ? "bg-green-50 border border-green-200" : "bg-gray-50 border border-gray-200"
+                }`}
               >
-                {/* Round Header */}
-                <div
-                  className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                  onClick={() => setExpandedRound(isExpanded ? null : round.id)}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600">
-                        <PiggyBank className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-lg text-[#222222]">{round.name}</h4>
-                        <p className="text-sm text-gray-500">
-                          ₪{round.amount_per_child} לילד
-                          {round.due_date && ` • עד ${new Date(round.due_date).toLocaleDateString('he-IL')}`}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-left">
-                        <p className="text-lg font-bold text-[#A78BFA]">
-                          {round.summary.paid_count}/{round.summary.total_children}
-                        </p>
-                        <p className="text-xs text-gray-500">שילמו</p>
-                      </div>
-                      {isExpanded ? (
-                        <ChevronUp className="h-5 w-5 text-gray-400" />
-                      ) : (
-                        <ChevronDown className="h-5 w-5 text-gray-400" />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="space-y-1">
-                    <Progress value={progressPercent} className="h-2" />
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>₪{round.summary.total_collected.toLocaleString()} נאסף</span>
-                      <span>₪{round.summary.expected_total.toLocaleString()} צפוי</span>
-                    </div>
-                  </div>
+                <span className="text-xs text-gray-400 w-6 text-center">{index + 1}</span>
+                <div className="flex-1">
+                  <span className="font-medium text-[#222222]">{child.name}</span>
                 </div>
-
-                {/* Expanded Content */}
-                {isExpanded && (
-                  <div className="border-t-2 border-gray-100 p-4 bg-gray-50">
-                    {/* Action Buttons */}
-                    <div className="flex gap-2 mb-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyUnpaidToClipboard(round)}
-                        className={`rounded-xl transition-all ${copiedRoundId === round.id ? "bg-green-100 border-green-500 text-green-700" : ""}`}
-                      >
-                        {copiedRoundId === round.id ? (
-                          <>
-                            <CheckCircle2 className="ml-2 h-4 w-4" />
-                            הועתק!
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="ml-2 h-4 w-4" />
-                            העתק רשימה לוואטסאפ
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => exportToExcel(round)}
-                        className="rounded-xl"
-                      >
-                        <Download className="ml-2 h-4 w-4" />
-                        ייצוא לאקסל
-                      </Button>
-                      {selectedChildren.size > 0 && (
-                        <div className="flex gap-2 mr-auto">
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700 rounded-xl"
-                            onClick={() => handleBulkMarkPaid(round.id)}
-                          >
-                            <CheckCircle2 className="ml-2 h-4 w-4" />
-                            סמן {selectedChildren.size} כשילמו
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="rounded-xl"
-                            onClick={() => {
-                              onBulkUpdatePayments?.(round.id, Array.from(selectedChildren), "unpaid");
-                              setSelectedChildren(new Set());
-                            }}
-                          >
-                            סמן {selectedChildren.size} כלא שילמו
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Select All Unpaid */}
-                    {round.summary.unpaid_count > 0 && (() => {
-                      const unpaidIds = round.payments.filter(p => p.status === "unpaid").map(p => p.child.id);
-                      const allUnpaidSelected = unpaidIds.length > 0 && unpaidIds.every(id => selectedChildren.has(id));
-
-                      return (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleSelectAllUnpaid(round)}
-                          className={`mb-3 text-sm border-dashed ${
-                            allUnpaidSelected
-                              ? "border-gray-400 bg-gray-100 hover:bg-gray-200 text-gray-600"
-                              : "border-amber-400 bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-800"
-                          }`}
-                        >
-                          <Users className="ml-2 h-4 w-4" />
-                          {allUnpaidSelected ? "בטל בחירה" : `בחר את כל מי שלא שילם (${round.summary.unpaid_count})`}
-                        </Button>
-                      );
-                    })()}
-
-                    {/* Children List */}
-                    <div className="space-y-2 max-h-80 overflow-y-auto">
-                      {round.payments.map((payment) => (
-                        <div
-                          key={payment.child.id}
-                          className={`flex items-center justify-between p-3 rounded-xl ${
-                            payment.status === "paid"
-                              ? "bg-green-50 border border-green-200"
-                              : "bg-white border border-gray-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <Checkbox
-                              checked={selectedChildren.has(payment.child.id)}
-                              onCheckedChange={() => toggleChildSelection(payment.child.id)}
-                            />
-                            <div>
-                              <p className="font-medium text-[#222222]">{payment.child.name}</p>
-                              {payment.child.parents && payment.child.parents.length > 0 && (
-                                <p className="text-xs text-gray-500">
-                                  {payment.child.parents.map(p => p.name).join(", ")}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-sm ${payment.status === "paid" ? "text-green-600 font-medium" : "text-gray-500"}`}>
-                              {payment.status === "paid" ? "שולם" : "לא שולם"}
-                            </span>
-                            <Switch
-                              checked={payment.status === "paid"}
-                              onCheckedChange={(checked) => onUpdatePaymentStatus?.(round.id, payment.child.id, checked ? "paid" : "unpaid")}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={localPaidStatus[child.id] || false}
+                    onCheckedChange={(checked) => {
+                      setLocalPaidStatus(prev => ({ ...prev, [child.id]: checked }));
+                    }}
+                  />
+                  <span className={`text-sm min-w-[60px] text-left ${localPaidStatus[child.id] ? "text-green-600 font-medium" : "text-gray-400"}`}>
+                    {localPaidStatus[child.id] ? "שולם ✓" : "לא שולם"}
+                  </span>
+                </div>
               </div>
-            );
-          })}
+            ))}
+
+            {/* Divider if there are existing children */}
+            {children.length > 0 && quickAddNames.some(n => n.trim() || true) && (
+              <div className="border-t border-dashed border-purple-200 my-3 pt-3">
+                <p className="text-xs text-purple-500 mb-2">הוספת ילדים נוספים:</p>
+              </div>
+            )}
+
+            {/* Quick add rows for new children */}
+            {quickAddNames.map((name, index) => (
+              <div key={`new-${index}`} className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 w-6 text-center">{children.length + index + 1}</span>
+                <Input
+                  id={`quick-add-${index}`}
+                  value={name}
+                  onChange={(e) => updateQuickAddName(index, e.target.value)}
+                  onKeyDown={(e) => handleQuickAddKeyDown(e, index)}
+                  placeholder="שם הילד"
+                  className={`flex-1 h-9 ${name.trim() ? "border-green-300 bg-green-50/50" : ""}`}
+                />
+                {/* Empty space to align with payment toggle above */}
+                <div className="w-[140px]"></div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-2 mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setQuickAddNames([...quickAddNames, "", "", "", "", ""])}
+              className="flex-1"
+            >
+              <Plus className="h-4 w-4 ml-1" />
+              עוד 5 שורות
+            </Button>
+            <Button
+              size="sm"
+              onClick={saveQuickAddNames}
+              disabled={isSavingQuickAdd || filledQuickAddCount === 0}
+              className="flex-1 bg-[#A78BFA] hover:bg-[#9333EA]"
+            >
+              {isSavingQuickAdd ? "שומר..." : `שמור ${filledQuickAddCount} ילדים`}
+            </Button>
+          </div>
+
+          {/* Option to use full upload dialog */}
+          <div className="mt-3 pt-3 border-t border-gray-100 text-center">
+            <Dialog open={showAddChildDialog} onOpenChange={setShowAddChildDialog}>
+              <DialogTrigger asChild>
+                <button className="text-sm text-purple-600 hover:text-purple-800 hover:underline">
+                  או העלו מקובץ אקסל →
+                </button>
+              </DialogTrigger>
+              <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader className="sr-only">
+                  <DialogTitle>העלאת רשימת ילדים והורים</DialogTitle>
+                </DialogHeader>
+                <ChildrenUploadTask
+                  classId={classId}
+                  estimatedChildren={estimatedChildren || 25}
+                  onComplete={() => {
+                    setShowAddChildDialog(false);
+                    onChildrenAdded?.();
+                  }}
+                  onCancel={() => setShowAddChildDialog(false)}
+                  initialMethod="excel"
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Use shared progress header */}
+      {renderProgressHeader()}
+
+      {/* Quick Actions */}
+      <div className="flex gap-2 flex-wrap">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => copyUnpaidToClipboard(selectedRound)}
+          className={`rounded-xl transition-all ${copiedRoundId === selectedRound.id ? "bg-green-100 border-green-500 text-green-700" : ""}`}
+        >
+          {copiedRoundId === selectedRound.id ? (
+            <>
+              <CheckCircle2 className="ml-2 h-4 w-4" />
+              הועתק!
+            </>
+          ) : (
+            <>
+              <Copy className="ml-2 h-4 w-4" />
+              העתק לוואטסאפ
+            </>
+          )}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => exportToExcel(selectedRound)}
+          className="rounded-xl"
+        >
+          <Download className="ml-2 h-4 w-4" />
+          אקסל
+        </Button>
+        <Dialog open={showAddChildDialog} onOpenChange={setShowAddChildDialog}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="rounded-xl mr-auto">
+              <Plus className="ml-2 h-4 w-4" />
+              הוסף ילדים
+            </Button>
+          </DialogTrigger>
+          <DialogContent dir="rtl" className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="sr-only">
+              <DialogTitle>העלאת רשימת ילדים והורים</DialogTitle>
+            </DialogHeader>
+            <ChildrenUploadTask
+              classId={classId}
+              estimatedChildren={estimatedChildren || 25}
+              onComplete={() => {
+                setShowAddChildDialog(false);
+                onChildrenAdded?.();
+              }}
+              onCancel={() => setShowAddChildDialog(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Bulk Actions (when children selected) */}
+      {selectedChildren.size > 0 && (
+        <div className="flex gap-2 p-3 bg-blue-50 rounded-xl border border-blue-200">
+          <Button
+            size="sm"
+            className="bg-green-600 hover:bg-green-700 rounded-xl"
+            onClick={() => handleBulkMarkPaid(selectedRound.id)}
+          >
+            <CheckCircle2 className="ml-2 h-4 w-4" />
+            סמן {selectedChildren.size} כשילמו
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="rounded-xl"
+            onClick={() => {
+              onBulkUpdatePayments?.(selectedRound.id, Array.from(selectedChildren), "unpaid");
+              setSelectedChildren(new Set());
+            }}
+          >
+            סמן כלא שילמו
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="rounded-xl mr-auto"
+            onClick={() => setSelectedChildren(new Set())}
+          >
+            בטל בחירה
+          </Button>
         </div>
       )}
+
+      {/* Select All Unpaid */}
+      {selectedRound.summary.unpaid_count > 0 && selectedChildren.size === 0 && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => toggleSelectAllUnpaid(selectedRound)}
+          className="w-full text-sm border-dashed border-amber-400 bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-800 rounded-xl"
+        >
+          <Users className="ml-2 h-4 w-4" />
+          בחר את כל מי שלא שילם ({selectedRound.summary.unpaid_count})
+        </Button>
+      )}
+
+      {/* Children List - Simple and Clean */}
+      <div className="space-y-2">
+        {selectedRound.payments.map((payment) => (
+          <div
+            key={payment.child.id}
+            className={`flex items-center justify-between p-3 rounded-xl transition-colors ${
+              payment.status === "paid"
+                ? "bg-green-50 border border-green-200"
+                : "bg-white border border-gray-200 hover:border-gray-300"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={selectedChildren.has(payment.child.id)}
+                onCheckedChange={() => toggleChildSelection(payment.child.id)}
+              />
+              <div>
+                <p className="font-medium text-[#222222]">{payment.child.name}</p>
+                {payment.child.parents && payment.child.parents.length > 0 && (
+                  <p className="text-xs text-gray-500">
+                    {payment.child.parents.map(p => p.name).filter(Boolean).join(", ")}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={payment.status === "paid"}
+                onCheckedChange={(checked) => onUpdatePaymentStatus?.(selectedRound.id, payment.child.id, checked ? "paid" : "unpaid")}
+              />
+              <span className={`text-sm min-w-[60px] text-left ${payment.status === "paid" ? "text-green-600 font-medium" : "text-gray-400"}`}>
+                {payment.status === "paid" ? "שולם ✓" : "לא שולם"}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -529,25 +766,6 @@ function ExpensesTab({
   const [isDragging, setIsDragging] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [loadingReceipts, setLoadingReceipts] = useState<Set<string>>(new Set());
-
-  // Fetch signed URL for a receipt
-  const fetchSignedUrl = async (expenseId: string, receiptPath: string) => {
-    if (!onGetReceiptUrl || signedUrls[expenseId] || loadingReceipts.has(expenseId)) return;
-
-    setLoadingReceipts(prev => new Set([...prev, expenseId]));
-    try {
-      const result = await onGetReceiptUrl(receiptPath);
-      if (result.success && result.url) {
-        setSignedUrls(prev => ({ ...prev, [expenseId]: result.url! }));
-      }
-    } finally {
-      setLoadingReceipts(prev => {
-        const next = new Set(prev);
-        next.delete(expenseId);
-        return next;
-      });
-    }
-  };
 
   const handleFile = (file: File) => {
     // Validate file type
@@ -1494,7 +1712,7 @@ function SummaryTab({
                 {unpaidCount} ילדים טרם שילמו
               </p>
               <p className="text-sm text-yellow-700">
-                עברו ללשונית &quot;גבייה&quot; לצפייה ברשימה המלאה
+                עברו ללשונית &quot;איסוף&quot; לצפייה ברשימה המלאה
               </p>
             </div>
           </div>
@@ -1525,6 +1743,50 @@ function SummaryTab({
 }
 
 // ============================================
+// Clickable Metric Card Component
+// ============================================
+
+function ClickableMetricCard({
+  icon: Icon,
+  label,
+  value,
+  subValue,
+  colorClass,
+  onClick,
+  isActive,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  subValue?: string;
+  colorClass: string;
+  onClick?: () => void;
+  isActive?: boolean;
+}) {
+  return (
+    <div
+      className={`${colorClass} rounded-xl p-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg ${
+        isActive ? "ring-2 ring-offset-2 ring-purple-500" : ""
+      }`}
+      onClick={onClick}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className="h-4 w-4" />
+        <span className="text-sm font-medium">{label}</span>
+      </div>
+      <div className="text-2xl font-bold">{value}</div>
+      {subValue && <div className="text-xs mt-1 opacity-80">{subValue}</div>}
+    </div>
+  );
+}
+
+// ============================================
+// Detail View Type
+// ============================================
+
+type DetailView = "collection" | "expenses" | "allocations" | null;
+
+// ============================================
 // Main Budget Hub Component
 // ============================================
 
@@ -1545,19 +1807,220 @@ export function BudgetHubCard({
   onCreateEvent,
   onUploadReceipt,
   onGetReceiptUrl,
+  onAddChild,
 }: BudgetHubCardProps) {
-  const [activeTab, setActiveTab] = useState<BudgetHubTab>("summary");
+  const [activeView, setActiveView] = useState<DetailView>(null);
 
   // Calculate totals
+  // Use estimated children from budget (total / amountPerChild) as the target count
+  const estimatedChildrenCount = budgetMetrics.amountPerChild
+    ? Math.round(budgetMetrics.total / budgetMetrics.amountPerChild)
+    : children.length;
+  const targetChildrenCount = Math.max(estimatedChildrenCount, children.length);
+
   const totalCollected = paymentRounds.reduce(
     (sum, round) => sum + round.summary.total_collected,
     0
   );
-  const totalUnpaid = paymentRounds.reduce(
-    (sum, round) => sum + round.summary.unpaid_count,
+  const paidChildrenCount = paymentRounds.reduce(
+    (sum, round) => sum + round.summary.paid_count,
     0
   );
+  // Unpaid = target count - paid (not just those in system)
+  const totalUnpaid = targetChildrenCount - paidChildrenCount;
   const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const balance = totalCollected - totalSpent;
+  const isNegativeBalance = balance < 0;
+
+  // Handle card clicks
+  const handleCardClick = (view: DetailView) => {
+    setActiveView(activeView === view ? null : view);
+  };
+
+  // Render the main hub view (summary cards)
+  const renderHubView = () => (
+    <div className="space-y-4">
+      {/* Compact Top Summary - One liner */}
+      <div className={`flex items-center justify-between rounded-xl px-4 py-3 ${
+        isNegativeBalance
+          ? "bg-gradient-to-r from-red-50 to-orange-50 border border-red-200"
+          : "bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200"
+      }`}>
+        <div className="flex items-center gap-2">
+          <Wallet className={`h-4 w-4 ${isNegativeBalance ? "text-red-600" : "text-purple-600"}`} />
+          <span className="text-sm font-medium text-gray-700">יתרת קופה</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className={`text-lg font-bold ${isNegativeBalance ? "text-red-600" : "text-green-600"}`}>
+            {isNegativeBalance ? "-" : ""}₪{Math.abs(balance).toLocaleString()}
+          </span>
+          <span className="text-gray-400">/</span>
+          <span className="text-sm text-gray-500">
+            ₪{budgetMetrics.total.toLocaleString()} תקציב
+          </span>
+          {isNegativeBalance && (
+            <AlertCircle className="h-4 w-4 text-red-500" />
+          )}
+        </div>
+      </div>
+
+      {/* Clickable Metric Cards */}
+      <div className="grid grid-cols-3 gap-4">
+        {/* נאסף - Opens Collection/איסוף */}
+        <ClickableMetricCard
+          icon={TrendingUp}
+          label="נאסף"
+          value={`₪${totalCollected.toLocaleString()}`}
+          subValue={totalUnpaid > 0 ? `${totalUnpaid} טרם שילמו` : "כולם שילמו"}
+          colorClass="bg-gradient-to-br from-green-50 to-green-100 text-green-700"
+          onClick={() => handleCardClick("collection")}
+          isActive={activeView === "collection"}
+        />
+
+        {/* הוצא - Opens Expenses/הוצאות */}
+        <ClickableMetricCard
+          icon={TrendingDown}
+          label="הוצא"
+          value={`₪${totalSpent.toLocaleString()}`}
+          subValue={`${expenses.length} הוצאות`}
+          colorClass="bg-gradient-to-br from-red-50 to-red-100 text-red-700"
+          onClick={() => handleCardClick("expenses")}
+          isActive={activeView === "expenses"}
+        />
+
+        {/* תקציב מוקצה - Opens Allocations/הקצאות */}
+        <ClickableMetricCard
+          icon={DollarSign}
+          label="תקציב מוקצה"
+          value={`₪${budgetMetrics.allocated.toLocaleString()}`}
+          subValue={`${events.length} אירועים`}
+          colorClass="bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700"
+          onClick={() => handleCardClick("allocations")}
+          isActive={activeView === "allocations"}
+        />
+      </div>
+
+      {/* Unpaid Alert */}
+      {totalUnpaid > 0 && activeView === null && (
+        <div
+          className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 cursor-pointer hover:bg-yellow-100 transition-colors"
+          onClick={() => handleCardClick("collection")}
+        >
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-yellow-600" />
+            <div className="flex-1">
+              <p className="font-semibold text-yellow-800">
+                {totalUnpaid} ילדים טרם שילמו
+              </p>
+              <p className="text-sm text-yellow-700">
+                לחצו לצפייה ברשימה המלאה
+              </p>
+            </div>
+            <ChevronDown className="h-5 w-5 text-yellow-600" />
+          </div>
+        </div>
+      )}
+
+      {/* Collection Progress by Round (only when no detail view is open) */}
+      {paymentRounds.length > 0 && activeView === null && (
+        <div className="space-y-3">
+          <h4 className="font-semibold text-[#222222]">התקדמות איסוף</h4>
+          {paymentRounds.map((round) => {
+            // Calculate progress based on target children count, not just those in system
+            const progressPercent = targetChildrenCount > 0
+              ? (round.summary.paid_count / targetChildrenCount) * 100
+              : 0;
+            return (
+              <div
+                key={round.id}
+                className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => handleCardClick("collection")}
+              >
+                <div className="flex-1">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="font-medium">{round.name}</span>
+                    <span className="text-gray-500">
+                      {round.summary.paid_count}/{targetChildrenCount}
+                    </span>
+                  </div>
+                  <Progress value={progressPercent} className="h-2" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
+  // Render the detail view based on activeView
+  const renderDetailView = () => {
+    if (activeView === null) return null;
+
+    const viewTitles: Record<DetailView & string, string> = {
+      collection: "איסוף",
+      expenses: "הוצאות",
+      allocations: "הקצאות",
+    };
+
+    return (
+      <div className="mt-6 border-t-2 border-gray-100 pt-6">
+        {/* Back button and title */}
+        <div className="flex items-center gap-3 mb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setActiveView(null)}
+            className="rounded-xl"
+          >
+            <ChevronUp className="h-4 w-4 ml-1" />
+            חזרה
+          </Button>
+          <h3 className="font-bold text-lg text-[#222222]">{viewTitles[activeView]}</h3>
+        </div>
+
+        {/* Detail content */}
+        {activeView === "collection" && (
+          <CollectionTab
+            classId={classId}
+            paymentRounds={paymentRounds}
+            children={children}
+            amountPerChild={budgetMetrics.amountPerChild}
+            estimatedChildren={budgetMetrics.amountPerChild ? Math.round(budgetMetrics.total / budgetMetrics.amountPerChild) : undefined}
+            onCreatePaymentRound={onCreatePaymentRound}
+            onUpdatePaymentStatus={onUpdatePaymentStatus}
+            onBulkUpdatePayments={onBulkUpdatePayments}
+            onAddChild={onAddChild}
+            onChildrenAdded={() => window.location.reload()}
+          />
+        )}
+
+        {activeView === "expenses" && (
+          <ExpensesTab
+            classId={classId}
+            expenses={expenses}
+            events={events}
+            totalSpent={totalSpent}
+            onCreateExpense={onCreateExpense}
+            onDeleteExpense={onDeleteExpense}
+            onUploadReceipt={onUploadReceipt}
+            onGetReceiptUrl={onGetReceiptUrl}
+          />
+        )}
+
+        {activeView === "allocations" && (
+          <AllocationsTab
+            events={events}
+            totalBudget={budgetMetrics.total}
+            totalAllocated={budgetMetrics.allocated}
+            childrenCount={children.length}
+            onUpdateEventBudget={onUpdateEventBudget}
+            onCreateEvent={onCreateEvent}
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <Card className={`shadow-xl rounded-3xl border-2 border-gray-100 ${className}`} dir="rtl">
@@ -1573,57 +2036,8 @@ export function BudgetHubCard({
         </div>
       </CardHeader>
       <CardContent>
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as BudgetHubTab)} className="w-full" dir="rtl">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="summary">סיכום</TabsTrigger>
-            <TabsTrigger value="collection">גבייה</TabsTrigger>
-            <TabsTrigger value="allocations">הקצאות</TabsTrigger>
-            <TabsTrigger value="expenses">הוצאות</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="summary">
-            <SummaryTab
-              budgetMetrics={budgetMetrics}
-              paymentRounds={paymentRounds}
-              totalCollected={totalCollected}
-              unpaidCount={totalUnpaid}
-            />
-          </TabsContent>
-
-          <TabsContent value="collection">
-            <CollectionTab
-              paymentRounds={paymentRounds}
-              children={children}
-              onCreatePaymentRound={onCreatePaymentRound}
-              onUpdatePaymentStatus={onUpdatePaymentStatus}
-              onBulkUpdatePayments={onBulkUpdatePayments}
-            />
-          </TabsContent>
-
-          <TabsContent value="allocations">
-            <AllocationsTab
-              events={events}
-              totalBudget={budgetMetrics.total}
-              totalAllocated={budgetMetrics.allocated}
-              childrenCount={children.length}
-              onUpdateEventBudget={onUpdateEventBudget}
-              onCreateEvent={onCreateEvent}
-            />
-          </TabsContent>
-
-          <TabsContent value="expenses">
-            <ExpensesTab
-              classId={classId}
-              expenses={expenses}
-              events={events}
-              totalSpent={totalSpent}
-              onCreateExpense={onCreateExpense}
-              onDeleteExpense={onDeleteExpense}
-              onUploadReceipt={onUploadReceipt}
-              onGetReceiptUrl={onGetReceiptUrl}
-            />
-          </TabsContent>
-        </Tabs>
+        {renderHubView()}
+        {renderDetailView()}
       </CardContent>
     </Card>
   );

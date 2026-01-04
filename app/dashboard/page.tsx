@@ -131,6 +131,7 @@ export default async function DashboardPage() {
           allocated: allocatedBudget,
           spent: spentBudget,
           remaining: remainingBudget,
+          amountPerChild: currentClass.budget_amount || undefined,
         }}
         paymentRounds={paymentRounds}
         expenses={expenses}
