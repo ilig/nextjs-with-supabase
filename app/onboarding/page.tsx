@@ -29,7 +29,7 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFF9F0]">
+    <div className="min-h-screen flex flex-col bg-surface">
       <Header />
       <div className="flex-1 flex items-center justify-center p-4">
         <OnboardingForm />

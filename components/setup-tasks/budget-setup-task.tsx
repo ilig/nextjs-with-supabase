@@ -198,9 +198,9 @@ export function BudgetSetupTask({
       <div className="space-y-4 p-4" dir="rtl">
         <h3 className="text-lg font-semibold text-center">איזה סכום תרצו לגבות?</h3>
 
-        <Card className="p-4 border-blue-500 bg-blue-50">
+        <Card className="p-4 border-blue-500 bg-blue-50 dark:bg-blue-950">
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-gray-700">
+            <div className="flex items-center gap-2 text-foreground">
               <span className="text-xl">👧👦</span>
               <span>מספר ילדים בכיתה:</span>
               <Input
@@ -211,7 +211,7 @@ export function BudgetSetupTask({
               />
             </div>
 
-            <div className="flex items-center gap-2 text-gray-700">
+            <div className="flex items-center gap-2 text-foreground">
               <span className="text-xl">💰</span>
               <span>סכום לכל ילד (₪):</span>
               <Input
@@ -223,8 +223,8 @@ export function BudgetSetupTask({
               />
             </div>
 
-            <div className="text-center bg-white rounded-lg p-3 border">
-              <p className="text-gray-600">
+            <div className="text-center bg-card rounded-lg p-3 border border-border">
+              <p className="text-muted-foreground">
                 {childrenCount} ילדים × ₪{amountPerChild} = <span className="font-bold text-blue-600 text-lg">₪{totalBudget.toLocaleString()}</span>
               </p>
             </div>
@@ -248,7 +248,7 @@ export function BudgetSetupTask({
     <div className="space-y-4 p-4" dir="rtl">
       <div>
         <h3 className="text-lg font-semibold">איזה אירועים רלוונטיים עבורכם?</h3>
-        <div className="flex items-center justify-between mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="flex items-center justify-between mt-2 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
           <div>
             <p className="text-sm font-semibold">תקציב כולל</p>
             <p className="text-2xl font-bold text-blue-600">
@@ -265,7 +265,7 @@ export function BudgetSetupTask({
       </div>
 
       {/* Column Headers */}
-      <div className="flex items-center gap-3 px-3 text-xs text-gray-500 font-medium">
+      <div className="flex items-center gap-3 px-3 text-xs text-muted-foreground font-medium">
         <div className="w-5"></div>{/* Checkbox space */}
         <div className="w-7"></div>{/* Icon space */}
         <div className="flex-1"></div>{/* Event name space */}
@@ -289,7 +289,7 @@ export function BudgetSetupTask({
             <Card
               key={event.id}
               className={`p-3 cursor-pointer transition-all ${
-                isSelected ? "border-blue-300 bg-blue-50" : "border-gray-200"
+                isSelected ? "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950" : "border-border"
               }`}
               onClick={() => toggleEvent(event.id)}
             >
@@ -311,9 +311,9 @@ export function BudgetSetupTask({
                         placeholder="0"
                         className="w-[88px] h-8 text-sm text-center pr-6"
                       />
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">₪</span>
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">₪</span>
                     </div>
-                    <span className="text-xs text-gray-500">×</span>
+                    <span className="text-xs text-muted-foreground">×</span>
                     <Input
                       type="number"
                       value={headcount || ""}
@@ -344,7 +344,7 @@ export function BudgetSetupTask({
             <Card
               key={event.id}
               className={`p-3 cursor-pointer transition-all ${
-                isSelected ? "border-blue-300 bg-blue-50" : "border-gray-200"
+                isSelected ? "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950" : "border-border"
               }`}
               onClick={() => toggleEvent(event.id)}
             >
@@ -366,9 +366,9 @@ export function BudgetSetupTask({
                         placeholder="0"
                         className="w-[88px] h-8 text-sm text-center pr-6"
                       />
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">₪</span>
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">₪</span>
                     </div>
-                    <span className="text-xs text-gray-500">×</span>
+                    <span className="text-xs text-muted-foreground">×</span>
                     <Input
                       type="number"
                       value={headcount || ""}
@@ -389,7 +389,7 @@ export function BudgetSetupTask({
         })}
 
         {/* Add custom event */}
-        <Card className="p-3 bg-gray-50">
+        <Card className="p-3 bg-muted">
           <div className="flex items-center gap-2">
             <Input
               value={customEventName}
@@ -408,11 +408,11 @@ export function BudgetSetupTask({
       </div>
 
       {remainingBudget < 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-          <p className="text-sm text-red-700 font-semibold">
+        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+          <p className="text-sm text-red-700 dark:text-red-400 font-semibold">
             ⚠️ עברתם את התקציב ב-₪{Math.abs(remainingBudget).toLocaleString()}
           </p>
-          <p className="text-xs text-red-600">אנא הפחיתו את ההקצאות או הגדילו את התקציב</p>
+          <p className="text-xs text-red-600 dark:text-red-500">אנא הפחיתו את ההקצאות או הגדילו את התקציב</p>
         </div>
       )}
 

@@ -117,7 +117,7 @@ ${formUrl}
     return (
       <div className="p-4 text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="text-sm text-gray-600 mt-2">טוען...</p>
+        <p className="text-sm text-muted-foreground mt-2">טוען...</p>
       </div>
     );
   }
@@ -126,15 +126,15 @@ ${formUrl}
     <div className="space-y-4 p-4" dir="rtl">
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold">קישור למילוי פרטי ילדים</h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           שלחו את הקישור הזה להורים כדי שימלאו את פרטי ילדיהם
         </p>
       </div>
 
       {/* Form URL Card */}
-      <Card className="p-4 bg-blue-50 border-blue-200">
+      <Card className="p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
         <div className="space-y-3">
-          <div className="bg-white rounded p-3 border border-blue-300 font-mono text-sm break-all">
+          <div className="bg-card rounded p-3 border border-blue-300 dark:border-blue-700 font-mono text-sm break-all">
             {formUrl}
           </div>
           <Button
@@ -159,7 +159,7 @@ ${formUrl}
 
       {/* Share options */}
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-gray-700">או שלח ישירות:</p>
+        <p className="text-sm font-semibold text-foreground">או שלח ישירות:</p>
 
         <div className="grid grid-cols-2 gap-2">
           <Button
@@ -183,10 +183,10 @@ ${formUrl}
       </div>
 
       {/* Message template */}
-      <Card className="p-4 bg-gray-50">
+      <Card className="p-4 bg-muted">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-700">טיפ: העתיקו את הטקסט הזה:</p>
+            <p className="text-sm font-semibold text-foreground">טיפ: העתיקו את הטקסט הזה:</p>
             <Button
               size="sm"
               variant="ghost"
@@ -196,15 +196,15 @@ ${formUrl}
               העתק
             </Button>
           </div>
-          <div className="bg-white rounded p-3 border text-sm whitespace-pre-wrap">
+          <div className="bg-card rounded p-3 border border-border text-sm whitespace-pre-wrap">
             {inviteMessage}
           </div>
         </div>
       </Card>
 
       {/* Info box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-        <p className="text-xs text-blue-900">
+      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+        <p className="text-xs text-blue-700 dark:text-blue-300">
           ההורים יבחרו את ילדם מהרשימה וימלאו את הפרטים. תוכלו לחזור לכאן בכל עת מלוח הבקרה.
         </p>
       </div>

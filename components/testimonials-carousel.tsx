@@ -57,10 +57,10 @@ export function TestimonialsCarousel() {
             <span>⭐</span>
           </div>
         </div>
-        <blockquote className="text-2xl md:text-3xl text-center leading-relaxed mb-8 font-bold text-[#222222] px-4">
+        <blockquote className="text-2xl md:text-3xl text-center leading-relaxed mb-8 font-bold text-foreground px-4">
           "{testimonials[currentIndex].quote}"
         </blockquote>
-        <p className="text-center text-gray-600 font-semibold text-lg">
+        <p className="text-center text-muted-foreground font-semibold text-lg">
           — {testimonials[currentIndex].author}
         </p>
       </div>
@@ -79,8 +79,8 @@ export function TestimonialsCarousel() {
             }}
             className={`w-2 h-2 rounded-full transition-all ${
               index === currentIndex
-                ? "bg-[#A78BFA] w-6"
-                : "bg-gray-300 hover:bg-gray-400"
+                ? "bg-brand w-6"
+                : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
             }`}
             aria-label={`Go to testimonial ${index + 1}`}
           />

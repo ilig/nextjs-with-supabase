@@ -247,10 +247,10 @@ export function DashboardContent({
     <div className="flex-1 w-full mx-auto px-4 py-8 relative" dir="rtl">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-6">
-        <h1 className="text-4xl font-extrabold text-[#222222] mb-2">
+        <h1 className="text-4xl font-extrabold text-foreground mb-2">
           {classData.name}
         </h1>
-        <p className="text-lg text-gray-600 mb-6">
+        <p className="text-lg text-muted-foreground mb-6">
           {classData.school_name} • {classData.city} • שנת {classData.year}
         </p>
 
@@ -262,7 +262,7 @@ export function DashboardContent({
 
         {/* Active Section Content - Shows BELOW the navigation bar */}
         {openSection && (
-          <div className="bg-white rounded-2xl border-2 border-blue-300 shadow-xl p-6 relative animate-slide-down mt-6">
+          <div className="bg-card rounded-2xl border-2 border-blue-300 dark:border-blue-700 shadow-xl p-6 relative animate-slide-down mt-6">
             {/* Close Button */}
             <Button
               variant="ghost"

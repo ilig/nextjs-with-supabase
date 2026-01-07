@@ -71,28 +71,28 @@ export function SignUpForm({
       {/* Logo */}
       <Link href="/" className="flex items-center justify-center gap-3 group">
         <div className="relative">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#A78BFA] to-[#60A5FA] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand to-info flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
             <span className="text-2xl">✨</span>
           </div>
-          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#FCD34D] rounded-full border-2 border-white"></div>
+          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-accent-yellow rounded-full border-2 border-background"></div>
         </div>
         <div className="flex flex-col leading-tight">
-          <span className="text-2xl font-extrabold text-[#222222] group-hover:text-[#A78BFA] transition-colors">ClassEase</span>
-          <span className="text-xs font-semibold text-gray-500">ניהול ועד הורים חכם</span>
+          <span className="text-2xl font-extrabold text-foreground group-hover:text-brand transition-colors">ClassEase</span>
+          <span className="text-xs font-semibold text-muted-foreground">ניהול ועד הורים חכם</span>
         </div>
       </Link>
 
       {/* Card */}
-      <div className="bg-white rounded-3xl shadow-xl p-8 border-2 border-gray-100">
+      <div className="bg-card rounded-3xl shadow-xl p-8 border-2 border-border">
         <div className="mb-6 text-center">
-          <h1 className="text-3xl font-extrabold text-[#222222] mb-2">הרשמה</h1>
-          <p className="text-gray-600">צור חשבון חדש</p>
+          <h1 className="text-3xl font-extrabold text-foreground mb-2">הרשמה</h1>
+          <p className="text-muted-foreground">צור חשבון חדש</p>
         </div>
         <div className="space-y-6">
           <Button
             type="button"
             variant="outline"
-            className="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-50 font-semibold h-12"
+            className="w-full rounded-2xl border-2 border-border hover:bg-accent font-semibold h-12"
             onClick={handleGoogleSignUp}
           >
             <svg className="ml-2 h-5 w-5" viewBox="0 0 24 24">
@@ -118,10 +118,10 @@ export function SignUpForm({
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t-2 border-gray-200" />
+              <span className="w-full border-t-2 border-border" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-4 text-gray-500 font-semibold">
+              <span className="bg-card px-4 text-muted-foreground font-semibold">
                 או המשך עם
               </span>
             </div>
@@ -129,7 +129,7 @@ export function SignUpForm({
 
           <form onSubmit={handleSignUp} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-semibold text-gray-700">אימייל</Label>
+              <Label htmlFor="email" className="text-sm font-semibold text-foreground">אימייל</Label>
               <Input
                 id="email"
                 type="email"
@@ -137,43 +137,43 @@ export function SignUpForm({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-12 rounded-2xl border-2 border-gray-200 focus:border-[#A78BFA] transition-colors"
+                className="h-12 rounded-2xl border-2 border-border focus:border-brand transition-colors"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-semibold text-gray-700">סיסמה</Label>
+              <Label htmlFor="password" className="text-sm font-semibold text-foreground">סיסמה</Label>
               <Input
                 id="password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-12 rounded-2xl border-2 border-gray-200 focus:border-[#A78BFA] transition-colors"
+                className="h-12 rounded-2xl border-2 border-border focus:border-brand transition-colors"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="repeat-password" className="text-sm font-semibold text-gray-700">אמת סיסמה</Label>
+              <Label htmlFor="repeat-password" className="text-sm font-semibold text-foreground">אמת סיסמה</Label>
               <Input
                 id="repeat-password"
                 type="password"
                 required
                 value={repeatPassword}
                 onChange={(e) => setRepeatPassword(e.target.value)}
-                className="h-12 rounded-2xl border-2 border-gray-200 focus:border-[#A78BFA] transition-colors"
+                className="h-12 rounded-2xl border-2 border-border focus:border-brand transition-colors"
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-3">
-                <p className="text-sm text-red-600 font-semibold text-center">{error}</p>
+              <div className="bg-destructive/10 border-2 border-destructive/20 rounded-2xl p-3">
+                <p className="text-sm text-destructive font-semibold text-center">{error}</p>
               </div>
             )}
 
             <Button
               type="submit"
-              className="w-full h-12 rounded-2xl bg-[#A78BFA] hover:bg-[#9333EA] text-white font-bold shadow-lg hover:shadow-xl transition-all"
+              className="w-full h-12 rounded-2xl bg-brand hover:bg-brand-hover text-brand-foreground font-bold shadow-lg hover:shadow-xl transition-all"
               disabled={isLoading}
             >
               {isLoading ? "יוצר חשבון..." : "הירשם"}
@@ -181,10 +181,10 @@ export function SignUpForm({
           </form>
 
           <div className="text-center text-sm">
-            <span className="text-gray-600">כבר יש לך חשבון?</span>{" "}
+            <span className="text-muted-foreground">כבר יש לך חשבון?</span>{" "}
             <Link
               href="/auth/login"
-              className="text-[#A78BFA] hover:text-[#9333EA] font-bold underline-offset-4 hover:underline transition-colors"
+              className="text-brand hover:text-brand-hover font-bold underline-offset-4 hover:underline transition-colors"
             >
               התחבר
             </Link>

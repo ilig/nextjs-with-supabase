@@ -286,7 +286,7 @@ export function StaffAdditionTask({
     <div className="space-y-4 p-4" dir="rtl">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">הוסיפו את אנשי הצוות</h3>
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-muted-foreground">
           {staff.length} {staff.length === 1 ? "איש צוות" : "אנשי צוות"}
         </span>
       </div>
@@ -295,7 +295,7 @@ export function StaffAdditionTask({
         {staff.map((person, index) => (
           <Card key={person.id} className="p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-gray-700">
+              <span className="font-semibold text-foreground">
                 איש צוות #{index + 1}
               </span>
               {staff.length > 1 && (

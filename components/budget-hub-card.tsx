@@ -351,7 +351,7 @@ ${unpaidList}
 
   // Render progress header - focused on selected round (default: תשלום שנתי)
   const renderProgressHeader = () => (
-    <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 border border-purple-200">
+    <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 border border-brand/30">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600">
@@ -363,7 +363,7 @@ ${unpaidList}
               <select
                 value={selectedRound?.id || ""}
                 onChange={(e) => setSelectedRoundId(e.target.value)}
-                className="font-bold text-lg text-[#222222] bg-transparent border-none cursor-pointer focus:outline-none focus:ring-0 pr-1"
+                className="font-bold text-lg text-foreground bg-transparent border-none cursor-pointer focus:outline-none focus:ring-0 pr-1"
               >
                 {paymentRounds.map((round) => (
                   <option key={round.id} value={round.id}>
@@ -372,35 +372,35 @@ ${unpaidList}
                 ))}
               </select>
             ) : (
-              <h4 className="font-bold text-lg text-[#222222]">
+              <h4 className="font-bold text-lg text-foreground">
                 {selectedRound?.name || "תשלום שנתי"}
               </h4>
             )}
-            <p className="text-sm text-gray-500">₪{selectedRound?.amount_per_child || amountPerChild || 0} לילד</p>
+            <p className="text-sm text-muted-foreground">₪{selectedRound?.amount_per_child || amountPerChild || 0} לילד</p>
           </div>
         </div>
         <div className="text-left">
-          <p className="text-2xl font-bold text-[#A78BFA]">
+          <p className="text-2xl font-bold text-brand">
             {paidCount}/{targetChildrenCount}
           </p>
-          <p className="text-xs text-gray-500">שילמו</p>
+          <p className="text-xs text-muted-foreground">שילמו</p>
         </div>
       </div>
 
       {/* Progress Bar */}
       <div className="space-y-1">
         <Progress value={progressPercent} className="h-2" />
-        <div className="flex justify-between text-xs text-gray-500">
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>₪{totalCollected.toLocaleString()} נאסף</span>
           <span>₪{totalExpected.toLocaleString()} צפוי</span>
         </div>
       </div>
 
       {/* Add new round link - subtle */}
-      <div className="mt-3 pt-2 border-t border-purple-200/50">
+      <div className="mt-3 pt-2 border-t border-brand/30/50">
         <button
           onClick={() => setShowCreateRoundDialog(true)}
-          className="text-xs text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1"
+          className="text-xs text-brand hover:text-brand-hover hover:underline flex items-center gap-1"
         >
           <Plus className="h-3 w-3" />
           הוספת סכום חדש לאיסוף
@@ -434,11 +434,11 @@ ${unpaidList}
               />
             </div>
             {newRoundAmount && (
-              <div className="bg-purple-50 rounded-lg p-3 text-sm">
-                <p className="text-purple-700">
+              <div className="bg-brand-muted rounded-lg p-3 text-sm">
+                <p className="text-brand-muted-foreground">
                   סה״כ צפוי לאיסוף: <span className="font-bold">₪{(parseFloat(newRoundAmount) * targetChildrenCount).toLocaleString()}</span>
                 </p>
-                <p className="text-purple-600 text-xs">({targetChildrenCount} ילדים × ₪{newRoundAmount})</p>
+                <p className="text-brand text-xs">({targetChildrenCount} ילדים × ₪{newRoundAmount})</p>
               </div>
             )}
           </div>
@@ -449,7 +449,7 @@ ${unpaidList}
             <Button
               onClick={handleCreateRound}
               disabled={isCreatingRound || !newRoundName.trim() || !newRoundAmount}
-              className="bg-[#A78BFA] hover:bg-[#9333EA]"
+              className="bg-brand hover:bg-brand-hover"
             >
               {isCreatingRound ? "יוצר..." : "צור איסוף"}
             </Button>
@@ -469,18 +469,18 @@ ${unpaidList}
         {renderProgressHeader()}
 
         {/* Inline Children List with Quick Add */}
-        <div className="bg-white rounded-xl border-2 border-purple-200 p-4">
+        <div className="bg-card rounded-xl border-2 border-brand/30 dark:border-purple-800 p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5 text-purple-500" />
-              <h4 className="font-semibold text-[#222222]">רשימת ילדים</h4>
+              <UserPlus className="h-5 w-5 text-brand" />
+              <h4 className="font-semibold text-foreground">רשימת ילדים</h4>
             </div>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-muted-foreground">
               {children.length}/{targetChildrenCount} ילדים
             </span>
           </div>
 
-          <p className="text-sm text-gray-500 mb-3">
+          <p className="text-sm text-muted-foreground mb-3">
             הקלידו שמות ולחצו Enter למעבר לשורה הבאה. סמנו מי שילם.
           </p>
 
@@ -490,12 +490,12 @@ ${unpaidList}
               <div
                 key={child.id}
                 className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
-                  localPaidStatus[child.id] ? "bg-green-50 border border-green-200" : "bg-gray-50 border border-gray-200"
+                  localPaidStatus[child.id] ? "bg-success-muted border border-success/30" : "bg-muted border border-border"
                 }`}
               >
-                <span className="text-xs text-gray-400 w-6 text-center">{index + 1}</span>
+                <span className="text-xs text-muted-foreground w-6 text-center">{index + 1}</span>
                 <div className="flex-1">
-                  <span className="font-medium text-[#222222]">{child.name}</span>
+                  <span className="font-medium text-foreground">{child.name}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch
@@ -504,7 +504,7 @@ ${unpaidList}
                       setLocalPaidStatus(prev => ({ ...prev, [child.id]: checked }));
                     }}
                   />
-                  <span className={`text-sm min-w-[60px] text-left ${localPaidStatus[child.id] ? "text-green-600 font-medium" : "text-gray-400"}`}>
+                  <span className={`text-sm min-w-[60px] text-left ${localPaidStatus[child.id] ? "text-success dark:text-green-400 font-medium" : "text-muted-foreground"}`}>
                     {localPaidStatus[child.id] ? "שולם ✓" : "לא שולם"}
                   </span>
                 </div>
@@ -513,22 +513,22 @@ ${unpaidList}
 
             {/* Divider if there are existing children */}
             {children.length > 0 && quickAddNames.some(n => n.trim() || true) && (
-              <div className="border-t border-dashed border-purple-200 my-3 pt-3">
-                <p className="text-xs text-purple-500 mb-2">הוספת ילדים נוספים:</p>
+              <div className="border-t border-dashed border-brand/30 my-3 pt-3">
+                <p className="text-xs text-brand mb-2">הוספת ילדים נוספים:</p>
               </div>
             )}
 
             {/* Quick add rows for new children */}
             {quickAddNames.map((name, index) => (
               <div key={`new-${index}`} className="flex items-center gap-2">
-                <span className="text-xs text-gray-400 w-6 text-center">{children.length + index + 1}</span>
+                <span className="text-xs text-muted-foreground w-6 text-center">{children.length + index + 1}</span>
                 <Input
                   id={`quick-add-${index}`}
                   value={name}
                   onChange={(e) => updateQuickAddName(index, e.target.value)}
                   onKeyDown={(e) => handleQuickAddKeyDown(e, index)}
                   placeholder="שם הילד"
-                  className={`flex-1 h-9 ${name.trim() ? "border-green-300 bg-green-50/50" : ""}`}
+                  className={`flex-1 h-9 ${name.trim() ? "border-success/40 bg-success-muted/50" : ""}`}
                 />
                 {/* Empty space to align with payment toggle above */}
                 <div className="w-[140px]"></div>
@@ -550,17 +550,17 @@ ${unpaidList}
               size="sm"
               onClick={saveQuickAddNames}
               disabled={isSavingQuickAdd || filledQuickAddCount === 0}
-              className="flex-1 bg-[#A78BFA] hover:bg-[#9333EA]"
+              className="flex-1 bg-brand hover:bg-brand-hover"
             >
               {isSavingQuickAdd ? "שומר..." : `שמור ${filledQuickAddCount} ילדים`}
             </Button>
           </div>
 
           {/* Option to use full upload dialog */}
-          <div className="mt-3 pt-3 border-t border-gray-100 text-center">
+          <div className="mt-3 pt-3 border-t border-border text-center">
             <Dialog open={showAddChildDialog} onOpenChange={setShowAddChildDialog}>
               <DialogTrigger asChild>
-                <button className="text-sm text-purple-600 hover:text-purple-800 hover:underline">
+                <button className="text-sm text-brand hover:text-brand-hover hover:underline">
                   או העלו מקובץ אקסל →
                 </button>
               </DialogTrigger>
@@ -597,7 +597,7 @@ ${unpaidList}
           variant="outline"
           size="sm"
           onClick={() => copyUnpaidToClipboard(selectedRound)}
-          className={`rounded-xl transition-all ${copiedRoundId === selectedRound.id ? "bg-green-100 border-green-500 text-green-700" : ""}`}
+          className={`rounded-xl transition-all ${copiedRoundId === selectedRound.id ? "bg-green-100 border-green-500 text-success" : ""}`}
         >
           {copiedRoundId === selectedRound.id ? (
             <>
@@ -646,10 +646,10 @@ ${unpaidList}
 
       {/* Bulk Actions (when children selected) */}
       {selectedChildren.size > 0 && (
-        <div className="flex gap-2 p-3 bg-blue-50 rounded-xl border border-blue-200">
+        <div className="flex gap-2 p-3 bg-info-muted rounded-xl border border-info/30">
           <Button
             size="sm"
-            className="bg-green-600 hover:bg-green-700 rounded-xl"
+            className="bg-success hover:bg-success/90 rounded-xl"
             onClick={() => handleBulkMarkPaid(selectedRound.id)}
           >
             <CheckCircle2 className="ml-2 h-4 w-4" />
@@ -697,8 +697,8 @@ ${unpaidList}
             key={payment.child.id}
             className={`flex items-center justify-between p-3 rounded-xl transition-colors ${
               payment.status === "paid"
-                ? "bg-green-50 border border-green-200"
-                : "bg-white border border-gray-200 hover:border-gray-300"
+                ? "bg-success-muted border border-success/30"
+                : "bg-card border border-border hover:border-muted-foreground"
             }`}
           >
             <div className="flex items-center gap-3">
@@ -707,9 +707,9 @@ ${unpaidList}
                 onCheckedChange={() => toggleChildSelection(payment.child.id)}
               />
               <div>
-                <p className="font-medium text-[#222222]">{payment.child.name}</p>
+                <p className="font-medium text-foreground">{payment.child.name}</p>
                 {payment.child.parents && payment.child.parents.length > 0 && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     {payment.child.parents.map(p => p.name).filter(Boolean).join(", ")}
                   </p>
                 )}
@@ -720,7 +720,7 @@ ${unpaidList}
                 checked={payment.status === "paid"}
                 onCheckedChange={(checked) => onUpdatePaymentStatus?.(selectedRound.id, payment.child.id, checked ? "paid" : "unpaid")}
               />
-              <span className={`text-sm min-w-[60px] text-left ${payment.status === "paid" ? "text-green-600 font-medium" : "text-gray-400"}`}>
+              <span className={`text-sm min-w-[60px] text-left ${payment.status === "paid" ? "text-success dark:text-green-400 font-medium" : "text-muted-foreground"}`}>
                 {payment.status === "paid" ? "שולם ✓" : "לא שולם"}
               </span>
             </div>
@@ -874,7 +874,7 @@ function ExpensesTab({
       {/* Add Expense Form */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="w-full bg-[#A78BFA] hover:bg-[#9333EA] rounded-xl">
+          <Button className="w-full bg-brand hover:bg-brand-hover rounded-xl">
             <Plus className="ml-2 h-4 w-4" />
             הוצאה חדשה
           </Button>
@@ -935,7 +935,7 @@ function ExpensesTab({
             <div className="space-y-2">
               <Label>צרף חשבונית / קבלה (אופציונלי)</Label>
               {receiptFile ? (
-                <div className="border-2 border-dashed border-green-300 bg-green-50 rounded-lg p-3">
+                <div className="border-2 border-dashed border-success/40 bg-success-muted rounded-lg p-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {receiptPreviewUrl ? (
@@ -945,13 +945,13 @@ function ExpensesTab({
                           className="h-12 w-12 object-cover rounded"
                         />
                       ) : (
-                        <FileText className="h-8 w-8 text-green-600" />
+                        <FileText className="h-8 w-8 text-success" />
                       )}
                       <div>
-                        <p className="text-sm font-medium text-green-800 truncate max-w-[180px]">
+                        <p className="text-sm font-medium text-success-muted-foreground truncate max-w-[180px]">
                           {receiptFile.name}
                         </p>
-                        <p className="text-xs text-green-600">
+                        <p className="text-xs text-success">
                           {(receiptFile.size / 1024).toFixed(1)} KB
                         </p>
                       </div>
@@ -961,7 +961,7 @@ function ExpensesTab({
                       variant="ghost"
                       size="sm"
                       onClick={clearReceipt}
-                      className="text-green-700 hover:text-red-600 hover:bg-red-50"
+                      className="text-success hover:text-destructive hover:bg-destructive/10"
                       title="הסר קובץ"
                     >
                       <X className="h-4 w-4" />
@@ -972,18 +972,18 @@ function ExpensesTab({
                 <label
                   className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center gap-2 cursor-pointer transition-colors ${
                     isDragging
-                      ? "border-[#A78BFA] bg-purple-100 scale-[1.02]"
-                      : "border-gray-300 hover:border-[#A78BFA] hover:bg-purple-50"
+                      ? "border-brand bg-brand-muted scale-[1.02]"
+                      : "border-border hover:border-brand hover:bg-brand-muted"
                   }`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                 >
-                  <Upload className={`h-8 w-8 ${isDragging ? "text-[#A78BFA]" : "text-gray-400"}`} />
-                  <span className={`text-sm ${isDragging ? "text-[#A78BFA] font-medium" : "text-gray-600"}`}>
+                  <Upload className={`h-8 w-8 ${isDragging ? "text-brand" : "text-muted-foreground"}`} />
+                  <span className={`text-sm ${isDragging ? "text-brand font-medium" : "text-muted-foreground"}`}>
                     {isDragging ? "שחרר כאן" : "גרור קובץ או לחץ להעלאה"}
                   </span>
-                  <span className="text-xs text-gray-400">תמונה או PDF</span>
+                  <span className="text-xs text-muted-foreground">תמונה או PDF</span>
                   <input
                     type="file"
                     accept="image/*,.pdf"
@@ -1001,7 +1001,7 @@ function ExpensesTab({
             <Button
               onClick={handleCreateExpense}
               disabled={isCreating || isUploading || !newDescription || !newAmount}
-              className="bg-[#A78BFA] hover:bg-[#9333EA]"
+              className="bg-brand hover:bg-brand-hover"
             >
               {isUploading ? "מעלה קובץ..." : isCreating ? "שומר..." : "שמור הוצאה"}
             </Button>
@@ -1013,30 +1013,30 @@ function ExpensesTab({
       <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Receipt className="h-5 w-5 text-red-600" />
-            <span className="font-medium text-red-700">סה&quot;כ הוצאות</span>
+            <Receipt className="h-5 w-5 text-destructive" />
+            <span className="font-medium text-destructive">סה&quot;כ הוצאות</span>
           </div>
-          <span className="text-2xl font-bold text-red-900">₪{totalSpent.toLocaleString()}</span>
+          <span className="text-2xl font-bold text-destructive">₪{totalSpent.toLocaleString()}</span>
         </div>
       </div>
 
       {/* Expenses List */}
       {expenses.length === 0 ? (
         <div className="text-center py-8">
-          <Receipt className="h-12 w-12 mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500">טרם נרשמו הוצאות</p>
+          <Receipt className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+          <p className="text-muted-foreground">טרם נרשמו הוצאות</p>
         </div>
       ) : (
         <div className="space-y-3">
           {expensesWithBalance.map((expense) => (
             <div
               key={expense.id}
-              className="border-2 border-gray-100 rounded-xl p-4 hover:border-gray-200 transition-colors"
+              className="border-2 border-border rounded-xl p-4 hover:border-border transition-colors"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium text-[#222222]">{expense.description}</h4>
+                    <h4 className="font-medium text-foreground">{expense.description}</h4>
                     {expense.event && (
                       <Badge variant="outline" className="text-xs">
                         {expense.event.icon} {expense.event.name}
@@ -1064,7 +1064,7 @@ function ExpensesTab({
                             }
                           }}
                           disabled={loadingReceipts.has(expense.id)}
-                          className="inline-flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-2 py-1 rounded-r-full transition-colors"
+                          className="inline-flex items-center gap-1 text-xs text-brand hover:text-brand-hover bg-brand-muted hover:bg-brand-muted px-2 py-1 rounded-r-full transition-colors"
                           title="צפה בחשבונית"
                         >
                           <ExternalLink className="h-3 w-3" />
@@ -1110,7 +1110,7 @@ function ExpensesTab({
                             }
                           }}
                           disabled={loadingReceipts.has(`dl-${expense.id}`)}
-                          className="inline-flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-2 py-1 rounded-l-full transition-colors border-r border-purple-200"
+                          className="inline-flex items-center gap-1 text-xs text-brand hover:text-brand-hover bg-brand-muted hover:bg-brand-muted px-2 py-1 rounded-l-full transition-colors border-r border-brand/30"
                           title="הורד חשבונית"
                         >
                           <Download className="h-3 w-3" />
@@ -1119,13 +1119,13 @@ function ExpensesTab({
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     {new Date(expense.expense_date).toLocaleDateString('he-IL')}
                   </p>
                 </div>
                 <div className="text-left">
-                  <p className="text-lg font-bold text-red-600">-₪{expense.amount.toLocaleString()}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-lg font-bold text-destructive">-₪{expense.amount.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">
                     יתרה: ₪{expense.runningBalance.toLocaleString()}
                   </p>
                 </div>
@@ -1133,7 +1133,7 @@ function ExpensesTab({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="mr-2 text-gray-400 hover:text-red-600"
+                    className="mr-2 text-muted-foreground hover:text-destructive"
                     onClick={() => {
                       if (window.confirm(`האם למחוק את ההוצאה "${expense.description}"?`)) {
                         onDeleteExpense(expense.id);
@@ -1301,22 +1301,22 @@ function AllocationsTab({
       {/* Budget Summary */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 text-center">
-          <p className="text-xs text-purple-700">תקציב כולל</p>
-          <p className="text-lg font-bold text-purple-900">₪{totalBudget.toLocaleString()}</p>
+          <p className="text-xs text-brand-muted-foreground">תקציב כולל</p>
+          <p className="text-lg font-bold text-brand">₪{totalBudget.toLocaleString()}</p>
         </div>
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 text-center">
-          <p className="text-xs text-blue-700">מוקצה</p>
-          <p className="text-lg font-bold text-blue-900">₪{totalAllocated.toLocaleString()}</p>
+          <p className="text-xs text-info">מוקצה</p>
+          <p className="text-lg font-bold text-info">₪{totalAllocated.toLocaleString()}</p>
         </div>
         <div className={`rounded-xl p-3 text-center ${
           isOverAllocated
             ? "bg-gradient-to-br from-red-50 to-red-100"
             : "bg-gradient-to-br from-green-50 to-green-100"
         }`}>
-          <p className={`text-xs ${isOverAllocated ? "text-red-700" : "text-green-700"}`}>
+          <p className={`text-xs ${isOverAllocated ? "text-destructive" : "text-success"}`}>
             {isOverAllocated ? "חריגה" : "פנוי"}
           </p>
-          <p className={`text-lg font-bold ${isOverAllocated ? "text-red-900" : "text-green-900"}`}>
+          <p className={`text-lg font-bold ${isOverAllocated ? "text-destructive" : "text-success"}`}>
             ₪{Math.abs(unallocated).toLocaleString()}
           </p>
         </div>
@@ -1330,22 +1330,22 @@ function AllocationsTab({
           </DialogHeader>
 
           {/* Budget Summary in Dialog */}
-          <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
+          <div className="flex items-center justify-between p-3 bg-brand-muted rounded-lg border border-brand/30">
             <div>
               <p className="text-sm font-semibold">תקציב כולל</p>
-              <p className="text-xl font-bold text-purple-600">₪{totalBudget.toLocaleString()}</p>
+              <p className="text-xl font-bold text-brand">₪{totalBudget.toLocaleString()}</p>
             </div>
             <div className="text-left">
               <p className="text-sm">מוקצה קיים: ₪{totalAllocated.toLocaleString()}</p>
               <p className="text-sm">נבחר כעת: ₪{dialogAllocatedBudget.toLocaleString()}</p>
-              <p className={`text-sm font-semibold ${(totalBudget - totalAllocated - dialogAllocatedBudget) < 0 ? "text-red-600" : "text-green-600"}`}>
+              <p className={`text-sm font-semibold ${(totalBudget - totalAllocated - dialogAllocatedBudget) < 0 ? "text-destructive" : "text-success"}`}>
                 נותר: ₪{(totalBudget - totalAllocated - dialogAllocatedBudget).toLocaleString()}
               </p>
             </div>
           </div>
 
           {/* Column Headers */}
-          <div className="flex items-center gap-3 px-3 text-xs text-gray-500 font-medium">
+          <div className="flex items-center gap-3 px-3 text-xs text-muted-foreground font-medium">
             <div className="w-5"></div>
             <div className="w-7"></div>
             <div className="flex-1"></div>
@@ -1370,7 +1370,7 @@ function AllocationsTab({
                 <div
                   key={template.id}
                   className={`p-3 rounded-lg cursor-pointer transition-all border-2 ${
-                    isSelected ? "border-purple-300 bg-purple-50" : "border-gray-200 hover:border-gray-300"
+                    isSelected ? "border-brand/40 bg-brand-muted" : "border-border hover:border-border"
                   }`}
                   onClick={() => toggleEvent(template.id)}
                 >
@@ -1390,9 +1390,9 @@ function AllocationsTab({
                             placeholder="0"
                             className="w-[88px] h-8 text-sm text-center pr-6"
                           />
-                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">₪</span>
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">₪</span>
                         </div>
-                        <span className="text-xs text-gray-500">×</span>
+                        <span className="text-xs text-muted-foreground">×</span>
                         <Input
                           type="number"
                           value={headcount || ""}
@@ -1400,7 +1400,7 @@ function AllocationsTab({
                           placeholder="0"
                           className="w-[72px] h-8 text-sm text-center"
                         />
-                        <span className="text-sm font-medium text-purple-600 w-[90px] text-center">
+                        <span className="text-sm font-medium text-brand w-[90px] text-center">
                           = ₪{totalForEvent.toLocaleString()}
                         </span>
                       </div>
@@ -1421,7 +1421,7 @@ function AllocationsTab({
                 <div
                   key={event.id}
                   className={`p-3 rounded-lg cursor-pointer transition-all border-2 ${
-                    isSelected ? "border-purple-300 bg-purple-50" : "border-gray-200 hover:border-gray-300"
+                    isSelected ? "border-brand/40 bg-brand-muted" : "border-border hover:border-border"
                   }`}
                   onClick={() => toggleEvent(event.id)}
                 >
@@ -1441,9 +1441,9 @@ function AllocationsTab({
                             placeholder="0"
                             className="w-[88px] h-8 text-sm text-center pr-6"
                           />
-                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">₪</span>
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">₪</span>
                         </div>
-                        <span className="text-xs text-gray-500">×</span>
+                        <span className="text-xs text-muted-foreground">×</span>
                         <Input
                           type="number"
                           value={headcount || ""}
@@ -1451,7 +1451,7 @@ function AllocationsTab({
                           placeholder="0"
                           className="w-[72px] h-8 text-sm text-center"
                         />
-                        <span className="text-sm font-medium text-purple-600 w-[90px] text-center">
+                        <span className="text-sm font-medium text-brand w-[90px] text-center">
                           = ₪{totalForEvent.toLocaleString()}
                         </span>
                       </div>
@@ -1462,7 +1462,7 @@ function AllocationsTab({
             })}
 
             {/* Add Custom Event */}
-            <div className="p-3 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+            <div className="p-3 bg-muted rounded-lg border-2 border-dashed border-border">
               <div className="flex items-center gap-2">
                 <Input
                   value={customEventName}
@@ -1483,8 +1483,8 @@ function AllocationsTab({
 
           {/* Warning if over budget */}
           {(totalBudget - totalAllocated - dialogAllocatedBudget) < 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-700 font-semibold">
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3">
+              <p className="text-sm text-destructive font-semibold">
                 ⚠️ עברתם את התקציב ב-₪{Math.abs(totalBudget - totalAllocated - dialogAllocatedBudget).toLocaleString()}
               </p>
             </div>
@@ -1497,7 +1497,7 @@ function AllocationsTab({
             <Button
               onClick={handleAddEvents}
               disabled={isCreating || selectedEvents.size === 0}
-              className="bg-[#A78BFA] hover:bg-[#9333EA]"
+              className="bg-brand hover:bg-brand-hover"
             >
               {isCreating ? "מוסיף..." : `הוסף ${selectedEvents.size} אירועים`}
             </Button>
@@ -1508,10 +1508,10 @@ function AllocationsTab({
       {/* Events Allocation List */}
       {events.length === 0 ? (
         <div className="text-center py-12">
-          <Calendar className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500 mb-4">טרם נוספו אירועים</p>
+          <Calendar className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground mb-4">טרם נוספו אירועים</p>
           <Button
-            className="bg-[#A78BFA] hover:bg-[#9333EA] rounded-2xl"
+            className="bg-brand hover:bg-brand-hover rounded-2xl"
             onClick={() => setIsAddDialogOpen(true)}
           >
             <Plus className="ml-2 h-4 w-4" />
@@ -1530,15 +1530,15 @@ function AllocationsTab({
             return (
               <div
                 key={event.id}
-                className="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#A78BFA] transition-colors"
+                className="border-2 border-border rounded-2xl p-4 hover:border-brand transition-colors"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className="text-3xl">{event.icon || "📅"}</div>
                     <div>
-                      <h4 className="font-bold text-lg text-[#222222]">{event.name}</h4>
+                      <h4 className="font-bold text-lg text-foreground">{event.name}</h4>
                       {event.event_date && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           {new Date(event.event_date).toLocaleDateString('he-IL', {
                             year: 'numeric',
                             month: 'long',
@@ -1561,7 +1561,7 @@ function AllocationsTab({
                         <Button
                           size="sm"
                           onClick={() => handleSaveBudget(event.id)}
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-success hover:bg-success/90"
                         >
                           שמור
                         </Button>
@@ -1576,8 +1576,8 @@ function AllocationsTab({
                     ) : (
                       <>
                         <div className="text-left">
-                          <p className="text-sm text-gray-600">הוקצה</p>
-                          <p className={`text-lg font-bold ${isOverspent ? 'text-red-600' : 'text-[#A78BFA]'}`}>
+                          <p className="text-sm text-muted-foreground">הוקצה</p>
+                          <p className={`text-lg font-bold ${isOverspent ? 'text-destructive' : 'text-brand'}`}>
                             ₪{event.allocated_budget.toLocaleString()}
                           </p>
                         </div>
@@ -1600,15 +1600,15 @@ function AllocationsTab({
 
                 {/* Progress Bar */}
                 <div className="space-y-1">
-                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        isOverspent ? 'bg-red-500' : 'bg-gradient-to-r from-[#A78BFA] to-[#60A5FA]'
+                        isOverspent ? 'bg-destructive/100' : 'bg-gradient-to-r from-[#A78BFA] to-[#60A5FA]'
                       }`}
                       style={{ width: `${Math.min(spentPercentage, 100)}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs text-gray-500">
+                  <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{spentPercentage.toFixed(0)}% נוצל</span>
                     <span>₪{event.spent_amount.toLocaleString()} מתוך ₪{event.allocated_budget.toLocaleString()}</span>
                   </div>
@@ -1621,7 +1621,7 @@ function AllocationsTab({
           {onCreateEvent && (
             <Button
               variant="outline"
-              className="w-full mt-4 border-2 border-[#A78BFA] bg-purple-50 text-[#7C3AED] hover:bg-purple-100 hover:border-[#7C3AED] font-medium shadow-sm"
+              className="w-full mt-4 border-2 border-brand bg-brand-muted text-brand-muted-foreground hover:bg-brand-muted hover:border-brand-hover font-medium shadow-sm"
               onClick={() => setIsAddDialogOpen(true)}
             >
               <Plus className="ml-2 h-5 w-5" />
@@ -1680,38 +1680,38 @@ function SummaryTab({
           icon={TrendingUp}
           label="נאסף"
           value={`₪${totalCollected.toLocaleString()}`}
-          colorClass="bg-gradient-to-br from-green-50 to-green-100 text-green-700"
+          colorClass="bg-gradient-to-br from-green-50 to-green-100 text-success"
         />
         <StatCard
           icon={TrendingDown}
           label="הוצא"
           value={`₪${budgetMetrics.spent.toLocaleString()}`}
-          colorClass="bg-gradient-to-br from-red-50 to-red-100 text-red-700"
+          colorClass="bg-gradient-to-br from-red-50 to-red-100 text-destructive"
         />
         <StatCard
           icon={DollarSign}
           label="תקציב מוקצה"
           value={`₪${budgetMetrics.allocated.toLocaleString()}`}
-          colorClass="bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700"
+          colorClass="bg-gradient-to-br from-blue-50 to-blue-100 text-info"
         />
         <StatCard
           icon={Wallet}
           label="תקציב כולל"
           value={`₪${budgetMetrics.total.toLocaleString()}`}
-          colorClass="bg-gradient-to-br from-purple-50 to-purple-100 text-purple-700"
+          colorClass="bg-gradient-to-br from-purple-50 to-purple-100 text-brand-muted-foreground"
         />
       </div>
 
       {/* Unpaid Alert */}
       {unpaidCount > 0 && (
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
+        <div className="bg-warning-muted border-2 border-warning/30 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-yellow-600" />
+            <AlertCircle className="h-5 w-5 text-warning-muted-foreground" />
             <div>
-              <p className="font-semibold text-yellow-800">
+              <p className="font-semibold text-warning-muted-foreground">
                 {unpaidCount} ילדים טרם שילמו
               </p>
-              <p className="text-sm text-yellow-700">
+              <p className="text-sm text-warning-muted-foreground">
                 עברו ללשונית &quot;איסוף&quot; לצפייה ברשימה המלאה
               </p>
             </div>
@@ -1722,13 +1722,13 @@ function SummaryTab({
       {/* Collection Progress by Round */}
       {paymentRounds.length > 0 && (
         <div className="space-y-3">
-          <h4 className="font-semibold text-[#222222]">התקדמות גביות</h4>
+          <h4 className="font-semibold text-foreground">התקדמות גביות</h4>
           {paymentRounds.map((round) => (
             <div key={round.id} className="flex items-center gap-4">
               <div className="flex-1">
                 <div className="flex justify-between text-sm mb-1">
                   <span className="font-medium">{round.name}</span>
-                  <span className="text-gray-500">
+                  <span className="text-muted-foreground">
                     {round.summary.paid_count}/{round.summary.total_children}
                   </span>
                 </div>
@@ -1843,23 +1843,23 @@ export function BudgetHubCard({
       {/* Compact Top Summary - One liner */}
       <div className={`flex items-center justify-between rounded-xl px-4 py-3 ${
         isNegativeBalance
-          ? "bg-gradient-to-r from-red-50 to-orange-50 border border-red-200"
-          : "bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200"
+          ? "bg-gradient-to-r from-red-50 to-orange-50 border border-destructive/30"
+          : "bg-gradient-to-r from-purple-50 to-blue-50 border border-brand/30"
       }`}>
         <div className="flex items-center gap-2">
-          <Wallet className={`h-4 w-4 ${isNegativeBalance ? "text-red-600" : "text-purple-600"}`} />
-          <span className="text-sm font-medium text-gray-700">יתרת קופה</span>
+          <Wallet className={`h-4 w-4 ${isNegativeBalance ? "text-destructive" : "text-brand"}`} />
+          <span className="text-sm font-medium text-foreground">יתרת קופה</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-lg font-bold ${isNegativeBalance ? "text-red-600" : "text-green-600"}`}>
+          <span className={`text-lg font-bold ${isNegativeBalance ? "text-destructive" : "text-success"}`}>
             {isNegativeBalance ? "-" : ""}₪{Math.abs(balance).toLocaleString()}
           </span>
-          <span className="text-gray-400">/</span>
-          <span className="text-sm text-gray-500">
+          <span className="text-muted-foreground">/</span>
+          <span className="text-sm text-muted-foreground">
             ₪{budgetMetrics.total.toLocaleString()} תקציב
           </span>
           {isNegativeBalance && (
-            <AlertCircle className="h-4 w-4 text-red-500" />
+            <AlertCircle className="h-4 w-4 text-destructive" />
           )}
         </div>
       </div>
@@ -1872,7 +1872,7 @@ export function BudgetHubCard({
           label="נאסף"
           value={`₪${totalCollected.toLocaleString()}`}
           subValue={totalUnpaid > 0 ? `${totalUnpaid} טרם שילמו` : "כולם שילמו"}
-          colorClass="bg-gradient-to-br from-green-50 to-green-100 text-green-700"
+          colorClass="bg-gradient-to-br from-green-50 to-green-100 text-success"
           onClick={() => handleCardClick("collection")}
           isActive={activeView === "collection"}
         />
@@ -1883,7 +1883,7 @@ export function BudgetHubCard({
           label="הוצא"
           value={`₪${totalSpent.toLocaleString()}`}
           subValue={`${expenses.length} הוצאות`}
-          colorClass="bg-gradient-to-br from-red-50 to-red-100 text-red-700"
+          colorClass="bg-gradient-to-br from-red-50 to-red-100 text-destructive"
           onClick={() => handleCardClick("expenses")}
           isActive={activeView === "expenses"}
         />
@@ -1894,7 +1894,7 @@ export function BudgetHubCard({
           label="תקציב מוקצה"
           value={`₪${budgetMetrics.allocated.toLocaleString()}`}
           subValue={`${events.length} אירועים`}
-          colorClass="bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700"
+          colorClass="bg-gradient-to-br from-blue-50 to-blue-100 text-info"
           onClick={() => handleCardClick("allocations")}
           isActive={activeView === "allocations"}
         />
@@ -1903,20 +1903,20 @@ export function BudgetHubCard({
       {/* Unpaid Alert */}
       {totalUnpaid > 0 && activeView === null && (
         <div
-          className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 cursor-pointer hover:bg-yellow-100 transition-colors"
+          className="bg-warning-muted border-2 border-warning/30 rounded-xl p-4 cursor-pointer hover:bg-warning-muted transition-colors"
           onClick={() => handleCardClick("collection")}
         >
           <div className="flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-yellow-600" />
+            <AlertCircle className="h-5 w-5 text-warning-muted-foreground" />
             <div className="flex-1">
-              <p className="font-semibold text-yellow-800">
+              <p className="font-semibold text-warning-muted-foreground">
                 {totalUnpaid} ילדים טרם שילמו
               </p>
-              <p className="text-sm text-yellow-700">
+              <p className="text-sm text-warning-muted-foreground">
                 לחצו לצפייה ברשימה המלאה
               </p>
             </div>
-            <ChevronDown className="h-5 w-5 text-yellow-600" />
+            <ChevronDown className="h-5 w-5 text-warning-muted-foreground" />
           </div>
         </div>
       )}
@@ -1924,7 +1924,7 @@ export function BudgetHubCard({
       {/* Collection Progress by Round (only when no detail view is open) */}
       {paymentRounds.length > 0 && activeView === null && (
         <div className="space-y-3">
-          <h4 className="font-semibold text-[#222222]">התקדמות איסוף</h4>
+          <h4 className="font-semibold text-foreground">התקדמות איסוף</h4>
           {paymentRounds.map((round) => {
             // Calculate progress based on target children count, not just those in system
             const progressPercent = targetChildrenCount > 0
@@ -1933,13 +1933,13 @@ export function BudgetHubCard({
             return (
               <div
                 key={round.id}
-                className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-4 p-3 bg-muted rounded-xl cursor-pointer hover:bg-muted transition-colors"
                 onClick={() => handleCardClick("collection")}
               >
                 <div className="flex-1">
                   <div className="flex justify-between text-sm mb-1">
                     <span className="font-medium">{round.name}</span>
-                    <span className="text-gray-500">
+                    <span className="text-muted-foreground">
                       {round.summary.paid_count}/{targetChildrenCount}
                     </span>
                   </div>
@@ -1964,7 +1964,7 @@ export function BudgetHubCard({
     };
 
     return (
-      <div className="mt-6 border-t-2 border-gray-100 pt-6">
+      <div className="mt-6 border-t-2 border-border pt-6">
         {/* Back button and title */}
         <div className="flex items-center gap-3 mb-4">
           <Button
@@ -1976,7 +1976,7 @@ export function BudgetHubCard({
             <ChevronUp className="h-4 w-4 ml-1" />
             חזרה
           </Button>
-          <h3 className="font-bold text-lg text-[#222222]">{viewTitles[activeView]}</h3>
+          <h3 className="font-bold text-lg text-foreground">{viewTitles[activeView]}</h3>
         </div>
 
         {/* Detail content */}
@@ -2023,14 +2023,14 @@ export function BudgetHubCard({
   };
 
   return (
-    <Card className={`shadow-xl rounded-3xl border-2 border-gray-100 ${className}`} dir="rtl">
+    <Card className={`shadow-xl rounded-3xl border-2 border-border ${className}`} dir="rtl">
       <CardHeader>
         <div className="flex items-center gap-3">
           <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600">
             <Wallet className="h-6 w-6 text-white" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-extrabold text-[#222222]">ניהול התקציב</CardTitle>
+            <CardTitle className="text-2xl font-extrabold text-foreground">ניהול התקציב</CardTitle>
             <CardDescription className="text-base">מעקב אחר איסופים, תשלומים והוצאות</CardDescription>
           </div>
         </div>

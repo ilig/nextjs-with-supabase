@@ -206,8 +206,8 @@ export function DashboardWithSetup(props: DashboardWithSetupProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-gray-900">מעולה! ההגדרות הושלמו</h2>
-                <p className="text-gray-600">
+                <h2 className="text-2xl font-bold text-foreground">מעולה! ההגדרות הושלמו</h2>
+                <p className="text-muted-foreground">
                   סיימתם להגדיר את הכיתה בהצלחה. עכשיו אפשר להתחיל לעבוד עם לוח הבקרה!
                 </p>
               </div>
@@ -233,10 +233,10 @@ export function DashboardWithSetup(props: DashboardWithSetupProps) {
         <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6" dir="rtl">
           {/* Class Header */}
           <div className="mb-4">
-            <h1 className="text-4xl font-extrabold text-[#222222] mb-2">
+            <h1 className="text-4xl font-extrabold text-foreground mb-2">
               {classData.name}
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-muted-foreground">
               {classData.school_name} • {classData.city} • שנת {classData.year}
             </p>
           </div>
@@ -249,7 +249,7 @@ export function DashboardWithSetup(props: DashboardWithSetupProps) {
 
           {/* Active Section Content - Shows BELOW the navigation bar */}
           {activeSection && (
-            <div className="bg-white rounded-2xl border-2 border-blue-300 shadow-xl p-6 relative animate-slide-down">
+            <div className="bg-card rounded-2xl border-2 border-blue-300 dark:border-blue-700 shadow-xl p-6 relative animate-slide-down">
               {/* Close Button */}
               <Button
                 variant="ghost"
@@ -425,8 +425,8 @@ export function DashboardWithSetup(props: DashboardWithSetupProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">מעולה! ההגדרות הושלמו</h2>
-              <p className="text-gray-600">
+              <h2 className="text-2xl font-bold text-foreground">מעולה! ההגדרות הושלמו</h2>
+              <p className="text-muted-foreground">
                 סיימתם להגדיר את הכיתה בהצלחה. עכשיו אפשר להתחיל לעבוד עם לוח הבקרה!
               </p>
             </div>

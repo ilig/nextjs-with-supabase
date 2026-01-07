@@ -113,7 +113,7 @@ export default async function DashboardPage() {
   const remainingBudget = totalBudget - allocatedBudget;
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#FFF9F0] flex flex-col">
+    <div dir="rtl" className="min-h-screen bg-surface flex flex-col">
       <Header />
 
       <DashboardWithSetup

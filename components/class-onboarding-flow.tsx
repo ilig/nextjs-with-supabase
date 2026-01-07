@@ -436,16 +436,16 @@ export function ClassOnboardingFlow() {
         return (
           <div className="text-center space-y-6">
             <div className="text-6xl mb-4">👋</div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#222222]">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-foreground">
               ברוכים הבאים לועד הורים
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-muted-foreground">
               נקים יחד את הכיתה שלכם תוך דקות
             </p>
             <div className="flex gap-4 justify-center pt-4">
               <Button
                 onClick={nextStep}
-                className="rounded-2xl bg-[#A78BFA] hover:bg-[#9333EA] text-white font-bold shadow-lg"
+                className="rounded-2xl bg-brand hover:bg-brand-hover text-white font-bold shadow-lg"
               >
                 התחלת ההקמה
               </Button>
@@ -460,7 +460,7 @@ export function ClassOnboardingFlow() {
         // Class Details
         return (
           <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#222222] mb-4">פרטי הכיתה</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">פרטי הכיתה</h2>
 
             <div className="space-y-2">
               <Label htmlFor="className">שם הכיתה *</Label>
@@ -533,7 +533,7 @@ export function ClassOnboardingFlow() {
         // Children & Parents
         return (
           <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#222222] mb-4">ילדים והורים</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">ילדים והורים</h2>
 
             <div className="flex gap-2 mb-4">
               <Button
@@ -562,16 +562,16 @@ export function ClassOnboardingFlow() {
                 onDrop={handleDrop}
                 className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
                   isDragging
-                    ? "border-[#A78BFA] bg-[#E9D5FF] scale-105"
-                    : "border-gray-300 hover:border-[#A78BFA]"
+                    ? "border-purple-500 bg-purple-500/20 scale-105"
+                    : "border-border hover:border-purple-500"
                 }`}
               >
                 <Upload className={`mx-auto h-12 w-12 mb-4 transition-colors ${
-                  isDragging ? "text-[#A78BFA]" : "text-gray-400"
+                  isDragging ? "text-purple-500" : "text-muted-foreground"
                 }`} />
                 <Label
                   htmlFor="excel-upload"
-                  className="cursor-pointer text-[#A78BFA] hover:text-[#9333EA] font-medium block"
+                  className="cursor-pointer text-purple-500 hover:text-purple-600 font-medium block"
                 >
                   {isDragging ? "שחרר לכאן להעלאה" : "לחץ או גרור קובץ אקסל לכאן"}
                 </Label>
@@ -582,7 +582,7 @@ export function ClassOnboardingFlow() {
                   onChange={handleExcelUpload}
                   className="hidden"
                 />
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-muted-foreground mt-2">
                   הקובץ חייב לכלול: שם ילד, שם הורה 1, טלפון הורה 1
                 </p>
                 <ExcelTemplateDownload />
@@ -687,7 +687,7 @@ export function ClassOnboardingFlow() {
 
             {uploadMethod === "manual" && children.length === 0 && (
               <div className="text-center py-8">
-                <Button onClick={addChild} className="rounded-2xl bg-[#A78BFA] hover:bg-[#9333EA] text-white font-bold">
+                <Button onClick={addChild} className="rounded-2xl bg-brand hover:bg-brand-hover text-white font-bold">
                   + הוסף את הילד הראשון
                 </Button>
               </div>
@@ -699,7 +699,7 @@ export function ClassOnboardingFlow() {
         // Staff Setup
         return (
           <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#222222] mb-4">צוות הכיתה</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">צוות הכיתה</h2>
 
             {staff.map((member, index) => (
               <Card key={index} className="p-4">
@@ -748,10 +748,10 @@ export function ClassOnboardingFlow() {
         // Events Template Selection
         return (
           <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#222222] mb-4">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">
               אילו אירועים תרצו לתקצב?
             </h2>
-            <p className="text-gray-600 mb-4">בחרו את האירועים שתרצו להקצות להם תקציב</p>
+            <p className="text-muted-foreground mb-4">בחרו את האירועים שתרצו להקצות להם תקציב</p>
 
             <div className="grid grid-cols-2 gap-3">
               {EVENT_TEMPLATES.filter((e) => e.id !== "other").map((event) => (
@@ -759,8 +759,8 @@ export function ClassOnboardingFlow() {
                   key={event.id}
                   className={`p-3 cursor-pointer transition-all rounded-2xl ${
                     selectedEvents.includes(event.id)
-                      ? "border-[#A78BFA] border-2 bg-[#E9D5FF]"
-                      : "border-gray-200 hover:border-[#A78BFA]"
+                      ? "border-purple-500 border-2 bg-purple-500/20"
+                      : "border-border hover:border-purple-500"
                   }`}
                   onClick={() => toggleEvent(event.id)}
                 >
@@ -781,7 +781,7 @@ export function ClassOnboardingFlow() {
               {customEvents.map((event) => (
                 <Card
                   key={event.id}
-                  className="p-3 border-[#A78BFA] border-2 bg-[#E9D5FF] rounded-2xl relative"
+                  className="p-3 border-purple-500 border-2 bg-purple-500/20 rounded-2xl relative"
                 >
                   <div className="flex items-center gap-2">
                     <Checkbox checked={true} disabled />
@@ -793,7 +793,7 @@ export function ClassOnboardingFlow() {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeCustomEvent(event.id)}
-                      className="h-6 w-6 p-0 hover:bg-red-100"
+                      className="h-6 w-6 p-0 hover:bg-red-500/20"
                     >
                       ✕
                     </Button>
@@ -803,7 +803,7 @@ export function ClassOnboardingFlow() {
             </div>
 
             {/* Add Custom Event Section */}
-            <Card className="p-4 border-2 border-dashed border-gray-300 rounded-2xl">
+            <Card className="p-4 border-2 border-dashed border-border rounded-2xl">
               <div className="space-y-3">
                 <Label htmlFor="custom-event" className="text-base font-semibold flex items-center gap-2">
                   <span className="text-2xl">➕</span>
@@ -824,7 +824,7 @@ export function ClassOnboardingFlow() {
                   />
                   <Button
                     onClick={addCustomEvent}
-                    className="rounded-xl bg-[#A78BFA] hover:bg-[#9333EA] text-white font-bold"
+                    className="rounded-xl bg-brand hover:bg-brand-hover text-white font-bold"
                   >
                     הוסף
                   </Button>
@@ -838,37 +838,37 @@ export function ClassOnboardingFlow() {
         // Budget Setup
         return (
           <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#222222] mb-4">הגדרת תקציב</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">הגדרת תקציב</h2>
 
             <div className="space-y-4">
               <div className="flex gap-4">
                 <Card
                   className={`flex-1 p-4 cursor-pointer rounded-2xl ${
                     budgetType === "per-child"
-                      ? "border-[#A78BFA] border-2 bg-[#E9D5FF]"
-                      : "border-gray-200"
+                      ? "border-purple-500 border-2 bg-purple-500/20"
+                      : "border-border"
                   }`}
                   onClick={() => setBudgetType("per-child")}
                 >
                   <div className="text-center">
                     <div className="text-3xl mb-2">👶</div>
                     <p className="font-medium">תקציב לילד</p>
-                    <p className="text-sm text-gray-500">הזן סכום לכל ילד</p>
+                    <p className="text-sm text-muted-foreground">הזן סכום לכל ילד</p>
                   </div>
                 </Card>
 
                 <Card
                   className={`flex-1 p-4 cursor-pointer rounded-2xl ${
                     budgetType === "total"
-                      ? "border-[#A78BFA] border-2 bg-[#E9D5FF]"
-                      : "border-gray-200"
+                      ? "border-purple-500 border-2 bg-purple-500/20"
+                      : "border-border"
                   }`}
                   onClick={() => setBudgetType("total")}
                 >
                   <div className="text-center">
                     <div className="text-3xl mb-2">💰</div>
                     <p className="font-medium">תקציב כולל</p>
-                    <p className="text-sm text-gray-500">הזן סכום כולל</p>
+                    <p className="text-sm text-muted-foreground">הזן סכום כולל</p>
                   </div>
                 </Card>
               </div>
@@ -901,17 +901,17 @@ export function ClassOnboardingFlow() {
               </div>
 
               {budgetAmount > 0 && (
-                <Card className="p-4 bg-[#E9D5FF] rounded-2xl">
-                  <p className="text-lg font-bold text-[#A78BFA]">
+                <Card className="p-4 bg-purple-500/20 rounded-2xl">
+                  <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
                     תקציב כולל: ₪{totalBudget.toLocaleString()}
                   </p>
                   {budgetType === "per-child" && (
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       ({children.length} ילדים × ₪{budgetAmount})
                     </p>
                   )}
                   {budgetType === "total" && children.length > 0 && (
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       (₪{Math.round(totalBudget / children.length).toLocaleString()} לילד × {children.length} ילדים)
                     </p>
                   )}
@@ -925,23 +925,23 @@ export function ClassOnboardingFlow() {
         // Budget Allocation
         return (
           <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#222222] mb-4">חלוקת התקציב</h2>
-            <p className="text-gray-600">הקצו תקציב לכל אירוע</p>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">חלוקת התקציב</h2>
+            <p className="text-muted-foreground">הקצו תקציב לכל אירוע</p>
 
-            <Card className="p-3 bg-[#E9D5FF] mb-4 rounded-2xl">
+            <Card className="p-3 bg-purple-500/20 mb-4 rounded-2xl">
               <div className="flex justify-between items-center gap-2">
                 <div className="flex-1">
-                  <p className="text-xs text-gray-600">תקציב כולל</p>
+                  <p className="text-xs text-muted-foreground">תקציב כולל</p>
                   <p className="text-lg md:text-xl font-bold">₪{totalBudget.toLocaleString()}</p>
                 </div>
                 <div className="flex-1 text-center">
-                  <p className="text-xs text-gray-600">הוקצה</p>
-                  <p className="text-lg md:text-xl font-bold text-[#A78BFA]">
+                  <p className="text-xs text-muted-foreground">הוקצה</p>
+                  <p className="text-lg md:text-xl font-bold text-purple-600 dark:text-purple-400">
                     ₪{allocatedBudget.toLocaleString()}
                   </p>
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="text-xs text-gray-600">נותר</p>
+                  <p className="text-xs text-muted-foreground">נותר</p>
                   <p
                     className={`text-lg md:text-xl font-bold ${
                       remainingBudget < 0 ? "text-red-500" : "text-green-500"
@@ -1003,7 +1003,7 @@ export function ClassOnboardingFlow() {
         // Review & Confirm
         return (
           <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#222222] mb-4">סיכום ואישור</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">סיכום ואישור</h2>
 
             <Card className="p-4">
               <h3 className="font-bold mb-2">פרטי הכיתה</h3>
@@ -1029,7 +1029,7 @@ export function ClassOnboardingFlow() {
 
             <Card className="p-4 rounded-2xl">
               <h3 className="font-bold mb-2">תקציב</h3>
-              <p className="text-xl font-bold text-[#A78BFA]">
+              <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
                 ₪{totalBudget.toLocaleString()}
               </p>
               <div className="mt-2 space-y-1">
@@ -1054,7 +1054,7 @@ export function ClassOnboardingFlow() {
               <Button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex-1 rounded-2xl bg-[#A78BFA] hover:bg-[#9333EA] text-white font-bold shadow-lg"
+                className="flex-1 rounded-2xl bg-brand hover:bg-brand-hover text-white font-bold shadow-lg"
               >
                 {loading ? "שומר..." : "השק את הכיתה 🚀"}
               </Button>
@@ -1067,14 +1067,14 @@ export function ClassOnboardingFlow() {
         return (
           <div className="text-center space-y-6">
             <div className="text-6xl mb-4">🎉</div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#222222]">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-foreground">
               הכיתה הוקמה בהצלחה!
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-muted-foreground">
               עכשיו זה הזמן להזמין את ההורים
             </p>
 
-            <Card className="p-6 bg-[#E9D5FF] rounded-2xl">
+            <Card className="p-6 bg-purple-500/20 rounded-2xl">
               <p className="font-medium mb-2">קישור ההזמנה:</p>
               <div className="flex gap-2">
                 <Input
@@ -1088,22 +1088,22 @@ export function ClassOnboardingFlow() {
                     navigator.clipboard.writeText(inviteLink);
                     alert("הקישור הועתק!");
                   }}
-                  className="rounded-2xl bg-[#A78BFA] hover:bg-[#9333EA] text-white font-bold"
+                  className="rounded-2xl bg-brand hover:bg-brand-hover text-white font-bold"
                 >
                   העתק
                 </Button>
               </div>
             </Card>
 
-            <div className="bg-[#FEF08A] p-4 rounded-2xl border-2 border-gray-200">
-              <p className="text-sm text-gray-700 font-semibold">
+            <div className="bg-yellow-500/20 p-4 rounded-2xl border-2 border-yellow-500/30">
+              <p className="text-sm text-foreground font-semibold">
                 💡 שלחו את הקישור לקבוצת הווטסאפ של הכיתה
               </p>
             </div>
 
             <Button
               onClick={() => router.push("/dashboard")}
-              className="rounded-2xl bg-[#A78BFA] hover:bg-[#9333EA] text-white font-bold shadow-lg"
+              className="rounded-2xl bg-brand hover:bg-brand-hover text-white font-bold shadow-lg"
             >
               {redirectCountdown !== null
                 ? `מעבר אוטומטי בעוד ${redirectCountdown} שניות...`
@@ -1118,21 +1118,21 @@ export function ClassOnboardingFlow() {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#FFF9F0] p-4">
+    <div dir="rtl" className="min-h-screen bg-background p-4">
       <div className="max-w-3xl mx-auto py-8">
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-600">
+            <span className="text-sm font-medium text-muted-foreground">
               שלב {step + 1} מתוך {steps.length}
             </span>
-            <span className="text-sm font-medium text-[#A78BFA]">
+            <span className="text-sm font-medium text-brand">
               {steps[step].title}
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-muted rounded-full h-2">
             <div
-              className="bg-[#A78BFA] h-2 rounded-full transition-all duration-300"
+              className="bg-purple-500 h-2 rounded-full transition-all duration-300"
               style={{ width: `${((step + 1) / steps.length) * 100}%` }}
             />
           </div>
@@ -1160,7 +1160,7 @@ export function ClassOnboardingFlow() {
                 <div
                   className={`mb-3 transition-all duration-300 flex items-center justify-center shrink-0 ${
                     i === step
-                      ? "bg-[#A78BFA] rounded-full w-16 h-16 shadow-lg text-3xl leading-none"
+                      ? "bg-brand rounded-full w-16 h-16 shadow-lg text-3xl leading-none"
                       : i < step
                         ? "text-2xl w-10 h-10 leading-none"
                         : "text-2xl w-10 h-10 opacity-70 leading-none"
@@ -1170,7 +1170,7 @@ export function ClassOnboardingFlow() {
                   {i < step ? "✅" : s.icon}
                 </div>
                 <p className={`text-xs text-center font-medium leading-tight w-full px-1 ${
-                  i === step ? "text-[#A78BFA]" : "text-gray-600"
+                  i === step ? "text-brand" : "text-muted-foreground"
                 }`}>
                   {s.title}
                 </p>
@@ -1180,7 +1180,7 @@ export function ClassOnboardingFlow() {
         </div>
 
         {/* Main Content */}
-        <Card className="p-6 md:p-8 shadow-xl rounded-3xl border-2 border-gray-100">
+        <Card className="p-6 md:p-8 shadow-xl rounded-3xl border-2 border-border">
           {renderStepContent()}
 
           {/* Navigation Buttons */}
@@ -1192,7 +1192,7 @@ export function ClassOnboardingFlow() {
               </Button>
               <Button
                 onClick={nextStep}
-                className="flex-1 rounded-2xl bg-[#A78BFA] hover:bg-[#9333EA] text-white font-bold shadow-lg hover:shadow-xl transition-all"
+                className="flex-1 rounded-2xl bg-brand hover:bg-brand-hover text-white font-bold shadow-lg hover:shadow-xl transition-all"
               >
                 המשך
                 <ChevronLeft className="mr-2 h-4 w-4" />

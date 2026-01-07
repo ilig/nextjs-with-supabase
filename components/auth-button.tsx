@@ -13,15 +13,15 @@ export async function AuthButton() {
 
   return user ? (
     <div className="flex items-center justify-between md:justify-start gap-3 w-full md:w-auto" dir="rtl">
-      <span className="text-sm font-semibold text-gray-700">שלום, {user.email?.split('@')[0]}!</span>
+      <span className="text-sm font-semibold text-foreground">שלום, {user.email?.split('@')[0]}!</span>
       <LogoutButton />
     </div>
   ) : (
     <div className="flex gap-3 w-full md:w-auto">
-      <Button asChild size="default" variant={"outline"} className="flex-1 md:flex-none rounded-2xl border-2 border-[#A78BFA] text-[#A78BFA] hover:bg-[#A78BFA] hover:text-white font-bold">
+      <Button asChild size="default" variant={"outline"} className="flex-1 md:flex-none rounded-2xl border-2 border-brand text-brand hover:bg-brand hover:text-brand-foreground font-bold">
         <Link href="/auth/login">התחברות</Link>
       </Button>
-      <Button asChild size="default" className="flex-1 md:flex-none rounded-2xl bg-[#A78BFA] hover:bg-[#9333EA] text-white font-bold shadow-md">
+      <Button asChild size="default" className="flex-1 md:flex-none rounded-2xl bg-brand hover:bg-brand-hover text-brand-foreground font-bold shadow-md">
         <Link href="/auth/sign-up">הרשמה</Link>
       </Button>
     </div>

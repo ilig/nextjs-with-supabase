@@ -404,7 +404,7 @@ export function ChildrenUploadTask({
             <div className="text-center space-y-3">
               <FileSpreadsheet className="h-12 w-12 mx-auto text-green-600" />
               <h4 className="font-semibold text-lg">העלאה מאקסל</h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 אם יש לכם קובץ עם כל הפרטים
               </p>
               <Button className="w-full">בחר באפשרות זו</Button>
@@ -418,7 +418,7 @@ export function ChildrenUploadTask({
             <div className="text-center space-y-3">
               <Plus className="h-12 w-12 mx-auto text-blue-600" />
               <h4 className="font-semibold text-lg">הזנה מהירה</h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 הקלידו שמות במהירות, השלימו פרטים אחר כך
               </p>
               <Button className="w-full">בחר באפשרות זו</Button>
@@ -439,7 +439,7 @@ export function ChildrenUploadTask({
       <div className="space-y-4 p-4" dir="rtl">
         <div className="text-center space-y-2">
           <h3 className="text-lg font-semibold">העלאת קובץ אקסל</h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             גררו קובץ אקסל או לחצו להעלאה
           </p>
         </div>
@@ -450,12 +450,12 @@ export function ChildrenUploadTask({
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
             isDragging
-              ? "border-blue-500 bg-blue-50"
-              : "border-gray-300 hover:border-gray-400"
+              ? "border-blue-500 bg-blue-500/10"
+              : "border-border hover:border-muted-foreground"
           }`}
         >
-          <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-sm text-gray-600 mb-4">
+          <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-sm text-muted-foreground mb-4">
             גררו קובץ לכאן או לחצו לבחירה
           </p>
           <input
@@ -472,9 +472,9 @@ export function ChildrenUploadTask({
           </label>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
           <p className="text-sm font-semibold mb-2">💡 אין לכם קובץ מוכן?</p>
-          <p className="text-sm text-gray-700 mb-3">
+          <p className="text-sm text-foreground mb-3">
             הורידו את התבנית שלנו, מלאו אותה, והעלו בחזרה
           </p>
           <Button
@@ -506,7 +506,7 @@ export function ChildrenUploadTask({
       <div className="space-y-4 p-4" dir="rtl">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">בדקו את הרשימה</h3>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-muted-foreground">
             {children.length} ילדים
           </span>
         </div>
@@ -515,7 +515,7 @@ export function ChildrenUploadTask({
           {children.map((child, index) => (
             <Card key={child.id} className="p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-gray-700">ילד #{index + 1}</span>
+                <span className="font-semibold text-foreground">ילד #{index + 1}</span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -621,13 +621,13 @@ export function ChildrenUploadTask({
     <div className="space-y-4 p-4" dir="rtl">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">הזנת שמות ילדים</h3>
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-muted-foreground">
           {filledCount} מתוך {children.length} שורות
         </span>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
-        <p className="text-blue-800">
+      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-sm">
+        <p className="text-blue-700 dark:text-blue-300">
           💡 הקלידו שמות ולחצו Enter למעבר לשורה הבאה.
           לחצו על ▼ להוספת פרטים נוספים (הורים, יום הולדת).
         </p>
@@ -642,12 +642,12 @@ export function ChildrenUploadTask({
             <div
               key={child.id}
               className={`border rounded-lg transition-all ${
-                hasName ? "border-green-200 bg-green-50/50" : "border-gray-200"
+                hasName ? "border-green-500/30 bg-green-500/10" : "border-border"
               }`}
             >
               {/* Compact row */}
               <div className="flex items-center gap-2 p-2">
-                <span className="text-xs text-gray-400 w-6 text-center">{index + 1}</span>
+                <span className="text-xs text-muted-foreground w-6 text-center">{index + 1}</span>
                 <Input
                   ref={(el) => {
                     if (el) inputRefs.current.set(child.id, el);
@@ -660,19 +660,19 @@ export function ChildrenUploadTask({
                 />
                 <button
                   onClick={() => toggleExpand(child.id)}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  className="p-1 hover:bg-muted rounded transition-colors"
                   title="הוסף פרטים נוספים"
                 >
                   {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-gray-500" />
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   )}
                 </button>
                 {hasName && (
                   <button
                     onClick={() => removeChild(child.id)}
-                    className="p-1 hover:bg-red-100 rounded transition-colors"
+                    className="p-1 hover:bg-red-500/20 rounded transition-colors"
                     title="מחק"
                   >
                     <Trash2 className="h-4 w-4 text-red-400" />
@@ -682,7 +682,7 @@ export function ChildrenUploadTask({
 
               {/* Expanded details */}
               {isExpanded && (
-                <div className="px-4 pb-4 pt-2 border-t space-y-3 bg-gray-50/50">
+                <div className="px-4 pb-4 pt-2 border-t space-y-3 bg-muted/50">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label className="text-xs">תאריך לידה</Label>
@@ -765,7 +765,7 @@ export function ChildrenUploadTask({
         הוסף עוד 5 שורות
       </Button>
 
-      <div className="bg-gray-50 border rounded-lg p-3 text-sm text-gray-600">
+      <div className="bg-muted/50 border rounded-lg p-3 text-sm text-muted-foreground">
         <p>
           ℹ️ אפשר להשלים פרטי הורים, כתובת וימי הולדת גם אחר כך דרך ניהול הכיתה
         </p>

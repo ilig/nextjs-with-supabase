@@ -285,12 +285,12 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#FFF9F0]">
+      <div className="min-h-screen flex flex-col bg-surface">
         <SimpleHeader />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="text-center space-y-4">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto text-[#A78BFA]" />
-            <p className="text-gray-600">טוען...</p>
+            <Loader2 className="h-12 w-12 animate-spin mx-auto text-brand" />
+            <p className="text-muted-foreground">טוען...</p>
           </div>
         </div>
         <SimpleFooter />
@@ -301,14 +301,14 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
   // Error state (invalid token)
   if (error && !classId) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#FFF9F0]">
+      <div className="min-h-screen flex flex-col bg-surface">
         <SimpleHeader />
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="max-w-md w-full">
             <CardContent className="pt-6 text-center space-y-4">
               <AlertCircle className="h-16 w-16 text-red-500 mx-auto" />
-              <h2 className="text-xl font-bold text-gray-900">{error}</h2>
-              <p className="text-gray-600">
+              <h2 className="text-xl font-bold text-foreground">{error}</h2>
+              <p className="text-muted-foreground">
                 אנא פנו לנציג ועד ההורים לקבלת קישור חדש
               </p>
             </CardContent>
@@ -322,7 +322,7 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
   // Success state
   if (submitted) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#FFF9F0]">
+      <div className="min-h-screen flex flex-col bg-surface">
         <SimpleHeader />
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="max-w-md w-full">
@@ -330,18 +330,18 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle className="h-12 w-12 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">תודה רבה!</h2>
-              <p className="text-gray-600">
+              <h2 className="text-2xl font-bold text-foreground">תודה רבה!</h2>
+              <p className="text-muted-foreground">
                 הפרטים של {submittedChildName} נשמרו בהצלחה.
               </p>
               <div className="pt-4 space-y-2">
                 <Button
                   onClick={handleFillAnother}
-                  className="w-full bg-[#A78BFA] hover:bg-[#9061F9]"
+                  className="w-full bg-brand hover:bg-brand-hover"
                 >
                   מילוי פרטים לילד/ה נוסף/ת
                 </Button>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   תוכלו לחזור לקישור זה בכל עת כדי לעדכן את הפרטים
                 </p>
               </div>
@@ -355,7 +355,7 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
 
   // Form state
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFF9F0]">
+    <div className="min-h-screen flex flex-col bg-surface">
       <SimpleHeader />
       <div className="flex-1 flex items-center justify-center p-4 md:p-6">
         <Card className="max-w-lg w-full">
@@ -364,7 +364,7 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
               מילוי פרטי ילד/ה
             </CardTitle>
             {className && (
-              <p className="text-gray-600 mt-2">
+              <p className="text-muted-foreground mt-2">
                 כיתה: <span className="font-semibold">{className}</span>
               </p>
             )}
@@ -452,7 +452,7 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
 
               {/* Parent 2 Section */}
               <div className="space-y-4">
-                <h3 className="font-semibold text-lg border-b pb-2 text-gray-600">
+                <h3 className="font-semibold text-lg border-b pb-2 text-muted-foreground">
                   הורה 2 (אופציונלי)
                 </h3>
 
@@ -494,7 +494,7 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-[#A78BFA] hover:bg-[#9061F9] text-white py-6 text-lg"
+                className="w-full bg-brand hover:bg-brand-hover text-white py-6 text-lg"
               >
                 {submitting ? (
                   <>
@@ -506,7 +506,7 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
                 )}
               </Button>
 
-              <p className="text-xs text-gray-500 text-center">
+              <p className="text-xs text-muted-foreground text-center">
                 * שדות חובה
               </p>
             </form>
@@ -521,18 +521,18 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
 // Simple header without auth button for public pages
 function SimpleHeader() {
   return (
-    <nav dir="rtl" className="w-full flex justify-center border-b-2 border-b-gray-100 bg-white/90 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+    <nav dir="rtl" className="w-full flex justify-center border-b-2 border-border bg-background/90 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
       <div className="w-full max-w-7xl flex justify-center items-center py-4 px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 md:gap-3 group">
           <div className="relative">
             <div className="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-gradient-to-br from-[#A78BFA] to-[#60A5FA] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
               <span className="text-xl md:text-2xl">✨</span>
             </div>
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-[#FCD34D] rounded-full border-2 border-white"></div>
+            <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-accent-yellow rounded-full border-2 border-white"></div>
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-xl md:text-2xl font-extrabold text-[#222222] group-hover:text-[#A78BFA] transition-colors">ClassEase</span>
-            <span className="text-xs font-semibold text-gray-500">ניהול ועד הורים חכם</span>
+            <span className="text-xl md:text-2xl font-extrabold text-foreground group-hover:text-brand transition-colors">ClassEase</span>
+            <span className="text-xs font-semibold text-muted-foreground">ניהול ועד הורים חכם</span>
           </div>
         </Link>
       </div>
@@ -542,7 +542,7 @@ function SimpleHeader() {
 
 function SimpleFooter() {
   return (
-    <footer dir="rtl" className="py-6 px-4 text-center text-sm text-gray-600 bg-white border-t-2 border-gray-100">
+    <footer dir="rtl" className="py-6 px-4 text-center text-sm text-muted-foreground bg-background border-t-2 border-border">
       <p>ClassEase © 2025</p>
     </footer>
   );

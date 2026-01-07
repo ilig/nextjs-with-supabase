@@ -11,7 +11,7 @@ type GiftCatalogCardProps = {
 
 export function GiftCatalogCard({ className }: GiftCatalogCardProps) {
   return (
-    <Card className={`shadow-xl rounded-3xl border-2 border-gray-100 ${className}`}>
+    <Card className={`shadow-xl rounded-3xl border-2 border-border ${className}`}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -20,7 +20,7 @@ export function GiftCatalogCard({ className }: GiftCatalogCardProps) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <CardTitle className="text-2xl font-extrabold text-[#222222]">קטלוג מתנות</CardTitle>
+                <CardTitle className="text-2xl font-extrabold text-foreground">קטלוג מתנות</CardTitle>
                 <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
                   בקרוב
                 </Badge>
@@ -41,62 +41,62 @@ export function GiftCatalogCard({ className }: GiftCatalogCardProps) {
           </div>
 
           <div className="flex justify-center gap-4 mb-6">
-            <div className="bg-white p-4 rounded-xl shadow-sm">
+            <div className="bg-card p-4 rounded-xl shadow-sm">
               <Package className="h-10 w-10 text-pink-500" />
             </div>
-            <div className="bg-white p-4 rounded-xl shadow-sm">
+            <div className="bg-card p-4 rounded-xl shadow-sm">
               <Gift className="h-10 w-10 text-purple-500" />
             </div>
-            <div className="bg-white p-4 rounded-xl shadow-sm">
+            <div className="bg-card p-4 rounded-xl shadow-sm">
               <ShoppingBag className="h-10 w-10 text-blue-500" />
             </div>
           </div>
 
-          <h3 className="text-xl font-bold text-gray-800 mb-2">
+          <h3 className="text-xl font-bold text-foreground mb-2">
             ממשק חדש בדרך! 🎉
           </h3>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             בקרוב תוכלו לגשת לקטלוג מתנות מלא, לבחור מתנות לאירועים ולנהל שותפויות עם ספקים מועדפים
           </p>
         </div>
 
         {/* Features Preview */}
         <div className="space-y-3">
-          <h4 className="font-semibold text-gray-900 mb-3">מה יכלול הקטלוג?</h4>
+          <h4 className="font-semibold text-foreground mb-3">מה יכלול הקטלוג?</h4>
 
-          <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+          <div className="flex items-start gap-3 p-3 bg-muted rounded-xl">
             <div className="bg-pink-100 p-2 rounded-lg">
               <Package className="h-4 w-4 text-pink-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-800">מגוון מתנות</p>
-              <p className="text-sm text-gray-600">פרחים, שוקולד, מתנות מותאמות אישית ועוד</p>
+              <p className="font-medium text-foreground">מגוון מתנות</p>
+              <p className="text-sm text-muted-foreground">פרחים, שוקולד, מתנות מותאמות אישית ועוד</p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+          <div className="flex items-start gap-3 p-3 bg-muted rounded-xl">
             <div className="bg-purple-100 p-2 rounded-lg">
               <ShoppingBag className="h-4 w-4 text-purple-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-800">שותפויות עם ספקים</p>
-              <p className="text-sm text-gray-600">מחירים מיוחדים לכיתות ומשלוח מהיר</p>
+              <p className="font-medium text-foreground">שותפויות עם ספקים</p>
+              <p className="text-sm text-muted-foreground">מחירים מיוחדים לכיתות ומשלוח מהיר</p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+          <div className="flex items-start gap-3 p-3 bg-muted rounded-xl">
             <div className="bg-blue-100 p-2 rounded-lg">
               <Gift className="h-4 w-4 text-blue-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-800">קישור לאירועים</p>
-              <p className="text-sm text-gray-600">בחירת מתנות ישירות לאירועים עם עדכון תקציב אוטומטי</p>
+              <p className="font-medium text-foreground">קישור לאירועים</p>
+              <p className="text-sm text-muted-foreground">בחירת מתנות ישירות לאירועים עם עדכון תקציב אוטומטי</p>
             </div>
           </div>
         </div>
 
         {/* Notify Button */}
-        <div className="pt-4 border-t border-gray-200">
+        <div className="pt-4 border-t border-border">
           <Button
             className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-2xl text-white shadow-lg"
             size="lg"
@@ -104,7 +104,7 @@ export function GiftCatalogCard({ className }: GiftCatalogCardProps) {
             <Bell className="ml-2 h-5 w-5" />
             עדכנו אותי כשהקטלוג יהיה מוכן
           </Button>
-          <p className="text-xs text-gray-500 text-center mt-2">
+          <p className="text-xs text-muted-foreground text-center mt-2">
             נשלח לך הודעה ברגע שהתכונה תהיה זמינה
           </p>
         </div>

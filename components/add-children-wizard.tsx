@@ -276,27 +276,27 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
   // Render method selection step
   const renderMethodSelection = () => (
     <div className="space-y-6">
-      <h2 className="text-xl md:text-2xl font-bold text-center text-[#222222]">
+      <h2 className="text-xl md:text-2xl font-bold text-center text-foreground">
         איך תרצו להוסיף את רשימת הילדים?
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Excel Upload Option */}
         <Card
-          className="p-6 cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all border-2 rounded-2xl"
+          className="p-6 cursor-pointer hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-950 transition-all border-2 rounded-2xl"
           onClick={() => setStep("excel-upload")}
         >
           <div className="flex flex-col items-center text-center space-y-4">
-            <div className="p-4 bg-green-100 rounded-full">
-              <FileSpreadsheet className="h-10 w-10 text-green-600" />
+            <div className="p-4 bg-green-100 dark:bg-green-900 rounded-full">
+              <FileSpreadsheet className="h-10 w-10 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <h3 className="font-bold text-lg">העלאה מאקסל</h3>
-              <p className="text-sm text-gray-500 mt-1">
+              <h3 className="font-bold text-lg text-foreground">העלאה מאקסל</h3>
+              <p className="text-sm text-muted-foreground mt-1">
                 העלה קובץ אקסל עם רשימת הילדים
               </p>
             </div>
-            <Button className="w-full bg-black hover:bg-gray-800 text-white rounded-lg">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg">
               בחר באפשרות זו
             </Button>
           </div>
@@ -304,23 +304,23 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
 
         {/* Manual Entry Option */}
         <Card
-          className="p-6 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all border-2 rounded-2xl"
+          className="p-6 cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 transition-all border-2 rounded-2xl"
           onClick={() => {
             initializeManualEntry();
             setStep("manual-entry");
           }}
         >
           <div className="flex flex-col items-center text-center space-y-4">
-            <div className="p-4 bg-blue-100 rounded-full">
-              <Edit3 className="h-10 w-10 text-blue-600" />
+            <div className="p-4 bg-blue-100 dark:bg-blue-900 rounded-full">
+              <Edit3 className="h-10 w-10 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h3 className="font-bold text-lg">הזנה ידנית</h3>
-              <p className="text-sm text-gray-500 mt-1">
+              <h3 className="font-bold text-lg text-foreground">הזנה ידנית</h3>
+              <p className="text-sm text-muted-foreground mt-1">
                 הוסף ילדים אחד אחד באופן ידני
               </p>
             </div>
-            <Button className="w-full bg-black hover:bg-gray-800 text-white rounded-lg">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg">
               בחר באפשרות זו
             </Button>
           </div>
@@ -341,7 +341,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
-        <h2 className="text-xl md:text-2xl font-bold text-[#222222]">
+        <h2 className="text-xl md:text-2xl font-bold text-foreground">
           העלאה מאקסל
         </h2>
       </div>
@@ -353,16 +353,16 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
           isDragging
-            ? "border-green-500 bg-green-50 scale-105"
-            : "border-gray-300 hover:border-green-500"
+            ? "border-green-500 bg-green-50 dark:bg-green-950 scale-105"
+            : "border-border hover:border-green-500"
         }`}
       >
         <Upload className={`mx-auto h-12 w-12 mb-4 transition-colors ${
-          isDragging ? "text-green-500" : "text-gray-400"
+          isDragging ? "text-green-500" : "text-muted-foreground"
         }`} />
         <Label
           htmlFor="excel-upload-wizard"
-          className="cursor-pointer text-green-600 hover:text-green-700 font-medium block"
+          className="cursor-pointer text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium block"
         >
           {isDragging ? "שחרר לכאן להעלאה" : "לחץ או גרור קובץ אקסל לכאן"}
         </Label>
@@ -374,7 +374,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
           onChange={handleExcelUpload}
           className="hidden"
         />
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-muted-foreground mt-2">
           הקובץ חייב לכלול: שם ילד, שם הורה 1, טלפון הורה 1
         </p>
         <div className="mt-4">
@@ -392,36 +392,36 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl md:text-2xl font-bold text-[#222222]">
+        <h2 className="text-xl md:text-2xl font-bold text-foreground">
           הזנת שמות ילדים
         </h2>
-        <span className="text-sm text-gray-500">{filledChildrenCount} מתוך {children.length} שורות</span>
+        <span className="text-sm text-muted-foreground">{filledChildrenCount} מתוך {children.length} שורות</span>
       </div>
 
       {/* Instructions */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+      <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
         <Lightbulb className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-amber-800">
+        <p className="text-sm text-amber-800 dark:text-amber-200">
           הקלידו שמות ולחצו Enter למעבר לשורה הבאה. לחצו על <ChevronDown className="inline h-4 w-4" /> להוספת פרטים נוספים (הורים, יום הולדת).
         </p>
       </div>
 
       {/* Children list */}
-      <div className="space-y-2 max-h-[350px] overflow-y-auto border rounded-lg">
+      <div className="space-y-2 max-h-[350px] overflow-y-auto border border-border rounded-lg">
         {children.map((child, index) => {
           const isExpanded = expandedChildId === child.id;
 
           return (
-            <div key={child.id} className="border-b last:border-b-0">
+            <div key={child.id} className="border-b border-border last:border-b-0">
               {/* Main row - name input */}
-              <div className="flex items-center gap-2 p-2 hover:bg-gray-50">
+              <div className="flex items-center gap-2 p-2 hover:bg-accent">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setExpandedChildId(isExpanded ? null : child.id)}
                   className="p-1 h-8 w-8"
                 >
-                  <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                 </Button>
 
                 <Input
@@ -433,15 +433,15 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                   className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-right"
                 />
 
-                <span className="text-sm text-gray-400 w-6">{index + 1}</span>
+                <span className="text-sm text-muted-foreground w-6">{index + 1}</span>
               </div>
 
               {/* Expanded details */}
               {isExpanded && (
-                <div className="px-4 pb-4 pt-2 bg-gray-50 space-y-3">
+                <div className="px-4 pb-4 pt-2 bg-muted/50 space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-xs text-gray-600">שם הורה 1</Label>
+                      <Label className="text-xs text-muted-foreground">שם הורה 1</Label>
                       <Input
                         value={child.parent1Name}
                         onChange={(e) => updateChild(child.id, "parent1Name", e.target.value)}
@@ -450,7 +450,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                       />
                     </div>
                     <div>
-                      <Label className="text-xs text-gray-600">טלפון הורה 1</Label>
+                      <Label className="text-xs text-muted-foreground">טלפון הורה 1</Label>
                       <Input
                         type="tel"
                         inputMode="numeric"
@@ -461,7 +461,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                       />
                     </div>
                     <div>
-                      <Label className="text-xs text-gray-600">שם הורה 2 (אופציונלי)</Label>
+                      <Label className="text-xs text-muted-foreground">שם הורה 2 (אופציונלי)</Label>
                       <Input
                         value={child.parent2Name || ""}
                         onChange={(e) => updateChild(child.id, "parent2Name", e.target.value)}
@@ -470,7 +470,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                       />
                     </div>
                     <div>
-                      <Label className="text-xs text-gray-600">טלפון הורה 2 (אופציונלי)</Label>
+                      <Label className="text-xs text-muted-foreground">טלפון הורה 2 (אופציונלי)</Label>
                       <Input
                         type="tel"
                         inputMode="numeric"
@@ -481,7 +481,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                       />
                     </div>
                     <div className="col-span-2">
-                      <Label className="text-xs text-gray-600">כתובת (אופציונלי)</Label>
+                      <Label className="text-xs text-muted-foreground">כתובת (אופציונלי)</Label>
                       <Input
                         value={child.address || ""}
                         onChange={(e) => updateChild(child.id, "address", e.target.value)}
@@ -490,7 +490,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                       />
                     </div>
                     <div className="col-span-2">
-                      <Label className="text-xs text-gray-600">תאריך לידה</Label>
+                      <Label className="text-xs text-muted-foreground">תאריך לידה</Label>
                       <Input
                         type="date"
                         value={child.birthday || ""}
@@ -515,15 +515,15 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
       </Button>
 
       {/* Info note */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3 flex items-start gap-2">
         <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-blue-800">
+        <p className="text-sm text-blue-800 dark:text-blue-200">
           אפשר להשלים פרטי הורים, כתובת וימי הולדת גם אחר כך דרך ניהול הכיתה
         </p>
       </div>
 
       {/* Footer buttons */}
-      <div className="flex gap-3 pt-4 border-t">
+      <div className="flex gap-3 pt-4 border-t border-border">
         <Button
           variant="outline"
           onClick={() => setStep("method-selection")}
@@ -535,7 +535,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
         <Button
           onClick={handleSave}
           disabled={isSaving || filledChildrenCount === 0}
-          className="flex-1 bg-gray-900 hover:bg-gray-800 text-white"
+          className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Check className="h-4 w-4 ml-2" />
           {isSaving ? "שומר..." : `שמור ${filledChildrenCount} ילדים`}

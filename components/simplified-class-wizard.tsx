@@ -197,7 +197,7 @@ export function SimplifiedClassWizard() {
   // Step 1: Welcome + Quick Start
   if (currentStep === 1) {
     return (
-      <div className="bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4 py-8" dir="rtl">
+      <div className="bg-gradient-to-b from-blue-50 to-white dark:from-blue-950 dark:to-background flex items-center justify-center p-4 py-8" dir="rtl">
         <Card className="w-full max-w-2xl shadow-xl h-[650px] flex flex-col">
           <CardHeader className="text-center space-y-2">
             <div className="text-6xl mb-4">👋</div>
@@ -311,7 +311,7 @@ export function SimplifiedClassWizard() {
   // Step 2: Size Estimation
   if (currentStep === 2) {
     return (
-      <div className="bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4 py-8" dir="rtl">
+      <div className="bg-gradient-to-b from-blue-50 to-white dark:from-blue-950 dark:to-background flex items-center justify-center p-4 py-8" dir="rtl">
         <Card className="w-full max-w-2xl shadow-xl h-[650px] flex flex-col">
           <CardHeader className="text-center space-y-2">
             <div className="text-6xl mb-4">📊</div>
@@ -345,7 +345,7 @@ export function SimplifiedClassWizard() {
                       e.target.select();
                     }
                   }}
-                  className="text-lg h-12 text-center text-2xl font-bold placeholder:text-gray-400 mt-2"
+                  className="text-lg h-12 text-center text-2xl font-bold placeholder:text-muted-foreground mt-2"
                 />
                 <div className="h-5 mt-1">
                   {errors.numberOfChildren && (
@@ -377,7 +377,7 @@ export function SimplifiedClassWizard() {
                       e.target.select();
                     }
                   }}
-                  className="text-lg h-12 text-center text-2xl font-bold placeholder:text-gray-400 mt-2"
+                  className="text-lg h-12 text-center text-2xl font-bold placeholder:text-muted-foreground mt-2"
                 />
                 <div className="h-5 mt-1">
                   {errors.numberOfStaff && (
@@ -418,24 +418,24 @@ export function SimplifiedClassWizard() {
 
   // Step 3: Success + Redirect
   return (
-    <div className="bg-gradient-to-b from-green-50 to-white flex items-center justify-center p-4 py-8" dir="rtl">
+    <div className="bg-gradient-to-b from-green-50 to-white dark:from-green-950 dark:to-background flex items-center justify-center p-4 py-8" dir="rtl">
       <Card className="w-full max-w-2xl shadow-xl h-[650px] flex flex-col">
         <CardHeader className="text-center space-y-4">
           <div className="text-6xl mb-4">🎉</div>
           <CardTitle className="text-3xl font-bold">מעולה!</CardTitle>
           <CardDescription className="text-xl">
-            הכיתה <span className="font-bold text-green-600">{step1Data.className}</span> מוכנה
+            הכיתה <span className="font-bold text-green-600 dark:text-green-400">{step1Data.className}</span> מוכנה
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 text-center flex-1 flex flex-col justify-center">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <p className="text-lg font-semibold mb-2">📋 עכשיו נעבור לדשבורד</p>
-            <p className="text-sm text-gray-600">
+          <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+            <p className="text-lg font-semibold mb-2 text-foreground">📋 עכשיו נעבור לדשבורד</p>
+            <p className="text-sm text-muted-foreground">
               שם תוכלו להשלים את הגדרת הכיתה בכמה צעדים קצרים
             </p>
           </div>
 
-          <div className="flex items-center justify-center gap-2 text-gray-500">
+          <div className="flex items-center justify-center gap-2 text-muted-foreground">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
             <span>מעביר אתכם לדשבורד...</span>
           </div>

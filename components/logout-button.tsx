@@ -17,7 +17,7 @@ export function LogoutButton() {
     <>
       <button
         onClick={logout}
-        className="md:hidden p-2 text-gray-600 hover:text-gray-800 transition-colors"
+        className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-colors"
         aria-label="התנתקות"
       >
         <svg
@@ -33,7 +33,7 @@ export function LogoutButton() {
       <Button
         onClick={logout}
         variant="outline"
-        className="hidden md:inline-flex rounded-2xl border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-bold"
+        className="hidden md:inline-flex rounded-2xl border-2 border-border text-foreground hover:bg-accent font-bold"
       >
         התנתקות
       </Button>

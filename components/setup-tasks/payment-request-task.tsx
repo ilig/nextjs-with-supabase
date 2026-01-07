@@ -85,7 +85,7 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
     <div className="space-y-4 p-4" dir="rtl">
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold">שליחת בקשת תשלום להורים</h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           שלחו להורים בקשה להעביר את התשלום דרך PayBox
         </p>
       </div>
@@ -93,7 +93,7 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
       {/* Amount Display */}
       <Card className="p-4 bg-green-50 border-green-200">
         <div className="text-center">
-          <p className="text-sm text-gray-600">סכום לגבייה מכל הורה:</p>
+          <p className="text-sm text-muted-foreground">סכום לגבייה מכל הורה:</p>
           <p className="text-3xl font-bold text-green-600">₪{amountPerChild}</p>
         </div>
       </Card>
@@ -103,7 +103,7 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Link2 className="h-5 w-5 text-blue-600" />
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold text-foreground">
               קישור לקבוצת PayBox שלכם:
             </label>
           </div>
@@ -114,7 +114,7 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
             className="text-left"
             dir="ltr"
           />
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             💡 היכנסו לאפליקציית PayBox ← בחרו את הקבוצה ← שתפו קישור
           </p>
         </div>
@@ -122,7 +122,7 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
 
       {/* Share options */}
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-gray-700">שלחו את ההודעה:</p>
+        <p className="text-sm font-semibold text-foreground">שלחו את ההודעה:</p>
 
         <div className="grid grid-cols-2 gap-2">
           <Button
@@ -148,10 +148,10 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
       </div>
 
       {/* Message template */}
-      <Card className="p-4 bg-gray-50">
+      <Card className="p-4 bg-muted">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-700">💡 תצוגה מקדימה של ההודעה:</p>
+            <p className="text-sm font-semibold text-foreground">💡 תצוגה מקדימה של ההודעה:</p>
             <Button
               size="sm"
               variant="ghost"
@@ -162,7 +162,7 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
               {copied ? "הועתק!" : "העתק"}
             </Button>
           </div>
-          <div className="bg-white rounded p-3 border text-sm whitespace-pre-wrap">
+          <div className="bg-card rounded p-3 border border-border text-sm whitespace-pre-wrap">
             {paymentMessage}
           </div>
         </div>

@@ -51,9 +51,9 @@ export function PaymentTrackingCard({
   };
 
   const getStatusBadge = (percentage: number) => {
-    if (percentage >= 80) return { variant: "default" as const, text: "במצב טוב", color: "bg-green-100 text-green-800" };
-    if (percentage >= 50) return { variant: "secondary" as const, text: "דורש תשומת לב", color: "bg-yellow-100 text-yellow-800" };
-    return { variant: "destructive" as const, text: "דורש מעקב", color: "bg-red-100 text-red-800" };
+    if (percentage >= 80) return { variant: "default" as const, text: "במצב טוב", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" };
+    if (percentage >= 50) return { variant: "secondary" as const, text: "דורש תשומת לב", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" };
+    return { variant: "destructive" as const, text: "דורש מעקב", color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" };
   };
 
   const status = getStatusBadge(paymentPercentage);
@@ -78,27 +78,27 @@ export function PaymentTrackingCard({
         {/* Main Statistics Grid */}
         <div className="grid grid-cols-2 gap-4">
           {/* Parents Paid */}
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4">
+          <div className="bg-gradient-to-br from-purple-500/10 to-purple-500/20 dark:from-purple-500/20 dark:to-purple-500/30 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="h-4 w-4 text-purple-600" />
-              <span className="text-sm text-purple-700">הורים ששילמו</span>
+              <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              <span className="text-sm text-purple-700 dark:text-purple-300">הורים ששילמו</span>
             </div>
-            <div className="text-2xl font-bold text-purple-900">
+            <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">
               {parentsPaidCount}/{totalParents}
             </div>
-            <div className="text-xs text-purple-600 mt-1">{paymentPercentage}% מהכיתה</div>
+            <div className="text-xs text-purple-600 dark:text-purple-400 mt-1">{paymentPercentage}% מהכיתה</div>
           </div>
 
           {/* Amount Collected */}
-          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4">
+          <div className="bg-gradient-to-br from-green-500/10 to-green-500/20 dark:from-green-500/20 dark:to-green-500/30 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
-              <DollarSign className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-green-700">סכום שנאסף</span>
+              <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <span className="text-sm text-green-700 dark:text-green-300">סכום שנאסף</span>
             </div>
-            <div className="text-2xl font-bold text-green-900">
+            <div className="text-2xl font-bold text-green-900 dark:text-green-100">
               ₪{totalCollected.toLocaleString()}
             </div>
-            <div className="text-xs text-green-600 mt-1">
+            <div className="text-xs text-green-600 dark:text-green-400 mt-1">
               מתוך ₪{expectedTotal.toLocaleString()} ({amountPercentage}%)
             </div>
           </div>
@@ -110,7 +110,7 @@ export function PaymentTrackingCard({
             <span className="text-muted-foreground">התקדמות תשלומים</span>
             <span className="font-semibold">{paymentPercentage}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
             <div
               className={`h-full transition-all duration-500 ${getProgressColor(paymentPercentage)}`}
               style={{ width: `${paymentPercentage}%` }}
@@ -124,7 +124,7 @@ export function PaymentTrackingCard({
             <span className="text-muted-foreground">סכום שנאסף</span>
             <span className="font-semibold">{amountPercentage}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
             <div
               className={`h-full transition-all duration-500 ${getProgressColor(amountPercentage)}`}
               style={{ width: `${amountPercentage}%` }}

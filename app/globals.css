@@ -29,6 +29,43 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+
+    /* Brand colors */
+    --brand: 263 70% 76%;
+    --brand-foreground: 0 0% 100%;
+    --brand-hover: 270 70% 58%;
+    --brand-muted: 270 60% 95%;
+    --brand-muted-foreground: 270 50% 45%;
+
+    /* Accent yellow (for badges, highlights) */
+    --accent-yellow: 45 93% 64%;
+    --accent-yellow-foreground: 0 0% 10%;
+
+    /* Semantic status colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --success-muted: 142 76% 95%;
+    --success-muted-foreground: 142 60% 30%;
+
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 10%;
+    --warning-muted: 45 93% 95%;
+    --warning-muted-foreground: 45 80% 30%;
+
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+    --info-muted: 217 91% 95%;
+    --info-muted-foreground: 217 70% 35%;
+
+    /* Surface colors for cards/sections */
+    --surface: 30 50% 98%;
+    --surface-foreground: 0 0% 15%;
+    --surface-elevated: 0 0% 100%;
+
+    /* Text hierarchy */
+    --text-primary: 0 0% 13%;
+    --text-secondary: 0 0% 40%;
+    --text-tertiary: 0 0% 60%;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -55,6 +92,43 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Brand colors - dark mode */
+    --brand: 263 70% 70%;
+    --brand-foreground: 0 0% 100%;
+    --brand-hover: 270 80% 75%;
+    --brand-muted: 270 30% 20%;
+    --brand-muted-foreground: 270 60% 80%;
+
+    /* Accent yellow - dark mode */
+    --accent-yellow: 45 93% 58%;
+    --accent-yellow-foreground: 0 0% 10%;
+
+    /* Semantic status colors - dark mode */
+    --success: 142 70% 45%;
+    --success-foreground: 0 0% 100%;
+    --success-muted: 142 30% 15%;
+    --success-muted-foreground: 142 60% 70%;
+
+    --warning: 45 93% 50%;
+    --warning-foreground: 0 0% 10%;
+    --warning-muted: 45 40% 15%;
+    --warning-muted-foreground: 45 80% 70%;
+
+    --info: 217 91% 65%;
+    --info-foreground: 0 0% 100%;
+    --info-muted: 217 40% 15%;
+    --info-muted-foreground: 217 70% 75%;
+
+    /* Surface colors - dark mode */
+    --surface: 0 0% 7%;
+    --surface-foreground: 0 0% 95%;
+    --surface-elevated: 0 0% 10%;
+
+    /* Text hierarchy - dark mode */
+    --text-primary: 0 0% 98%;
+    --text-secondary: 0 0% 70%;
+    --text-tertiary: 0 0% 50%;
   }
 }
 

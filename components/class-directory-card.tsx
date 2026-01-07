@@ -400,10 +400,10 @@ export function ClassDirectoryCard({
     <div className="space-y-3">
       {/* Incomplete children banner */}
       {incompleteChildrenCount > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center justify-between">
+        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-            <span className="text-sm text-amber-800">
+            <span className="text-sm text-amber-800 dark:text-amber-200">
               ל-{incompleteChildrenCount} מתוך {children.length} ילדים חסרים פרטים מלאים
             </span>
           </div>
@@ -422,9 +422,9 @@ export function ClassDirectoryCard({
       )}
 
       {isAdding && (
-        <Card className="p-4 space-y-3 border-2 border-blue-200 bg-blue-50/30 mb-3">
+        <Card className="p-4 space-y-3 border-2 border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/30 mb-3">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-gray-700">ילד חדש</span>
+            <span className="font-semibold text-foreground">ילד חדש</span>
             <Button
               variant="ghost"
               size="sm"
@@ -565,10 +565,10 @@ export function ClassDirectoryCard({
               className={cn(
                 "rounded-lg border transition-colors",
                 isExpanded
-                  ? "border-orange-300 bg-orange-50 p-4"
+                  ? "border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950 p-4"
                   : isComplete
-                  ? "border-gray-200 hover:border-orange-200 hover:bg-orange-50/50"
-                  : "border-amber-200 bg-amber-50/30 hover:border-amber-300 hover:bg-amber-50/50"
+                  ? "border-border hover:border-orange-200 dark:hover:border-orange-800 hover:bg-orange-50/50 dark:hover:bg-orange-950/50"
+                  : "border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/30 hover:border-amber-300 dark:hover:border-amber-700 hover:bg-amber-50/50 dark:hover:bg-amber-950/50"
               )}
             >
               {/* Compact row - always visible */}
@@ -645,11 +645,11 @@ export function ClassDirectoryCard({
 
               {/* Expanded content */}
               {isExpanded && (
-                <div className="mt-3 pt-3 border-t border-orange-200">
+                <div className="mt-3 pt-3 border-t border-orange-200 dark:border-orange-800">
                   {isEditing ? (
                     <div className="space-y-3">
                       <div>
-                        <label className="text-xs font-medium text-gray-600 mb-1 block">שם הילד</label>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">שם הילד</label>
                         <Input
                           value={editData.name || child.name}
                           onChange={(e) => setEditData({ ...editData, name: e.target.value })}
@@ -658,7 +658,7 @@ export function ClassDirectoryCard({
                         />
                       </div>
                       <div>
-                        <label className="text-xs font-medium text-gray-600 mb-1 block">כתובת</label>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">כתובת</label>
                         <Input
                           value={editData.address || child.address || ""}
                           onChange={(e) => setEditData({ ...editData, address: e.target.value })}
@@ -666,8 +666,8 @@ export function ClassDirectoryCard({
                           className="text-right"
                         />
                       </div>
-                      <div className="border-t pt-2">
-                        <label className="text-xs font-medium text-gray-600 mb-1 block">תאריך לידה</label>
+                      <div className="border-t border-border pt-2">
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">תאריך לידה</label>
                         <div className="grid grid-cols-3 gap-2">
                           <div>
                             <select
@@ -683,7 +683,7 @@ export function ClassDirectoryCard({
                                     : ""
                                 });
                               }}
-                              className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                              className="flex h-10 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             >
                               <option value="">יום</option>
                               {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
@@ -705,7 +705,7 @@ export function ClassDirectoryCard({
                                     : ""
                                 });
                               }}
-                              className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                              className="flex h-10 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             >
                               <option value="">חודש</option>
                               <option value="1">ינואר</option>
@@ -736,7 +736,7 @@ export function ClassDirectoryCard({
                                     : ""
                                 });
                               }}
-                              className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                              className="flex h-10 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             >
                               <option value="">שנה</option>
                               {Array.from({ length: 15 }, (_, i) => new Date().getFullYear() - i).map(year => (
@@ -750,8 +750,8 @@ export function ClassDirectoryCard({
                       {[0, 1].map((idx) => {
                         const parent = childParentsList[idx];
                         return (
-                          <div key={idx} className="border-t pt-2">
-                            <label className="text-xs font-medium text-gray-600 mb-1 block">הורה {idx + 1}</label>
+                          <div key={idx} className="border-t border-border pt-2">
+                            <label className="text-xs font-medium text-muted-foreground mb-1 block">הורה {idx + 1}</label>
                             <div className="space-y-2">
                               <Input
                                 value={editData[`parent${idx + 1}_name`] ?? parent?.name ?? ""}
@@ -771,11 +771,11 @@ export function ClassDirectoryCard({
                         );
                       })}
                       {saveError && editingId === child.id && (
-                        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+                        <div className="mt-2 p-2 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded text-sm text-red-700 dark:text-red-300">
                           {saveError}
                         </div>
                       )}
-                      <div className="flex gap-2 pt-2 border-t">
+                      <div className="flex gap-2 pt-2 border-t border-border">
                         <Button
                           size="sm"
                           variant="ghost"
@@ -803,12 +803,12 @@ export function ClassDirectoryCard({
                     <div className="space-y-2">
                       {/* Show missing fields notice for incomplete children */}
                       {!isComplete && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
+                        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-3">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                            <span className="text-sm font-medium text-amber-800">חסרים פרטים:</span>
+                            <span className="text-sm font-medium text-amber-800 dark:text-amber-200">חסרים פרטים:</span>
                           </div>
-                          <ul className="text-sm text-amber-700 space-y-1 mr-4">
+                          <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-1 mr-4">
                             {!child.birthday && <li>• תאריך לידה</li>}
                             {!child.address && <li>• כתובת</li>}
                             {childParentsList.length === 0 && <li>• פרטי הורה</li>}
@@ -837,7 +837,7 @@ export function ClassDirectoryCard({
                                 });
                                 handleStartEdit(child.id, editDataObj);
                               }}
-                              className="mt-2 text-amber-700 border-amber-300 hover:bg-amber-100"
+                              className="mt-2 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900"
                             >
                               <Edit2 className="h-3 w-3 ml-1" />
                               השלם פרטים
@@ -861,9 +861,9 @@ export function ClassDirectoryCard({
                           {childParentsList.map((parent, idx) => (
                             <div
                               key={parent.id}
-                              className="text-sm flex items-center justify-between bg-white/60 rounded px-2 py-1.5"
+                              className="text-sm flex items-center justify-between bg-background/60 rounded px-2 py-1.5"
                             >
-                              <span className="text-gray-700">
+                              <span className="text-muted-foreground">
                                 הורה {idx + 1}: {parent.name}
                               </span>
                               {parent.phone && (
@@ -895,9 +895,9 @@ export function ClassDirectoryCard({
   const renderStaffView = () => (
     <div className="space-y-2">
       {isAdding && (
-        <Card className="p-4 space-y-3 border-2 border-blue-200 bg-blue-50/30">
+        <Card className="p-4 space-y-3 border-2 border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/30">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-gray-700">איש צוות חדש</span>
+            <span className="font-semibold text-foreground">איש צוות חדש</span>
             <Button
               variant="ghost"
               size="sm"
@@ -990,14 +990,14 @@ export function ClassDirectoryCard({
           return (
             <div
               key={member.id}
-              className="p-4 rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
+              className="p-4 rounded-lg border border-border hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950 transition-colors"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   {isEditing ? (
                     <div className="space-y-3">
                       <div>
-                        <label className="text-xs font-medium text-gray-600 mb-1 block">שם</label>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">שם</label>
                         <Input
                           value={editData.name || member.name}
                           onChange={(e) => setEditData({ ...editData, name: e.target.value })}
@@ -1005,11 +1005,11 @@ export function ClassDirectoryCard({
                         />
                       </div>
                       <div>
-                        <label className="text-xs font-medium text-gray-600 mb-1 block">תפקיד</label>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">תפקיד</label>
                         <select
                           value={editData.role || member.role}
                           onChange={(e) => setEditData({ ...editData, role: e.target.value })}
-                          className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          className="flex h-10 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
                           <option value="teacher">מורה</option>
                           <option value="assistant">עוזר/ת</option>
@@ -1017,7 +1017,7 @@ export function ClassDirectoryCard({
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="text-xs text-gray-600 mb-1 block">יום</label>
+                          <label className="text-xs text-muted-foreground mb-1 block">יום</label>
                           <select
                             value={editData.birthdayDay || (member.birthday ? String(parseInt(formatBirthdayDisplay(member.birthday).split('/')[0])) : "")}
                             onChange={(e) => {
@@ -1030,7 +1030,7 @@ export function ClassDirectoryCard({
                                   : ""
                               });
                             }}
-                            className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            className="flex h-10 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                           >
                             <option value="">בחר יום</option>
                             {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
@@ -1039,7 +1039,7 @@ export function ClassDirectoryCard({
                           </select>
                         </div>
                         <div>
-                          <label className="text-xs text-gray-600 mb-1 block">חודש</label>
+                          <label className="text-xs text-muted-foreground mb-1 block">חודש</label>
                           <select
                             value={editData.birthdayMonth || (member.birthday ? String(parseInt(formatBirthdayDisplay(member.birthday).split('/')[1])) : "")}
                             onChange={(e) => {
@@ -1052,7 +1052,7 @@ export function ClassDirectoryCard({
                                   : ""
                               });
                             }}
-                            className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            className="flex h-10 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                           >
                             <option value="">בחר חודש</option>
                             <option value="1">ינואר</option>
@@ -1192,7 +1192,7 @@ export function ClassDirectoryCard({
               <Users className="h-6 w-6 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-extrabold text-[#222222]">ניהול הכיתה</CardTitle>
+              <CardTitle className="text-2xl font-extrabold text-foreground">ניהול הכיתה</CardTitle>
               <CardDescription className="text-base">ילדים, הורים וצוות</CardDescription>
             </div>
           </div>

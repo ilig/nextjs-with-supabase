@@ -119,10 +119,10 @@ export function AddStaffWizard({ classId, onClose, onSuccess }: AddStaffWizardPr
     <div className="p-6" dir="rtl">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl md:text-2xl font-bold text-[#222222]">
+          <h2 className="text-xl md:text-2xl font-bold text-foreground">
             הוסיפו את אנשי הצוות
           </h2>
-          <span className="text-sm text-gray-500">{validStaffCount} אנשי צוות</span>
+          <span className="text-sm text-muted-foreground">{validStaffCount} אנשי צוות</span>
         </div>
 
         <div className="space-y-4 max-h-[400px] overflow-y-auto">
@@ -132,12 +132,12 @@ export function AddStaffWizard({ classId, onClose, onSuccess }: AddStaffWizardPr
                 variant="ghost"
                 size="sm"
                 onClick={() => removeStaffMember(member.id)}
-                className="absolute top-2 left-2 h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                className="absolute top-2 left-2 h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
 
-              <h3 className="font-semibold text-gray-700 mb-3">איש צוות #{index + 1}</h3>
+              <h3 className="font-semibold text-foreground mb-3">איש צוות #{index + 1}</h3>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
@@ -185,14 +185,14 @@ export function AddStaffWizard({ classId, onClose, onSuccess }: AddStaffWizardPr
           + הוסף איש צוות נוסף
         </Button>
 
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
           <Lightbulb className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-amber-800">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
             יום ההולדת אינו חובה, אך יעזור לכם לקבל תזכורות למתנות
           </p>
         </div>
 
-        <div className="flex gap-3 pt-4 border-t">
+        <div className="flex gap-3 pt-4 border-t border-border">
           <Button
             variant="outline"
             onClick={onClose}
@@ -203,7 +203,7 @@ export function AddStaffWizard({ classId, onClose, onSuccess }: AddStaffWizardPr
           <Button
             onClick={handleSave}
             disabled={isSaving || validStaffCount === 0}
-            className="flex-1 bg-black hover:bg-gray-800 text-white"
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             {isSaving ? "שומר..." : (
               <>

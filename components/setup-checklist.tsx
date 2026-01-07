@@ -230,17 +230,17 @@ export function SetupChecklist({
 
   if (progressPercentage === 100) {
     return (
-      <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
+      <Card className="border-2 border-green-200 dark:border-green-800 bg-gradient-to-br from-green-50 to-white dark:from-green-950 dark:to-background">
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
             <div className="text-6xl">🎉</div>
-            <h2 className="text-2xl font-bold text-green-700">כל הכבוד!</h2>
-            <p className="text-gray-600">
+            <h2 className="text-2xl font-bold text-green-700 dark:text-green-400">כל הכבוד!</h2>
+            <p className="text-muted-foreground">
               הכיתה שלכם מוכנה לחלוטין!
             </p>
-            <div className="bg-white rounded-lg p-4 border border-green-200">
-              <p className="font-semibold mb-2">עכשיו תוכלו:</p>
-              <ul className="text-sm text-right space-y-1">
+            <div className="bg-card rounded-lg p-4 border border-green-200 dark:border-green-800">
+              <p className="font-semibold mb-2 text-foreground">עכשיו תוכלו:</p>
+              <ul className="text-sm text-right space-y-1 text-foreground">
                 <li>✓ לנהל את כל האירועים במקום אחד</li>
                 <li>✓ לעקוב אחרי התקציב בזמן אמת</li>
                 <li>✓ לתקשר עם ההורים בקלות</li>
@@ -249,7 +249,7 @@ export function SetupChecklist({
             <Button
               onClick={onSkip}
               size="lg"
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
             >
               לדשבורד המלא ←
             </Button>
@@ -260,7 +260,7 @@ export function SetupChecklist({
   }
 
   return (
-    <Card className="border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-white">
+    <Card className="border-2 border-blue-300 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-white dark:from-blue-950 dark:to-background">
       <CardHeader className="space-y-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-bold flex items-center gap-2">
@@ -272,7 +272,7 @@ export function SetupChecklist({
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>{progressPercentage}% הושלם</span>
             {progressPercentage < 100 && (
               <span className="flex items-center gap-1">
@@ -295,11 +295,11 @@ export function SetupChecklist({
             return (
               <div
                 key={task.id}
-                className="flex items-center gap-3 p-2 rounded-lg bg-green-50 border border-green-200 opacity-60"
+                className="flex items-center gap-3 p-2 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 opacity-60"
               >
                 {getStatusIcon(task.status)}
                 <div className="flex-1">
-                  <p className="font-medium text-sm">{task.title}</p>
+                  <p className="font-medium text-sm text-foreground">{task.title}</p>
                 </div>
                 <Badge variant="secondary" className="text-xs">
                   הושלם
@@ -313,10 +313,10 @@ export function SetupChecklist({
               key={task.id}
               className={`border rounded-lg transition-all ${
                 isCompleted
-                  ? "bg-green-50 border-green-200"
+                  ? "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800"
                   : isExpanded
-                  ? "bg-white border-blue-300 shadow-md"
-                  : "bg-white border-gray-200 hover:border-blue-200"
+                  ? "bg-card border-blue-300 dark:border-blue-700 shadow-md"
+                  : "bg-card border-border hover:border-blue-200 dark:hover:border-blue-700"
               }`}
             >
               <div
@@ -327,7 +327,7 @@ export function SetupChecklist({
                   {getStatusIcon(task.status)}
 
                   <div className="flex-1 space-y-1">
-                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <h3 className="font-semibold text-lg flex items-center gap-2 text-foreground">
                       {task.iconType === "image" ? (
                         <Image src={task.icon} alt="" width={24} height={24} className="w-6 h-6" />
                       ) : (
@@ -335,7 +335,7 @@ export function SetupChecklist({
                       )}
                       {task.title}
                     </h3>
-                    <p className="text-sm text-gray-600">{task.description}</p>
+                    <p className="text-sm text-muted-foreground">{task.description}</p>
                   </div>
 
                   {!isCompleted && (
@@ -344,7 +344,7 @@ export function SetupChecklist({
                         e.stopPropagation();
                         toggleTaskExpansion(task.id);
                       }}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-muted-foreground hover:text-foreground"
                     >
                       {isExpanded ? (
                         <ChevronUp className="h-5 w-5" />
@@ -361,30 +361,30 @@ export function SetupChecklist({
                 <div className="px-4 pb-4 space-y-4 border-t pt-4" dir="rtl">
                   {task.id === "upload_children" ? (
                     <div className="space-y-3">
-                      <p className="text-sm font-semibold text-center text-gray-700">
+                      <p className="text-sm font-semibold text-center text-foreground">
                         איך תרצו להוסיף את רשימת הילדים?
                       </p>
                       <div className="grid grid-cols-2 gap-3">
                         <div
                           onClick={() => handleTaskAction(task, "excel")}
-                          className="bg-white border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-green-500 hover:shadow-md transition-all"
+                          className="bg-card border-2 border-border rounded-lg p-4 cursor-pointer hover:border-green-500 dark:hover:border-green-400 hover:shadow-md transition-all"
                         >
                           <div className="text-center space-y-3">
-                            <FileSpreadsheet className="h-12 w-12 mx-auto text-green-600" />
-                            <h4 className="font-semibold text-sm">העלאה מאקסל</h4>
-                            <div className="bg-black text-white text-xs py-2 px-3 rounded">
+                            <FileSpreadsheet className="h-12 w-12 mx-auto text-green-600 dark:text-green-400" />
+                            <h4 className="font-semibold text-sm text-foreground">העלאה מאקסל</h4>
+                            <div className="bg-primary text-primary-foreground text-xs py-2 px-3 rounded">
                               בחר באפשרות זו
                             </div>
                           </div>
                         </div>
                         <div
                           onClick={() => handleTaskAction(task, "manual")}
-                          className="bg-white border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-blue-500 hover:shadow-md transition-all"
+                          className="bg-card border-2 border-border rounded-lg p-4 cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-md transition-all"
                         >
                           <div className="text-center space-y-3">
-                            <Edit3 className="h-12 w-12 mx-auto text-blue-600" />
-                            <h4 className="font-semibold text-sm">הזנה ידנית</h4>
-                            <div className="bg-black text-white text-xs py-2 px-3 rounded">
+                            <Edit3 className="h-12 w-12 mx-auto text-blue-600 dark:text-blue-400" />
+                            <h4 className="font-semibold text-sm text-foreground">הזנה ידנית</h4>
+                            <div className="bg-primary text-primary-foreground text-xs py-2 px-3 rounded">
                               בחר באפשרות זו
                             </div>
                           </div>
@@ -419,12 +419,12 @@ export function SetupChecklist({
                   )}
 
                   {/* Why Important tooltip - at bottom */}
-                  <div className="bg-blue-50 rounded-lg p-4 space-y-2">
-                    <div className="flex items-center gap-2 font-semibold text-blue-900">
+                  <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4 space-y-2">
+                    <div className="flex items-center gap-2 font-semibold text-blue-900 dark:text-blue-200">
                       <Info className="h-4 w-4" />
                       <span>💡 למה זה חשוב?</span>
                     </div>
-                    <ul className="space-y-1 text-sm text-blue-800">
+                    <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-300">
                       {task.whyImportant.map((reason, index) => (
                         <li key={index} className="flex items-start gap-2">
                           <span>•</span>
@@ -443,7 +443,7 @@ export function SetupChecklist({
         {completedTasksCount > 0 && (
           <button
             onClick={() => setCollapsedCompletedTasks(!collapsedCompletedTasks)}
-            className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mx-auto"
+            className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mx-auto"
           >
             {collapsedCompletedTasks ? (
               <>

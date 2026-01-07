@@ -209,9 +209,9 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
         <div
           key={day}
           className={cn(
-            "p-2 min-h-[80px] border border-gray-100 relative cursor-pointer hover:bg-gray-50 transition-colors",
+            "p-2 min-h-[80px] border border-border relative cursor-pointer hover:bg-muted transition-colors",
             isToday(day) && "bg-purple-50 border-purple-300",
-            isPast && !isToday(day) && "bg-gray-50",
+            isPast && !isToday(day) && "bg-muted",
             hasEvents && "hover:border-pink-300",
             hasHolidays && !hasEvents && "hover:border-orange-300"
           )}
@@ -224,7 +224,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
           <div
             className={cn(
               "text-sm font-medium mb-1",
-              isToday(day) ? "text-purple-700" : isPast ? "text-gray-400" : "text-gray-700"
+              isToday(day) ? "text-brand" : isPast ? "text-muted-foreground" : "text-foreground"
             )}
           >
             {day}
@@ -236,7 +236,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                 className={cn(
                   "text-xs rounded px-1 py-0.5 truncate",
                   isPast
-                    ? "bg-gray-200 text-gray-600"
+                    ? "bg-muted text-muted-foreground"
                     : item.isHoliday
                       ? "bg-orange-100 text-orange-800"
                       : "bg-pink-100 text-pink-800"
@@ -246,7 +246,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
               </div>
             ))}
             {dayItems.length > 2 && (
-              <div className="text-xs text-gray-500">+{dayItems.length - 2} נוספים</div>
+              <div className="text-xs text-muted-foreground">+{dayItems.length - 2} נוספים</div>
             )}
           </div>
         </div>
@@ -266,8 +266,8 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
               <Calendar className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-extrabold text-[#222222]">לוח שנה</h2>
-              <p className="text-base text-gray-600">אירועים, חגים וימי חופש</p>
+              <h2 className="text-2xl font-extrabold text-foreground">לוח שנה</h2>
+              <p className="text-base text-muted-foreground">אירועים, חגים וימי חופש</p>
             </div>
           </div>
 
@@ -348,7 +348,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                       "flex items-center justify-between p-4 rounded-lg border transition-colors cursor-pointer",
                       item.isHoliday
                         ? "border-orange-200 hover:border-orange-400 hover:bg-orange-50"
-                        : "border-gray-200 hover:border-pink-300 hover:bg-pink-50"
+                        : "border-border hover:border-pink-300 hover:bg-pink-50"
                     )}
                     onClick={() => {
                       if (!item.isHoliday && onEventClick) {
@@ -418,7 +418,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
             </div>
 
             {/* Day Names */}
-            <div className="grid grid-cols-7 gap-1 text-center text-sm font-medium text-gray-600 mb-2">
+            <div className="grid grid-cols-7 gap-1 text-center text-sm font-medium text-muted-foreground mb-2">
               <div>ראשון</div>
               <div>שני</div>
               <div>שלישי</div>
@@ -446,7 +446,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                 <span>חג/מועד</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-gray-200 rounded"></div>
+                <div className="w-3 h-3 bg-muted rounded"></div>
                 <span>עבר</span>
               </div>
             </div>
@@ -461,15 +461,15 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
           onClick={() => setSelectedDay(null)}
         >
           <div
-            className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden"
+            className="bg-background rounded-3xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+            <div className="p-6 border-b border-border flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">
+                <h3 className="text-xl font-bold text-foreground">
                   {selectedDay.day} ב{monthNames[currentDate.getMonth()]}
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {selectedDay.items.length} {selectedDay.items.length === 1 ? "פריט" : "פריטים"}
                 </p>
               </div>
@@ -496,7 +496,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                         "border-2 rounded-2xl p-4 transition-colors",
                         item.isHoliday
                           ? "border-orange-200 hover:border-orange-400"
-                          : "border-gray-100 hover:border-pink-300"
+                          : "border-border hover:border-pink-300"
                       )}
                     >
                       <div className="flex items-start justify-between mb-3">
@@ -504,7 +504,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                           <div className="text-4xl">{item.icon || "📅"}</div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <h4 className="font-bold text-lg text-gray-900">{item.name}</h4>
+                              <h4 className="font-bold text-lg text-foreground">{item.name}</h4>
                               {item.isHoliday && (
                                 <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
                                   חג
@@ -516,7 +516,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                                 </Badge>
                               )}
                             </div>
-                            <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                            <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                               <Clock className="h-3 w-3" />
                               {itemDate.toLocaleDateString("he-IL", {
                                 weekday: "long",
@@ -542,19 +542,19 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                       {!item.isHoliday && (item.allocated_budget ?? 0) > 0 && item.event_type !== "birthday" && item.event_type !== "staff-birthday" && (
                         <div className="flex items-center justify-between bg-purple-50 rounded-lg p-3 mt-3">
                           <div>
-                            <p className="text-xs text-gray-600">תקציב מוקצה</p>
-                            <p className="text-lg font-bold text-purple-700">
+                            <p className="text-xs text-muted-foreground">תקציב מוקצה</p>
+                            <p className="text-lg font-bold text-brand">
                               ₪{item.allocated_budget!.toLocaleString()}
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs text-gray-600">נוצל</p>
-                            <p className="text-lg font-bold text-gray-900">
+                            <p className="text-xs text-muted-foreground">נוצל</p>
+                            <p className="text-lg font-bold text-foreground">
                               ₪{(item.spent_amount || 0).toLocaleString()}
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs text-gray-600">יתרה</p>
+                            <p className="text-xs text-muted-foreground">יתרה</p>
                             <p className={cn(
                               "text-lg font-bold",
                               (item.spent_amount || 0) > item.allocated_budget! ? "text-red-600" : "text-green-600"
