@@ -1,4 +1,4 @@
-import { HebrewCalendar, HDate, Event as HebcalEvent, flags } from "@hebcal/core";
+import { HebrewCalendar, HDate } from "@hebcal/core";
 
 export type JewishHoliday = {
   id: string;
@@ -68,7 +68,7 @@ const holidayMetadata: Record<string, { icon: string; isSchoolOff: boolean; hebr
 
 /**
  * Get the school year date range based on current date
- * School year: September -> December next year
+ * School year: September 1st -> August 31st (full academic year including summer break)
  */
 export function getSchoolYearRange(): { start: Date; end: Date } {
   const now = new Date();
@@ -81,7 +81,7 @@ export function getSchoolYearRange(): { start: Date; end: Date } {
 
   return {
     start: new Date(schoolYearStart, 8, 1), // September 1st
-    end: new Date(schoolYearStart + 1, 11, 31), // December 31st next year
+    end: new Date(schoolYearStart + 1, 7, 31), // August 31st next year
   };
 }
 
@@ -159,4 +159,339 @@ export function getHolidaysForDay(year: number, month: number, day: number): Jew
       h.date.getMonth() === month &&
       h.date.getDate() === day
   );
+}
+
+// ============================================
+// School Breaks (חופשות בתי ספר)
+// ============================================
+
+export type SchoolBreak = {
+  id: string;
+  name: string;
+  startDate: Date;
+  endDate: Date;
+  icon: string;
+};
+
+/**
+ * Get Israeli Ministry of Education school breaks for the current school year
+ * Based on typical Israeli school calendar
+ */
+export function getSchoolBreaks(): SchoolBreak[] {
+  const { start, end } = getSchoolYearRange();
+  const schoolYearStart = start.getFullYear();
+  const schoolYearEnd = end.getFullYear();
+
+  const breaks: SchoolBreak[] = [
+    // Sukkot break (typically late September/October)
+    {
+      id: `break-sukkot-${schoolYearStart}`,
+      name: "חופשת סוכות",
+      startDate: getSukkotBreakStart(schoolYearStart),
+      endDate: getSukkotBreakEnd(schoolYearStart),
+      icon: "🌿",
+    },
+    // Hanukkah break (December)
+    {
+      id: `break-hanukkah-${schoolYearStart}`,
+      name: "חופשת חנוכה",
+      startDate: getHanukkahBreakStart(schoolYearStart),
+      endDate: getHanukkahBreakEnd(schoolYearStart),
+      icon: "🕎",
+    },
+    // Winter break / Semester break (late January/February)
+    {
+      id: `break-winter-${schoolYearEnd}`,
+      name: "חופשת סמסטר",
+      startDate: new Date(schoolYearEnd, 1, 1), // Feb 1
+      endDate: new Date(schoolYearEnd, 1, 5), // Feb 5
+      icon: "❄️",
+    },
+    // Purim break (March)
+    {
+      id: `break-purim-${schoolYearEnd}`,
+      name: "חופשת פורים",
+      startDate: getPurimBreakStart(schoolYearEnd),
+      endDate: getPurimBreakEnd(schoolYearEnd),
+      icon: "🎭",
+    },
+    // Passover break (April)
+    {
+      id: `break-passover-${schoolYearEnd}`,
+      name: "חופשת פסח",
+      startDate: getPassoverBreakStart(schoolYearEnd),
+      endDate: getPassoverBreakEnd(schoolYearEnd),
+      icon: "🍷",
+    },
+    // Summer break (July-August)
+    {
+      id: `break-summer-${schoolYearEnd}`,
+      name: "חופשת קיץ",
+      startDate: new Date(schoolYearEnd, 6, 1), // July 1
+      endDate: new Date(schoolYearEnd, 7, 31), // Aug 31
+      icon: "☀️",
+    },
+  ];
+
+  return breaks.filter(b => b.startDate >= start && b.startDate <= end);
+}
+
+/**
+ * Check if a date falls within a school break
+ */
+export function isSchoolBreak(date: Date): SchoolBreak | null {
+  const breaks = getSchoolBreaks();
+  const dateTime = date.getTime();
+
+  for (const brk of breaks) {
+    if (dateTime >= brk.startDate.getTime() && dateTime <= brk.endDate.getTime()) {
+      return brk;
+    }
+  }
+  return null;
+}
+
+/**
+ * Get school breaks for a specific month
+ */
+export function getSchoolBreaksForMonth(year: number, month: number): SchoolBreak[] {
+  const breaks = getSchoolBreaks();
+  return breaks.filter(brk => {
+    const startMonth = brk.startDate.getMonth();
+    const startYear = brk.startDate.getFullYear();
+    const endMonth = brk.endDate.getMonth();
+    const endYear = brk.endDate.getFullYear();
+
+    // Check if the break overlaps with the given month
+    return (
+      (startYear === year && startMonth === month) ||
+      (endYear === year && endMonth === month) ||
+      (startYear === year && startMonth < month && endYear === year && endMonth > month)
+    );
+  });
+}
+
+// Helper functions to calculate break dates based on Hebrew calendar
+// These use approximate dates - in production, you'd use Hebcal for precise dates
+
+function getSukkotBreakStart(year: number): Date {
+  // Sukkot typically starts mid-late September or early October
+  const events = HebrewCalendar.calendar({
+    start: new HDate(new Date(year, 8, 1)),
+    end: new HDate(new Date(year, 10, 30)),
+    il: true,
+  });
+
+  const sukkotEvent = events.find(e => e.getDesc() === "Sukkot I");
+  if (sukkotEvent) {
+    const date = sukkotEvent.getDate().greg();
+    date.setDate(date.getDate() - 1); // Day before Sukkot
+    return date;
+  }
+  return new Date(year, 8, 25); // Fallback: Sept 25
+}
+
+function getSukkotBreakEnd(year: number): Date {
+  const events = HebrewCalendar.calendar({
+    start: new HDate(new Date(year, 8, 1)),
+    end: new HDate(new Date(year, 10, 30)),
+    il: true,
+  });
+
+  const simchatEvent = events.find(e => e.getDesc() === "Simchat Torah");
+  if (simchatEvent) {
+    return simchatEvent.getDate().greg();
+  }
+  return new Date(year, 9, 5); // Fallback: Oct 5
+}
+
+function getHanukkahBreakStart(year: number): Date {
+  const events = HebrewCalendar.calendar({
+    start: new HDate(new Date(year, 10, 15)),
+    end: new HDate(new Date(year + 1, 0, 15)),
+    il: true,
+  });
+
+  const hanukkahEvent = events.find(e => e.getDesc() === "Chanukah: 1 Candle");
+  if (hanukkahEvent) {
+    return hanukkahEvent.getDate().greg();
+  }
+  return new Date(year, 11, 20); // Fallback: Dec 20
+}
+
+function getHanukkahBreakEnd(year: number): Date {
+  const events = HebrewCalendar.calendar({
+    start: new HDate(new Date(year, 10, 15)),
+    end: new HDate(new Date(year + 1, 0, 15)),
+    il: true,
+  });
+
+  const hanukkahEndEvent = events.find(e => e.getDesc() === "Chanukah: 8th Day");
+  if (hanukkahEndEvent) {
+    return hanukkahEndEvent.getDate().greg();
+  }
+  return new Date(year, 11, 28); // Fallback: Dec 28
+}
+
+function getPurimBreakStart(year: number): Date {
+  const events = HebrewCalendar.calendar({
+    start: new HDate(new Date(year, 1, 1)),
+    end: new HDate(new Date(year, 3, 30)),
+    il: true,
+  });
+
+  const purimEvent = events.find(e => e.getDesc() === "Purim");
+  if (purimEvent) {
+    const date = purimEvent.getDate().greg();
+    date.setDate(date.getDate() - 1); // Day before Purim
+    return date;
+  }
+  return new Date(year, 2, 14); // Fallback: Mar 14
+}
+
+function getPurimBreakEnd(year: number): Date {
+  const events = HebrewCalendar.calendar({
+    start: new HDate(new Date(year, 1, 1)),
+    end: new HDate(new Date(year, 3, 30)),
+    il: true,
+  });
+
+  const purimEvent = events.find(e => e.getDesc() === "Shushan Purim");
+  if (purimEvent) {
+    return purimEvent.getDate().greg();
+  }
+  return new Date(year, 2, 16); // Fallback: Mar 16
+}
+
+function getPassoverBreakStart(year: number): Date {
+  const events = HebrewCalendar.calendar({
+    start: new HDate(new Date(year, 2, 1)),
+    end: new HDate(new Date(year, 4, 30)),
+    il: true,
+  });
+
+  const pesachEvent = events.find(e => e.getDesc() === "Pesach I");
+  if (pesachEvent) {
+    const date = pesachEvent.getDate().greg();
+    date.setDate(date.getDate() - 1); // Day before Pesach
+    return date;
+  }
+  return new Date(year, 3, 10); // Fallback: Apr 10
+}
+
+function getPassoverBreakEnd(year: number): Date {
+  const events = HebrewCalendar.calendar({
+    start: new HDate(new Date(year, 2, 1)),
+    end: new HDate(new Date(year, 4, 30)),
+    il: true,
+  });
+
+  const pesachEndEvent = events.find(e => e.getDesc() === "Pesach VII");
+  if (pesachEndEvent) {
+    const date = pesachEndEvent.getDate().greg();
+    date.setDate(date.getDate() + 1); // Day after last day of Pesach
+    return date;
+  }
+  return new Date(year, 3, 20); // Fallback: Apr 20
+}
+
+// ============================================
+// Hebrew Date Utilities
+// ============================================
+
+/**
+ * Get Hebrew month name for a given Gregorian date
+ */
+export function getHebrewMonthName(date: Date): string {
+  const hdate = new HDate(date);
+  // Hebrew month names
+  const hebrewMonths: Record<string, string> = {
+    "Nisan": "ניסן",
+    "Iyyar": "אייר",
+    "Sivan": "סיון",
+    "Tamuz": "תמוז",
+    "Av": "אב",
+    "Elul": "אלול",
+    "Tishrei": "תשרי",
+    "Cheshvan": "חשון",
+    "Kislev": "כסלו",
+    "Tevet": "טבת",
+    "Sh'vat": "שבט",
+    "Adar": "אדר",
+    "Adar I": "אדר א׳",
+    "Adar II": "אדר ב׳",
+  };
+  const englishName = hdate.getMonthName();
+  return hebrewMonths[englishName] || englishName;
+}
+
+/**
+ * Get Hebrew year for a given Gregorian date
+ */
+export function getHebrewYear(date: Date): string {
+  const hdate = new HDate(date);
+  const year = hdate.getFullYear();
+  return gematriya(year);
+}
+
+/**
+ * Convert number to Hebrew gematria (e.g., 5785 -> תשפ״ה)
+ */
+function gematriya(num: number): string {
+  const ones = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
+  const tens = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
+  const hundreds = ["", "ק", "ר", "ש", "ת"];
+
+  // For years like 5785, we typically use just the last 3 digits (785)
+  const shortYear = num % 1000;
+
+  let result = "";
+
+  // Hundreds
+  const h = Math.floor(shortYear / 100);
+  if (h <= 4) {
+    result += hundreds[h];
+  } else {
+    result += "ת" + hundreds[h - 4];
+  }
+
+  // Tens and ones
+  const remainder = shortYear % 100;
+  const t = Math.floor(remainder / 10);
+  const o = remainder % 10;
+
+  // Special cases: 15 = ט״ו, 16 = ט״ז
+  if (remainder === 15) {
+    result += "ט״ו";
+  } else if (remainder === 16) {
+    result += "ט״ז";
+  } else {
+    result += tens[t];
+    if (o > 0) {
+      result += "״" + ones[o];
+    } else if (t > 0) {
+      // Add gershayim before last letter if no ones digit
+      result = result.slice(0, -1) + "״" + result.slice(-1);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Format date as Hebrew string (e.g., "טבת תשפ״ו")
+ */
+export function formatHebrewDate(date: Date): string {
+  return `${getHebrewMonthName(date)} ${getHebrewYear(date)}`;
+}
+
+/**
+ * Format date as Gregorian Hebrew string (e.g., "ינואר 2026")
+ */
+export function formatGregorianHebrewDate(date: Date): string {
+  const months = [
+    "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
+    "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"
+  ];
+  return `${months[date.getMonth()]} ${date.getFullYear()}`;
 }

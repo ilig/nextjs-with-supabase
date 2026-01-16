@@ -29,8 +29,11 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [className, setClassName] = useState("");
+  const [schoolName, setSchoolName] = useState("");
+  const [city, setCity] = useState("");
   const [classId, setClassId] = useState<string | null>(null);
   const [submittedChildName, setSubmittedChildName] = useState("");
+  const [payboxLink, setPayboxLink] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -55,7 +58,7 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
       // Get class by invite code
       const { data: classData, error: classError } = await supabase
         .from("classes")
-        .select("id, name")
+        .select("id, name, school_name, city, paybox_link")
         .eq("invite_code", token)
         .single();
 
@@ -67,6 +70,9 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
 
       setClassId(classData.id);
       setClassName(classData.name);
+      setSchoolName(classData.school_name || "");
+      setCity(classData.city || "");
+      setPayboxLink(classData.paybox_link || null);
       setLoading(false);
     } catch (err) {
       console.error("Error loading class data:", err);
@@ -327,22 +333,37 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="max-w-md w-full">
             <CardContent className="pt-6 text-center space-y-4" dir="rtl">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="h-12 w-12 text-green-600" />
+              <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
               </div>
               <h2 className="text-2xl font-bold text-foreground">תודה רבה!</h2>
               <p className="text-muted-foreground">
                 הפרטים של {submittedChildName} נשמרו בהצלחה.
               </p>
-              <div className="pt-4 space-y-2">
+              <div className="pt-4 space-y-3">
+                {/* Paybox payment button - primary action */}
+                {payboxLink && (
+                  <Button
+                    asChild
+                    className="w-full bg-[#00B4E5] hover:bg-[#00A3D1] text-white py-6 text-lg"
+                  >
+                    <a href={payboxLink} target="_blank" rel="noopener noreferrer">
+                      המשך ל-PayBox
+                    </a>
+                  </Button>
+                )}
+
+                {/* Fill another child button - secondary action */}
                 <Button
                   onClick={handleFillAnother}
-                  className="w-full bg-brand hover:bg-brand-hover"
+                  variant={payboxLink ? "outline" : "default"}
+                  className={payboxLink ? "w-full" : "w-full bg-brand hover:bg-brand-hover"}
                 >
                   מילוי פרטים לילד/ה נוסף/ת
                 </Button>
+
                 <p className="text-xs text-muted-foreground">
-                  תוכלו לחזור לקישור זה בכל עת כדי לעדכן את הפרטים
+                  *תוכלו לחזור לקישור זה בכל עת כדי לעדכן את הפרטים
                 </p>
               </div>
             </CardContent>
@@ -366,6 +387,8 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
             {className && (
               <p className="text-muted-foreground mt-2">
                 כיתה: <span className="font-semibold">{className}</span>
+                {schoolName && ` - ${schoolName}`}
+                {city && `, ${city}`}
               </p>
             )}
           </CardHeader>

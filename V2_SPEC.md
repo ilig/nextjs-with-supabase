@@ -17,6 +17,7 @@
 8. [Public Pages](#public-pages)
 9. [Build Phases](#build-phases)
 10. [V1 Archive](#v1-archive)
+11. [Future Enhancements: Email Service](#future-enhancements-email-service)
 
 ---
 
@@ -255,34 +256,209 @@ After sign-up, user goes through 3 steps:
 
 ### Tab: תקציב (Budget) - Default
 
-**Setup Banner (Dismissible):**
+The Budget Tab uses a **3-block clickable interface** where each block reveals detailed content when selected.
+
+#### Layout Structure
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  🚀 איסוף תשלומים                                  [סגור ❌] │
-│  15/30 שילמו  [שלח קישור להורים] [הגדר קישור תשלום] [סמן]  │
+│  Header: תקציב הכיתה                                        │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  Collection Banner (shown when collection < 100%)           │
+│  💰 נאספו ₪4,500 מתוך ₪6,000 (75%)                          │
+│  [████████████████████░░░░░░░]  15/20 שילמו                 │
+│  [עדכון פרטי ילדכם ותשלום בקבוצת הפייבוקס]                  │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+│ תקציב כולל  │  │   הוצאות    │  │    יתרה     │
+│   ₪6,000    │  │   ₪2,500    │  │   ₪3,500    │
+│ (clickable) │  │ (clickable) │  │ (clickable) │
+└─────────────┘  └─────────────┘  └─────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  CONTENT AREA (changes based on selected block)             │
+│                                                             │
+│  DEFAULT (no selection): Pie charts                         │
+│  BLOCK SELECTED: Block's detail view                        │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  Timeline: אירועים שתוקצבו (always visible)                 │
+│  [Clickable bars → quick edit modal]                        │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Main Content:**
-1. **Metrics Row:**
-   - Total budget (תקציב כולל)
-   - Spent (הוצאות)
-   - Remaining (יתרה)
+#### Default View (No Block Selected)
 
-2. **Pie Chart:**
-   - Spent vs Remaining
+Shows two pie charts side by side:
+1. **ניצול התקציב** - Budget utilization (spent vs remaining) with percentages
+2. **התפלגות ההוצאות** - Expense distribution (kids vs staff) with percentages
 
-3. **Distribution Chart:**
-   - Kids allocation vs Staff allocation
+**Returning to Default View:**
+- Each block's detail view has a [✕ סגור] button in the header
+- Clicking [✕ סגור] closes the detail view and returns to the pie charts
+- Clicking the same block again (when already selected) also closes it
 
-4. **Timeline:**
-   - Events on timeline
-   - Shows allocated amount per event
-   - Indicates paid/unpaid status
+#### Block 1: תקציב כולל (Total Budget) - When Clicked
 
-5. **Upcoming Events:**
-   - Next 30 days
-   - Event name, date, allocated amount
+**Purpose:** Money IN - Budget setup, collection tracking, event allocation
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  תקציב כולל                                        [✕ סגור]│
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  SECTION 1: הגדרות תקציב                                    │
+│  ─────────────────────────────────────────────────────────  │
+│  💰 סה"כ תקציב: ₪6,000                          [✏️ עריכה] │
+│  👶 סכום לילד: ₪300 × 20 ילדים                             │
+│                                                             │
+│  SECTION 2: מצב גבייה                                       │
+│  ─────────────────────────────────────────────────────────  │
+│  📊 התקדמות גבייה                                           │
+│  [████████████░░░░░░░░░░░░░░░░░] 40%                        │
+│  נאספו ₪2,400 מתוך ₪6,000                                   │
+│                                                             │
+│  👶 מצב רישום (מתוך 20 ילדים צפויים)                        │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  ✅ שילמו (8)        │  ⚠️ נרשמו, לא שילמו (4)     │   │
+│  │  יוסי כהן            │  דני לוי                     │   │
+│  │  מיכל אברהם          │  רונית שמש                   │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │  ❓ טרם נרשמו (8)                                   │   │
+│  │  8 ילדים מתוך 20 עדיין לא מילאו את טופס ההרשמה      │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  [עדכון פרטי ילדכם ותשלום בקבוצת הפייבוקס]                  │
+│  (לסימון תשלום בודד → עבור לדף קשר)                         │
+│                                                             │
+│  SECTION 3: הקצאת תקציב לאירועים                            │
+│  ─────────────────────────────────────────────────────────  │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ 💰 תקציב: ₪6,000 │ מוקצה: ₪1,770 │ נותר: ₪4,230    │   │ <- STICKY
+│  │ [██████████░░░░░░░░░░░░░░░░░░░░░░] 30%              │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ ☑ חנוכה      │ ילדים: ₪30×20  צוות: ₪50×3 │ ₪750  │   │
+│  │ ☑ פורים      │ ילדים: ₪25×20  צוות: ₪40×3 │ ₪620  │   │
+│  │ ☑ פסח        │ ילדים: ₪20×20  צוות: ₪0    │ ₪400  │   │
+│  │ ☐ סוף שנה    │ לא מוקצה                    │ ₪0    │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                    [+ הוסף] │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Three states of children for collection tracking:**
+1. ✅ **שילמו** - Registered AND paid (names known)
+2. ⚠️ **נרשמו, לא שילמו** - Registered but NOT paid (names known)
+3. ❓ **טרם נרשמו** - Not registered yet (count only, based on `estimated_children - registered_count`)
+
+#### Block 2: הוצאות (Expenses) - When Clicked
+
+**Purpose:** Money OUT - Expense tracking with receipts
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  הוצאות                                            [✕ סגור]│
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  סה"כ הוצאות: ₪2,500                           [+ הוסף]    │
+│                                                             │
+│  🔍 סינון: [כל האירועים ▼]                                  │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ 15 ינואר 2026                                       │   │
+│  │ קישוטים לחנוכה                              ₪350    │   │
+│  │ 🏷️ חנוכה   📎 קבלה                    [👁️] [🗑️]   │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │ 12 ינואר 2026                                       │   │
+│  │ סופגניות                                    ₪200    │   │
+│  │ 🏷️ חנוכה   📎 קבלה                    [👁️] [🗑️]   │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │ 5 ינואר 2026                                        │   │
+│  │ ציוד משרדי כללי                             ₪150    │   │
+│  │ 🏷️ כללי    📎 קבלה                    [👁️] [🗑️]   │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Add Expense Modal:**
+- תיאור (description)
+- סכום (amount)
+- תאריך (date)
+- אירוע (event - dropdown, optional, can be "כללי")
+- קבלה (receipt upload - drag & drop, supports images and PDFs)
+
+**Expense-Event Relationship:**
+- Expense CAN exist without an event (general supplies)
+- Event CAN have multiple expenses (e.g., venue + supplies + food for one holiday)
+- When marking event as "שולם" → auto-creates expense with amount prompt
+
+#### Block 3: יתרה (Remaining) - When Clicked
+
+**Purpose:** Health check - Balance overview and allocation status
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  יתרה                                              [✕ סגור]│
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  💵 יתרה בפועל: ₪2,000                                      │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  נאספו        ₪4,500                                │   │
+│  │  - הוצאות     ₪2,500                                │   │
+│  │  ─────────────────────                              │   │
+│  │  = יתרה       ₪2,000  ✓                             │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  📊 מצב הקצאות                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  תקציב כולל               ₪6,000                    │   │
+│  │  הוקצה לאירועים           ₪1,770  (30%)             │   │
+│  │  [██████░░░░░░░░░░░░░░░░░░░░░░░░░░]                  │   │
+│  │  טרם הוקצה                ₪4,230  (70%)             │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ⚠️ שים לב: עדיין לא נאסף מלוא התקציב (₪1,500 חסרים)       │
+│                                                             │
+│  📅 אירועים שהוקצאו וטרם שולמו                              │
+│  • חנוכה - ₪750 מוקצה                                       │
+│  • פורים - ₪620 מוקצה                                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Timeline: אירועים שתוקצבו (Always Visible)
+
+Horizontal bar chart showing budgeted events from today onwards:
+- Bar width proportional to allocated budget
+- Event name inside bar
+- Allocated amount above bar
+- Date label
+- Payment status badge (שולם ✓ / לא שולם ⚠️)
+- **Clickable** - opens quick edit modal
+
+**Timeline Quick Edit Modal (on bar click):**
+```
+┌─────────────────────────────────────────────────────────────┐
+│  חנוכה                                             [✕]     │
+├─────────────────────────────────────────────────────────────┤
+│  📅 25 דצמבר 2025                                           │
+│  💰 תקציב מוקצה: ₪750                                       │
+│  📊 הוצאות עד כה: ₪550                                      │
+│                                                             │
+│  [סמן כשולם]   [ערוך הקצאה]   [צפה בהוצאות]                │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**"סמן כשולם" Flow:**
+- Opens amount prompt with allocated budget as default
+- Optional receipt upload
+- On confirm: marks event as paid + creates expense record
 
 ### Tab: אנשי קשר (Contacts)
 
@@ -291,17 +467,31 @@ After sign-up, user goes through 3 steps:
 **Header Actions:**
 - Search input
 - [🔗 שתף קישור לצפייה] button
+- [עדכון פרטי ילדכם ותשלום בקבוצת הפייבוקס] button (same as Budget tab)
 
 **Kids & Parents List:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  יוסי כהן                                        [✏️] [🗑️] │
+│  יוסי כהן                              [שילם ✓]  [✏️] [🗑️] │
 │  📅 15.03.2019                                              │
 │  👨 שרה כהן  📞 050-1234567                                 │
 │  👩 דוד כהן  📞 052-9876543                                 │
 │  📍 רחוב הרצל 15, תל אביב                                   │
 └─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  דני לוי                             [לא שילם ✗] [✏️] [🗑️] │
+│  📅 22.07.2019                                              │
+│  👨 רונית לוי  📞 054-7891234                               │
+│  📍 רחוב בן גוריון 8, חיפה                                  │
+│                                              [סמן כשילם]    │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+**Payment Status in Contacts:**
+- Each child card shows payment badge (שילם ✓ / לא שילם ✗)
+- Unpaid children have a [סמן כשילם] button
+- Clicking [סמן כשילם] marks child as paid and updates payment_date
 
 **Staff List:**
 ```
@@ -364,16 +554,31 @@ After sign-up, user goes through 3 steps:
 - Show success message
 - Button: "המשך לתשלום" → Opens Paybox link
 
-### Parent Registration Message Templates
+### Parent Registration & Payment Message
 
-**For sharing via WhatsApp/Email:**
+**Single message template for registration + payment (used for both initial share and reminders):**
+
+**Button Label:** "עדכון פרטי ילדכם ותשלום בקבוצת הפייבוקס"
+
+**Message Content:**
 ```
 שלום הורים יקרים! 👋
 
-אנא מלאו את הפרטים בקישור הבא:
+אנא עדכנו את פרטי ילדכם בקישור הבא:
 https://classease.app/register/{code}
 
-לאחר מילוי הפרטים תועברו לתשלום.
+לאחר מילוי הפרטים תועברו לתשלום בקבוצת הפייבוקס.
+תודה! 🙏
+```
+
+**Reminder Message (same link, slightly different wording):**
+```
+תזכורת להורים שטרם עדכנו 👋
+
+אנא עדכנו את פרטי ילדכם בקישור הבא:
+https://classease.app/register/{code}
+
+לאחר מילוי הפרטים תועברו לתשלום בקבוצת הפייבוקס.
 תודה! 🙏
 ```
 
@@ -382,71 +587,73 @@ https://classease.app/register/{code}
 - [📱 WhatsApp] - Open WhatsApp with pre-filled message
 - [📧 Email] - Open email client with pre-filled message
 
+**Note:** Only one reminder type - sent to the entire WhatsApp group. No individual reminders.
+
 ---
 
 ## Build Phases
 
 ### Phase 1: Foundation
 - [x] Create `archive/v1` branch
-- [ ] Write database migration
-- [ ] Create mobile-first layout shell
-  - [ ] Bottom tabs component (mobile)
-  - [ ] Top tabs component (desktop)
-  - [ ] Responsive switching
-- [ ] Verify RTL setup
-- [ ] Verify dark mode with semantic tokens
+- [x] Write database migration (`20260109_v2_schema_updates.sql`, `20260115_admin_invitations.sql`)
+- [x] Create mobile-first layout shell
+  - [x] Bottom tabs component (mobile) - `mobile-bottom-nav.tsx`
+  - [x] Top tabs component (desktop) - `desktop-top-nav.tsx`
+  - [x] Responsive switching - `dashboard-layout.tsx`
+- [x] Verify RTL setup
+- [x] Verify dark mode with semantic tokens
 
 ### Phase 2: Onboarding
-- [ ] Step 1: Class basics form
-  - [ ] Settlement autocomplete component
-- [ ] Step 2: Amount per child
-- [ ] Step 3: Budget allocation
-  - [ ] Event selection
-  - [ ] Per-event kids/staff allocation
-  - [ ] Sticky budget summary
-- [ ] Save to database
-- [ ] Redirect to dashboard
+- [x] Step 1: Class basics form - `step-class-basics.tsx`
+  - [x] Settlement autocomplete component - `lib/data/settlements.ts`
+- [x] Step 2: Amount per child - `step-annual-amount.tsx`
+- [x] Step 3: Budget allocation - `step-budget-allocation.tsx`
+  - [x] Event selection
+  - [x] Per-event kids/staff allocation
+  - [x] Sticky budget summary
+- [x] Save to database
+- [x] Redirect to dashboard
 
 ### Phase 3: Dashboard - Budget Tab
-- [ ] Metrics cards (total, spent, remaining)
-- [ ] Pie chart (spent vs remaining)
-- [ ] Distribution chart (kids vs staff)
-- [ ] Timeline (events with amounts)
-- [ ] Upcoming events list
+- [x] Metrics cards (total, spent, remaining) - `budget-tab.tsx`
+- [x] Pie chart (spent vs remaining)
+- [x] Distribution chart (kids vs staff)
+- [x] Timeline (events with amounts)
+- [x] Upcoming events list
 
 ### Phase 4: Dashboard - Contacts Tab
-- [ ] Kids/parents list
-  - [ ] Show: name, DOB, parents, address
-  - [ ] Edit/delete actions
-- [ ] Staff list
-  - [ ] Show: name, role, birthday (month/day)
-  - [ ] Edit/delete actions
-- [ ] Search functionality
-- [ ] Share link button
+- [x] Kids/parents list - `contacts-tab.tsx`
+  - [x] Show: name, DOB, parents, address
+  - [x] Edit/delete actions
+- [x] Staff list
+  - [x] Show: name, role, birthday (month/day)
+  - [x] Edit/delete actions
+- [x] Search functionality
+- [x] Share link button
 
 ### Phase 5: Setup Banner
-- [ ] Payment tracking UI
-- [ ] Parent registration link + message templates
-- [ ] Paybox link setup
-- [ ] Mark as paid functionality
-- [ ] Dismissible banner
+- [x] Payment tracking UI - `setup-banners.tsx`, `payment-management-sheet.tsx`
+- [x] Parent registration link + message templates
+- [x] Paybox link setup
+- [x] Mark as paid functionality
+- [x] Dismissible banner
 
 ### Phase 6: Public Pages
-- [ ] `/directory/[code]` - Public directory
-- [ ] `/register/[code]` - Parent registration form
-  - [ ] Form fields
-  - [ ] Save to database
-  - [ ] Redirect to Paybox
+- [x] `/directory/[code]` - Public directory - `public-directory-client.tsx`
+- [x] `/register/[code]` - Parent registration form (implemented as `/join/[code]` → `/parent-form/[token]`)
+  - [x] Form fields (child name, DOB, address, parent1, parent2)
+  - [x] Save to database
+  - [x] Redirect to Paybox (after submission)
 
 ### Phase 7: Settings & Admin
-- [ ] Class details editing
-- [ ] Multi-admin management
-- [ ] Directory visibility settings
-- [ ] Logout
+- [x] Class details editing - `edit-class-modal.tsx`
+- [x] Multi-admin management - `admin-management-modal.tsx`
+- [x] Directory visibility settings - `directory-settings-modal.tsx`
+- [x] Logout
 
 ### Phase 8: Calendar & Catalog
-- [ ] Calendar view
-- [ ] Gift catalog placeholder
+- [x] Calendar view - `calendar-tab.tsx`, `hebrew-calendar.tsx`
+- [x] Gift catalog placeholder - `gifts-tab.tsx`
 
 ---
 
@@ -545,6 +752,112 @@ export const israeliSettlements = [
 | גננת | Kindergarten teacher |
 | סייעת | Assistant |
 | מורה | Teacher |
+
+---
+
+## Future Enhancements: Email Service
+
+### Overview
+
+The application currently does not send emails. Admin invitations, payment reminders, and other notifications rely on WhatsApp sharing and manual link copying. Adding an email service would enable:
+
+1. **Admin Invitations** - Send email when inviting a new admin to manage the class
+2. **Payment Reminders** - Send personalized reminders to parents who haven't paid
+3. **Event Notifications** - Notify parents about upcoming events
+4. **Registration Confirmations** - Confirm when a parent registers their child
+
+### Recommended Service: Resend
+
+**Why Resend:**
+- Simple API, great developer experience
+- Free tier: 100 emails/day, 3,000 emails/month
+- Easy Next.js integration
+- Built-in React Email support for Hebrew templates
+
+**Website:** https://resend.com
+
+### Implementation Plan
+
+#### 1. Setup
+
+```bash
+npm install resend
+```
+
+Add to `.env.local`:
+```
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+```
+
+#### 2. API Route Structure
+
+Create: `app/api/email/route.ts`
+
+```typescript
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export async function POST(request: Request) {
+  const { type, to, data } = await request.json();
+
+  // Handle different email types
+  switch (type) {
+    case 'admin-invitation':
+      // Send admin invitation email
+      break;
+    case 'payment-reminder':
+      // Send payment reminder
+      break;
+  }
+}
+```
+
+#### 3. Email Templates (Hebrew RTL)
+
+Create: `emails/admin-invitation.tsx`
+
+```tsx
+export function AdminInvitationEmail({
+  className,
+  inviteLink
+}: {
+  className: string;
+  inviteLink: string;
+}) {
+  return (
+    <div dir="rtl" style={{ fontFamily: 'Arial, sans-serif' }}>
+      <h1>הזמנה לניהול כיתה</h1>
+      <p>הוזמנת להצטרף כמנהל/ת בכיתה "{className}"</p>
+      <a href={inviteLink}>לחץ כאן להצטרפות</a>
+    </div>
+  );
+}
+```
+
+#### 4. Integration Points
+
+| Feature | File | Function |
+|---------|------|----------|
+| Admin Invitations | `settings-tab.tsx` | `handleAddAdmin()` |
+| Payment Reminders | `payment-management-sheet.tsx` | `handleSendReminder()` |
+| Registration Confirmation | `app/register/[code]/page.tsx` | Form submit handler |
+
+#### 5. Database Changes
+
+Add to `admin_invitations` table:
+```sql
+ALTER TABLE admin_invitations ADD COLUMN email_sent_at TIMESTAMP WITH TIME ZONE;
+```
+
+### Alternative: No Email Service
+
+The current implementation works without email by:
+- Using WhatsApp for sharing invites
+- Providing copy-to-clipboard functionality
+- Relying on manual communication in parent groups
+
+This is acceptable for MVP as most Israeli parents communicate via WhatsApp groups.
 
 ---
 

@@ -257,7 +257,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
   };
 
   return (
-    <div className={className}>
+    <div dir="rtl" className={className}>
       {hideHeader ? (
         <div>
           {/* Main Header - always shown when hideHeader is true */}
@@ -461,6 +461,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
           onClick={() => setSelectedDay(null)}
         >
           <div
+            dir="rtl"
             className="bg-background rounded-3xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
