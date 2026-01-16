@@ -73,8 +73,8 @@ export default async function DashboardV2Page() {
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 
-  // Fetch staff, events, and expenses
-  const [{ data: staff }, { data: events }, { data: expenses }] = await Promise.all([
+  // Fetch staff and events
+  const [{ data: staff }, { data: events }] = await Promise.all([
     supabase
       .from("staff")
       .select("*")
@@ -85,19 +85,34 @@ export default async function DashboardV2Page() {
       .select("*")
       .eq("class_id", currentClass.id)
       .order("event_date", { ascending: true }),
-    supabase
-      .from("expenses")
-      .select(`
-        *,
-        events (
-          id,
-          name,
-          event_type
-        )
-      `)
-      .eq("class_id", currentClass.id)
-      .order("expense_date", { ascending: false }),
   ]);
+
+  // Fetch expenses separately (table may not exist in older deployments)
+  let expenses: Array<{
+    id: string;
+    description: string;
+    amount: number;
+    expense_date: string;
+    receipt_url?: string;
+    event_id?: string;
+    events?: { id: string; name: string; event_type: string };
+  }> = [];
+  const { data: expensesData, error: expensesError } = await supabase
+    .from("expenses")
+    .select(`
+      *,
+      events (
+        id,
+        name,
+        event_type
+      )
+    `)
+    .eq("class_id", currentClass.id)
+    .order("expense_date", { ascending: false });
+
+  if (!expensesError) {
+    expenses = expensesData || [];
+  }
 
   // Only fetch child_parents if we have children
   let childParents: Array<{
