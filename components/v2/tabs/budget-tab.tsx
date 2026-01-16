@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Wallet,
   TrendingDown,
@@ -24,11 +25,33 @@ import {
   Cake,
   Gift,
   Plus,
+  Receipt,
+  Trash2,
+  Eye,
+  Loader2,
+  Tag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { createExpense, deleteExpense } from "@/app/actions/budget";
 
 type Event = {
   id: string;
@@ -52,6 +75,20 @@ type Child = {
   payment_date?: string;
 };
 
+type Expense = {
+  id: string;
+  description: string;
+  amount: number;
+  expense_date: string;
+  receipt_url?: string;
+  event_id?: string;
+  events?: {
+    id: string;
+    name: string;
+    event_type: string;
+  };
+};
+
 type BudgetTabProps = {
   budgetMetrics?: {
     total: number;
@@ -62,10 +99,12 @@ type BudgetTabProps = {
     collected?: number;
   };
   events?: Event[];
+  expenses?: Expense[];
   children?: Child[];
   estimatedChildren?: number;
   estimatedStaff?: number;
   className?: string;
+  classId?: string;
   onEditBudget?: () => void;
   onSendRegistrationLink?: () => void;
   onMarkEventPaid?: (eventId: string) => void;
@@ -74,6 +113,8 @@ type BudgetTabProps = {
   onToggleEventEnabled?: (eventId: string, enabled: boolean) => void;
   onBannerClick?: () => void;
   onAddCustomEvent?: (name: string) => void;
+  onAddExpense?: (expense: { description: string; amount: number; expense_date: string; event_id?: string }) => void;
+  onDeleteExpense?: (expenseId: string) => void;
 };
 
 type SelectedBlock = "budget" | "expenses" | "balance" | null;
@@ -150,10 +191,12 @@ function filterFutureEvents(events: Event[]): Event[] {
 export function BudgetTab({
   budgetMetrics,
   events = [],
+  expenses = [],
   children = [],
   estimatedChildren = 0,
   estimatedStaff = 0,
   className,
+  classId,
   onEditBudget,
   onSendRegistrationLink,
   onMarkEventPaid,
@@ -162,11 +205,26 @@ export function BudgetTab({
   onToggleEventEnabled,
   onBannerClick,
   onAddCustomEvent,
+  onAddExpense,
+  onDeleteExpense,
 }: BudgetTabProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [selectedBlock, setSelectedBlock] = useState<SelectedBlock>(null);
   const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
   const [showCustomEventInput, setShowCustomEventInput] = useState(false);
   const [customEventName, setCustomEventName] = useState("");
+
+  // Expense modal state
+  const [expenseModalOpen, setExpenseModalOpen] = useState(false);
+  const [deleteExpenseId, setDeleteExpenseId] = useState<string | null>(null);
+  const [expenseForm, setExpenseForm] = useState({
+    description: "",
+    amount: "",
+    expense_date: new Date().toISOString().split("T")[0],
+    event_id: "",
+  });
+  const [expenseFilter, setExpenseFilter] = useState<string>("all");
 
   const {
     total = 0,
@@ -780,17 +838,110 @@ export function BudgetTab({
               <p className="text-lg font-bold text-foreground">
                 סה״כ הוצאות: ₪{spent.toLocaleString()}
               </p>
-              <button className="bg-brand text-white rounded-lg py-2 px-4 text-sm font-medium hover:bg-brand/90 transition-colors">
-                + הוסף
+              <button
+                onClick={() => setExpenseModalOpen(true)}
+                className="bg-brand text-white rounded-lg py-2 px-4 text-sm font-medium hover:bg-brand/90 transition-colors flex items-center gap-1"
+              >
+                <Plus className="h-4 w-4" />
+                הוסף
               </button>
             </div>
 
-            {/* Placeholder for expenses list - will be implemented with real data */}
-            <div className="text-center py-8 text-muted-foreground">
-              <TrendingDown className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>רשימת ההוצאות תוצג כאן</p>
-              <p className="text-xs mt-1">הוסף הוצאות עם קבלות לצורך מעקב</p>
-            </div>
+            {/* Filter by event */}
+            {events.length > 0 && (
+              <div className="mb-4">
+                <Select value={expenseFilter} onValueChange={setExpenseFilter}>
+                  <SelectTrigger className="w-full md:w-64 rounded-xl">
+                    <SelectValue placeholder="סינון לפי אירוע" />
+                  </SelectTrigger>
+                  <SelectContent dir="rtl">
+                    <SelectItem value="all">כל האירועים</SelectItem>
+                    <SelectItem value="general">כללי (ללא אירוע)</SelectItem>
+                    {events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        {event.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Expenses list */}
+            {expenses.length > 0 ? (
+              <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                {expenses
+                  .filter((expense) => {
+                    if (expenseFilter === "all") return true;
+                    if (expenseFilter === "general") return !expense.event_id;
+                    return expense.event_id === expenseFilter;
+                  })
+                  .map((expense) => (
+                    <div
+                      key={expense.id}
+                      className="p-3 bg-muted/30 rounded-xl border border-border"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="text-xs text-muted-foreground mb-1">
+                            {formatHebrewDate(expense.expense_date)}
+                          </p>
+                          <p className="font-medium text-foreground">
+                            {expense.description}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            {expense.events ? (
+                              <span className="inline-flex items-center gap-1 text-xs bg-brand/10 text-brand px-2 py-0.5 rounded-full">
+                                <Tag className="h-3 w-3" />
+                                {expense.events.name}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+                                <Tag className="h-3 w-3" />
+                                כללי
+                              </span>
+                            )}
+                            {expense.receipt_url && (
+                              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                                <Receipt className="h-3 w-3" />
+                                קבלה
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-foreground">
+                            ₪{expense.amount.toLocaleString()}
+                          </span>
+                          <div className="flex gap-1">
+                            {expense.receipt_url && (
+                              <button
+                                className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                                title="צפה בקבלה"
+                              >
+                                <Eye className="h-4 w-4 text-muted-foreground" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => setDeleteExpenseId(expense.id)}
+                              className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors"
+                              title="מחק"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <TrendingDown className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>אין הוצאות עדיין</p>
+                <p className="text-xs mt-1">הוסף הוצאות עם קבלות לצורך מעקב</p>
+              </div>
+            )}
           </div>
         </div>
       ) : (
@@ -962,6 +1113,168 @@ export function BudgetTab({
           </p>
         )}
       </div>
+
+      {/* Add Expense Modal */}
+      <Dialog open={expenseModalOpen} onOpenChange={setExpenseModalOpen}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-right">הוספת הוצאה</DialogTitle>
+            <DialogDescription className="text-right">
+              הזן את פרטי ההוצאה
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="expenseDescription">תיאור *</Label>
+              <Input
+                id="expenseDescription"
+                value={expenseForm.description}
+                onChange={(e) =>
+                  setExpenseForm({ ...expenseForm, description: e.target.value })
+                }
+                placeholder="לדוגמה: קישוטים לחנוכה"
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expenseAmount">סכום (₪) *</Label>
+              <Input
+                id="expenseAmount"
+                type="number"
+                min="0"
+                value={expenseForm.amount}
+                onChange={(e) =>
+                  setExpenseForm({ ...expenseForm, amount: e.target.value })
+                }
+                placeholder="0"
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expenseDate">תאריך *</Label>
+              <Input
+                id="expenseDate"
+                type="date"
+                value={expenseForm.expense_date}
+                onChange={(e) =>
+                  setExpenseForm({ ...expenseForm, expense_date: e.target.value })
+                }
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>אירוע (אופציונלי)</Label>
+              <Select
+                value={expenseForm.event_id}
+                onValueChange={(value) =>
+                  setExpenseForm({ ...expenseForm, event_id: value === "none" ? "" : value })
+                }
+              >
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="בחר אירוע" />
+                </SelectTrigger>
+                <SelectContent dir="rtl">
+                  <SelectItem value="none">כללי (ללא אירוע)</SelectItem>
+                  {events.map((event) => (
+                    <SelectItem key={event.id} value={event.id}>
+                      {event.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setExpenseModalOpen(false);
+                setExpenseForm({
+                  description: "",
+                  amount: "",
+                  expense_date: new Date().toISOString().split("T")[0],
+                  event_id: "",
+                });
+              }}
+              className="rounded-xl"
+            >
+              ביטול
+            </Button>
+            <Button
+              onClick={() => {
+                if (!classId || !expenseForm.description || !expenseForm.amount) return;
+                startTransition(async () => {
+                  await createExpense({
+                    classId,
+                    description: expenseForm.description,
+                    amount: parseFloat(expenseForm.amount),
+                    expense_date: expenseForm.expense_date,
+                    event_id: expenseForm.event_id || undefined,
+                  });
+                  setExpenseModalOpen(false);
+                  setExpenseForm({
+                    description: "",
+                    amount: "",
+                    expense_date: new Date().toISOString().split("T")[0],
+                    event_id: "",
+                  });
+                  router.refresh();
+                });
+              }}
+              disabled={!expenseForm.description || !expenseForm.amount || isPending}
+              className="rounded-xl gap-2"
+            >
+              {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              הוסף הוצאה
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Expense Confirmation Modal */}
+      <Dialog open={!!deleteExpenseId} onOpenChange={(open) => !open && setDeleteExpenseId(null)}>
+        <DialogContent className="max-w-sm" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-right">אישור מחיקה</DialogTitle>
+            <DialogDescription className="text-right">
+              האם אתה בטוח שברצונך למחוק הוצאה זו?
+              <br />
+              פעולה זו אינה ניתנת לביטול.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteExpenseId(null)}
+              className="rounded-xl"
+            >
+              ביטול
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (!deleteExpenseId) return;
+                startTransition(async () => {
+                  await deleteExpense(deleteExpenseId);
+                  setDeleteExpenseId(null);
+                  router.refresh();
+                });
+              }}
+              disabled={isPending}
+              className="rounded-xl gap-2"
+            >
+              {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              מחק
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

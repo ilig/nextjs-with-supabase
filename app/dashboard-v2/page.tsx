@@ -73,8 +73,8 @@ export default async function DashboardV2Page() {
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 
-  // Fetch staff and events (these don't depend on children)
-  const [{ data: staff }, { data: events }] = await Promise.all([
+  // Fetch staff, events, and expenses
+  const [{ data: staff }, { data: events }, { data: expenses }] = await Promise.all([
     supabase
       .from("staff")
       .select("*")
@@ -85,6 +85,18 @@ export default async function DashboardV2Page() {
       .select("*")
       .eq("class_id", currentClass.id)
       .order("event_date", { ascending: true }),
+    supabase
+      .from("expenses")
+      .select(`
+        *,
+        events (
+          id,
+          name,
+          event_type
+        )
+      `)
+      .eq("class_id", currentClass.id)
+      .order("expense_date", { ascending: false }),
   ]);
 
   // Only fetch child_parents if we have children
@@ -109,11 +121,12 @@ export default async function DashboardV2Page() {
     childParents = childParentsData || [];
   }
 
-  // Calculate budget metrics (expenses tracking to be added later)
+  // Calculate budget metrics
   const totalBudget = currentClass.total_budget || 0;
   const allocatedBudget = events?.reduce((sum: number, event: { allocated_budget?: number }) =>
     sum + (event.allocated_budget || 0), 0) || 0;
-  const spentBudget = 0; // TODO: Add expenses tracking
+  const spentBudget = expenses?.reduce((sum: number, expense: { amount?: number }) =>
+    sum + (expense.amount || 0), 0) || 0;
   const remainingBudget = totalBudget - spentBudget;
 
   return (
@@ -134,6 +147,7 @@ export default async function DashboardV2Page() {
       children={children || []}
       staff={staff || []}
       events={events || []}
+      expenses={expenses || []}
       childParents={childParents || []}
       admins={admins}
       pendingInvitations={pendingInvitations || []}

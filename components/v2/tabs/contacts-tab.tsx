@@ -17,7 +17,10 @@ import {
   Check,
   UserPlus,
   Baby,
+  X,
+  CreditCard,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -53,6 +56,8 @@ type Child = {
   name: string;
   address?: string;
   birthday?: string;
+  payment_status?: "paid" | "unpaid";
+  payment_date?: string;
 };
 
 type Staff = {
@@ -82,6 +87,7 @@ type ContactsTabProps = {
   onStaffModalOpened?: () => void;
   onKidsModalOpened?: () => void;
   expectedStaff?: number;
+  onMarkAsPaid?: (childId: string) => void;
 };
 
 type SubTab = "kids" | "staff";
@@ -137,6 +143,7 @@ export function ContactsTab({
   onStaffModalOpened,
   onKidsModalOpened,
   expectedStaff,
+  onMarkAsPaid,
 }: ContactsTabProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -225,6 +232,27 @@ export function ContactsTab({
   const filteredStaff = staff.filter((s) =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Handle marking a child as paid
+  const handleMarkAsPaid = async (childId: string) => {
+    if (onMarkAsPaid) {
+      onMarkAsPaid(childId);
+    } else {
+      // Fallback: update directly if no handler provided
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("children")
+        .update({
+          payment_status: "paid",
+          payment_date: new Date().toISOString(),
+        })
+        .eq("id", childId);
+
+      if (!error) {
+        router.refresh();
+      }
+    }
+  };
 
   // Open children sheet for bulk adding (V1-style)
   const openAddChildModal = () => {
@@ -454,7 +482,21 @@ export function ContactsTab({
                   className="bg-card rounded-2xl p-4 border-2 border-border shadow-sm"
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-bold text-foreground">{child.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-foreground">{child.name}</h3>
+                      {/* Payment status badge */}
+                      {child.payment_status === "paid" ? (
+                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-success/20 text-success">
+                          <Check className="h-3 w-3" />
+                          שילם
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-destructive/20 text-destructive">
+                          <X className="h-3 w-3" />
+                          לא שילם
+                        </span>
+                      )}
+                    </div>
                     <div className="flex gap-1">
                       <button
                         onClick={() => openEditChildModal(child)}
@@ -507,6 +549,19 @@ export function ContactsTab({
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
                       <MapPin className="h-4 w-4" />
                       <span>{child.address}</span>
+                    </div>
+                  )}
+
+                  {/* Mark as paid button - only show for unpaid children */}
+                  {child.payment_status !== "paid" && (
+                    <div className="mt-3 pt-3 border-t border-border">
+                      <button
+                        onClick={() => handleMarkAsPaid(child.id)}
+                        className="flex items-center gap-2 text-sm text-brand hover:text-brand/80 transition-colors font-medium"
+                      >
+                        <CreditCard className="h-4 w-4" />
+                        סמן כשילם
+                      </button>
                     </div>
                   )}
                 </div>

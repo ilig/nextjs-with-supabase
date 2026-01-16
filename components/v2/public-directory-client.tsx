@@ -145,12 +145,16 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
           address: child.address,
           parents: (child.child_parents || [])
             .filter((cp: { parent: unknown }) => cp.parent)
-            .map((cp: { relationship: string; parent: { id: string; name: string; phone: string } }) => ({
-              id: cp.parent.id,
-              name: cp.parent.name,
-              phone: cp.parent.phone,
-              relationship: cp.relationship,
-            })),
+            .map((cp: { relationship: string; parent: { id: string; name: string; phone: string }[] | { id: string; name: string; phone: string } }) => {
+              // Handle both array and object formats from Supabase
+              const parent = Array.isArray(cp.parent) ? cp.parent[0] : cp.parent;
+              return {
+                id: parent?.id || "",
+                name: parent?.name || "",
+                phone: parent?.phone || "",
+                relationship: cp.relationship,
+              };
+            }),
         }));
         setChildren(formattedChildren);
       }

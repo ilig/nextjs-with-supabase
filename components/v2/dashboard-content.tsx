@@ -34,6 +34,20 @@ type Event = {
   allocated_budget?: number;
 };
 
+type Expense = {
+  id: string;
+  description: string;
+  amount: number;
+  expense_date: string;
+  receipt_url?: string;
+  event_id?: string;
+  events?: {
+    id: string;
+    name: string;
+    event_type: string;
+  };
+};
+
 type ChildParent = {
   child_id: string;
   parent_id: string;
@@ -74,6 +88,7 @@ type DashboardContentProps = {
   children?: Child[];
   staff?: Staff[];
   events?: Event[];
+  expenses?: Expense[];
   childParents?: ChildParent[];
   admins?: Admin[];
   pendingInvitations?: PendingInvitation[];
@@ -94,6 +109,7 @@ export function DashboardContent({
   children = [],
   staff = [],
   events = [],
+  expenses = [],
   childParents = [],
   admins = [],
   pendingInvitations = [],
@@ -228,10 +244,12 @@ export function DashboardContent({
               collected,
             }}
             events={events}
+            expenses={expenses}
             children={childrenWithParentInfo}
             estimatedChildren={classData.estimated_children}
             estimatedStaff={classData.estimated_staff}
             onBannerClick={() => setPaymentSheetOpen(true)}
+            classId={classData.id}
           />
         );
       case "contacts":
@@ -284,10 +302,12 @@ export function DashboardContent({
               collected,
             }}
             events={events}
+            expenses={expenses}
             children={childrenWithParentInfo}
             estimatedChildren={classData.estimated_children}
             estimatedStaff={classData.estimated_staff}
             onBannerClick={() => setPaymentSheetOpen(true)}
+            classId={classData.id}
           />
         );
     }
