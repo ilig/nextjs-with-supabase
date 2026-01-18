@@ -119,6 +119,7 @@ export function DashboardContent({
 }: DashboardContentProps) {
   const [activeTab, setActiveTab] = useState<DashboardTab>("budget");
   const [paymentSheetOpen, setPaymentSheetOpen] = useState(false);
+  const [hideUnpaidListInSheet, setHideUnpaidListInSheet] = useState(false);
   const [openStaffModal, setOpenStaffModal] = useState(false);
   const [openKidsModal, setOpenKidsModal] = useState(false);
   const [paymentLinkSent, setPaymentLinkSent] = useState(false);
@@ -147,6 +148,23 @@ export function DashboardContent({
     }
   };
 
+  // Handle marking a child as unpaid
+  const handleMarkAsUnpaid = async (childId: string) => {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("children")
+      .update({
+        payment_status: "unpaid",
+        payment_date: null
+      })
+      .eq("id", childId);
+
+    if (!error) {
+      // Refresh the page to get updated data
+      router.refresh();
+    }
+  };
+
   // Handle sending reminders (placeholder - would integrate with messaging service)
   const handleSendReminder = async (childIds: string[]) => {
     // For now, just show an alert. In production, this would:
@@ -161,7 +179,7 @@ export function DashboardContent({
     alert(`תזכורת תישלח להורים של: ${selectedNames}\n\nהתכונה תהיה זמינה בקרוב!`);
   };
 
-  const classDisplayName = `${classData.name} - ${classData.school_name}`;
+  const classDisplayName = [classData.name, classData.school_name, classData.city].filter(Boolean).join(" • ");
 
   // Setup banner handlers - save paybox link to database
   const handleSavePayboxLink = useCallback(async (link: string): Promise<boolean> => {
@@ -248,8 +266,17 @@ export function DashboardContent({
             children={childrenWithParentInfo}
             estimatedChildren={classData.estimated_children}
             estimatedStaff={classData.estimated_staff}
-            onBannerClick={() => setPaymentSheetOpen(true)}
             classId={classData.id}
+            onOpenPaymentSheet={() => {
+              setHideUnpaidListInSheet(false);
+              setPaymentSheetOpen(true);
+            }}
+            onOpenPaymentSheetWithoutList={() => {
+              setHideUnpaidListInSheet(true);
+              setPaymentSheetOpen(true);
+            }}
+            onMarkChildPaid={handleMarkAsPaid}
+            onMarkChildUnpaid={handleMarkAsUnpaid}
           />
         );
       case "contacts":
@@ -306,8 +333,17 @@ export function DashboardContent({
             children={childrenWithParentInfo}
             estimatedChildren={classData.estimated_children}
             estimatedStaff={classData.estimated_staff}
-            onBannerClick={() => setPaymentSheetOpen(true)}
             classId={classData.id}
+            onOpenPaymentSheet={() => {
+              setHideUnpaidListInSheet(false);
+              setPaymentSheetOpen(true);
+            }}
+            onOpenPaymentSheetWithoutList={() => {
+              setHideUnpaidListInSheet(true);
+              setPaymentSheetOpen(true);
+            }}
+            onMarkChildPaid={handleMarkAsPaid}
+            onMarkChildUnpaid={handleMarkAsUnpaid}
           />
         );
     }
@@ -351,17 +387,22 @@ export function DashboardContent({
       {/* Payment Management Sheet */}
       <PaymentManagementSheet
         open={paymentSheetOpen}
-        onOpenChange={setPaymentSheetOpen}
+        onOpenChange={(open) => {
+          setPaymentSheetOpen(open);
+          if (!open) setHideUnpaidListInSheet(false);
+        }}
         children={childrenWithParentInfo}
         estimatedChildren={classData.estimated_children || 0}
         collected={collected}
         total={budgetMetrics?.total || 0}
+        amountPerChild={budgetMetrics?.amountPerChild || 0}
         payboxLink={classData.paybox_link}
         inviteCode={classData.invite_code}
         classDisplayName={classData.name}
         schoolName={classData.school_name}
         onMarkAsPaid={handleMarkAsPaid}
         onSendReminder={handleSendReminder}
+        hideUnpaidList={hideUnpaidListInSheet}
       />
     </div>
   );

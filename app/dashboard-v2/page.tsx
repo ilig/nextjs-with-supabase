@@ -144,6 +144,13 @@ export default async function DashboardV2Page() {
     sum + (expense.amount || 0), 0) || 0;
   const remainingBudget = totalBudget - spentBudget;
 
+  // Calculate collected amount (paid children × amount per child)
+  const amountPerChild = currentClass.annual_amount_per_child || currentClass.budget_amount || 0;
+  const paidChildrenCount = (children || []).filter(
+    (c: { payment_status?: string }) => c.payment_status === "paid"
+  ).length;
+  const collectedAmount = paidChildrenCount * amountPerChild;
+
   return (
     <DashboardContent
       classData={{
@@ -172,7 +179,8 @@ export default async function DashboardV2Page() {
         allocated: allocatedBudget,
         spent: spentBudget,
         remaining: remainingBudget,
-        amountPerChild: currentClass.budget_amount || undefined,
+        amountPerChild: amountPerChild || undefined,
+        collected: collectedAmount,
       }}
     />
   );

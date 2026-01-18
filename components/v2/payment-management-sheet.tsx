@@ -9,16 +9,14 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 import {
   Check,
-  AlertCircle,
   Send,
   Copy,
-  ExternalLink,
-  Users,
-  Phone,
   MessageCircle,
+  UserPlus,
+  PartyPopper,
 } from "lucide-react";
 
 type Child = {
@@ -37,12 +35,14 @@ type PaymentManagementSheetProps = {
   estimatedChildren: number;
   collected: number;
   total: number;
+  amountPerChild: number;
   payboxLink?: string;
   inviteCode?: string;
   classDisplayName?: string;
   schoolName?: string;
   onSendReminder?: (childIds: string[]) => void;
   onMarkAsPaid?: (childId: string) => void;
+  hideUnpaidList?: boolean;
 };
 
 export function PaymentManagementSheet({
@@ -52,344 +52,282 @@ export function PaymentManagementSheet({
   estimatedChildren,
   collected,
   total,
+  amountPerChild,
   payboxLink,
   inviteCode,
   classDisplayName,
   schoolName,
-  onSendReminder,
   onMarkAsPaid,
+  hideUnpaidList = false,
 }: PaymentManagementSheetProps) {
-  const [selectedChildren, setSelectedChildren] = useState<string[]>([]);
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedRegistrationLink, setCopiedRegistrationLink] = useState(false);
+  const [copiedMessage, setCopiedMessage] = useState(false);
+  const [showInviteCard, setShowInviteCard] = useState(false);
+  const [copiedInviteLink, setCopiedInviteLink] = useState(false);
 
-  // Generate registration link from invite code
-  const registrationLink = inviteCode
+  // Generate invite link
+  const inviteLink = inviteCode
     ? `${typeof window !== "undefined" ? window.location.origin : ""}/join/${inviteCode}`
     : "";
 
-  const paidChildren = children.filter((c) => c.payment_status === "paid");
   const unpaidChildren = children.filter((c) => c.payment_status === "unpaid");
-  const notRegisteredCount = Math.max(0, estimatedChildren - children.length);
-  const collectionPercentage = total > 0 ? Math.round((collected / total) * 100) : 0;
+  const registeredCount = children.length;
+  const notRegisteredCount = Math.max(0, estimatedChildren - registeredCount);
 
-  const toggleChildSelection = (childId: string) => {
-    setSelectedChildren((prev) =>
-      prev.includes(childId)
-        ? prev.filter((id) => id !== childId)
-        : [...prev, childId]
-    );
-  };
+  // Generate the reminder message
+  const signature = classDisplayName && schoolName
+    ? `ועד הורים ${classDisplayName} - ${schoolName}`
+    : classDisplayName
+      ? `ועד הורים ${classDisplayName}`
+      : "ועד הורים";
 
-  const selectAllUnpaid = () => {
-    setSelectedChildren(unpaidChildren.map((c) => c.id));
-  };
+  const reminderMessage = `היי! 👋
 
-  const handleSendReminders = () => {
-    if (onSendReminder && selectedChildren.length > 0) {
-      onSendReminder(selectedChildren);
-      setSelectedChildren([]);
-    }
-  };
+תזכורת ידידותית לתשלום דמי ועד כיתה.
 
-  const copyPayboxLink = async () => {
-    if (payboxLink) {
-      await navigator.clipboard.writeText(payboxLink);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-    }
-  };
-
-  const copyRegistrationLink = async () => {
-    if (registrationLink) {
-      await navigator.clipboard.writeText(registrationLink);
-      setCopiedRegistrationLink(true);
-      setTimeout(() => setCopiedRegistrationLink(false), 2000);
-    }
-  };
-
-  const shareViaWhatsApp = () => {
-    if (registrationLink) {
-      const signature = classDisplayName && schoolName
-        ? `ועד הורים ${classDisplayName} - ${schoolName}`
-        : classDisplayName
-          ? `ועד הורים ${classDisplayName}`
-          : "ועד הורים";
-
-      let message = `היי! 👋
-
-אנחנו מעדכנים את פרטי הילדים בכיתה.
-
-אנא מלאו את הפרטים של ילדכם בקישור הבא:
-${registrationLink}
-
-הטופס כולל:
-✓ פרטי הילד/ה (שם, תאריך לידה, כתובת)
-✓ פרטי ההורים (שם וטלפון)`;
-
-      if (payboxLink) {
-        message += `
-✓ תשלום דמי כיתה`;
-      }
-
-      message += `
+💰 סכום: ₪${amountPerChild.toLocaleString()}
+${payboxLink ? `🔗 לתשלום: ${payboxLink}` : ""}
 
 🙏 תודה רבה!
 
 ${signature}`;
 
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank");
+  const copyMessage = async () => {
+    await navigator.clipboard.writeText(reminderMessage);
+    setCopiedMessage(true);
+    setTimeout(() => setCopiedMessage(false), 2000);
+  };
+
+  const shareViaWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(reminderMessage)}`, "_blank");
+  };
+
+  const copyInviteLink = async () => {
+    if (inviteLink) {
+      await navigator.clipboard.writeText(inviteLink);
+      setCopiedInviteLink(true);
+      setTimeout(() => setCopiedInviteLink(false), 2000);
     }
   };
+
+  // Generate the invite message for parents who haven't registered
+  const inviteMessage = `היי! 👋
+
+אנא הירשמו ומלאו את פרטי ילדכם בקישור הבא, ולאחר מכן המשיכו לתשלום דמי ועד כיתה.
+
+💰 סכום: ₪${amountPerChild.toLocaleString()}
+🔗 להרשמה ותשלום: ${inviteLink}
+
+🙏 תודה רבה!
+
+${signature}`;
+
+  const shareInviteViaWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(inviteMessage)}`, "_blank");
+  };
+
+  const copyInviteMessage = async () => {
+    await navigator.clipboard.writeText(inviteMessage);
+    setCopiedInviteLink(true);
+    setTimeout(() => setCopiedInviteLink(false), 2000);
+  };
+
+  // Determine dialog mode
+  const isFullyCollected = collected >= total;
+  const isAllRegisteredPaid = unpaidChildren.length === 0 && !isFullyCollected;
+  const hasUnpaid = unpaidChildren.length > 0;
+
+  // Dynamic header based on mode
+  const getHeaderContent = () => {
+    if (isFullyCollected) {
+      return {
+        icon: <PartyPopper className="h-5 w-5 text-green-600" />,
+        title: "איסוף הושלם בהצלחה!",
+        description: `נאספו ₪${collected.toLocaleString()} מתוך ₪${total.toLocaleString()}`,
+      };
+    }
+    if (isAllRegisteredPaid) {
+      return {
+        icon: <UserPlus className="h-5 w-5 text-blue-600" />,
+        title: "חסרים פרטים ותשלומים",
+        description: `${notRegisteredCount} הורים טרם מילאו את פרטי ילדיהם ושילמו`,
+      };
+    }
+    return {
+      icon: <Send className="h-5 w-5 text-amber-600" />,
+      title: "שליחת תזכורת תשלום",
+      description: `שלחו תזכורת ל-${unpaidChildren.length} הורים שטרם שילמו`,
+    };
+  };
+
+  const headerContent = getHeaderContent();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-xl">ניהול תשלומים</DialogTitle>
+          <DialogTitle className="text-xl flex items-center gap-2">
+            {headerContent.icon}
+            {headerContent.title}
+          </DialogTitle>
           <DialogDescription>
-            צפייה במצב התשלומים ושליחת תזכורות להורים
+            {headerContent.description}
           </DialogDescription>
         </DialogHeader>
 
-        {/* Collection Progress */}
-        <div className="bg-muted/50 rounded-xl p-4 space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">התקדמות גבייה</span>
-            <span className="font-bold">{collectionPercentage}%</span>
-          </div>
-          <div className="h-2 bg-background rounded-full overflow-hidden">
-            <div
-              className="h-full bg-brand rounded-full transition-all duration-500"
-              style={{ width: `${collectionPercentage}%` }}
-            />
-          </div>
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>נאספו ₪{collected.toLocaleString()}</span>
-            <span>מתוך ₪{total.toLocaleString()}</span>
-          </div>
-        </div>
-
-        {/* Paybox Link Section */}
-        {payboxLink && (
-          <div className="bg-brand/10 rounded-xl p-4 space-y-3">
-            <p className="text-sm font-medium text-foreground">קישור לתשלום בפייבוקס</p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 gap-2"
-                onClick={copyPayboxLink}
-              >
-                {copiedLink ? (
-                  <>
-                    <Check className="h-4 w-4 text-success" />
-                    הועתק!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4" />
-                    העתק קישור
-                  </>
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
-                onClick={() => window.open(payboxLink, "_blank")}
-              >
-                <ExternalLink className="h-4 w-4" />
-                פתח
-              </Button>
+        {/* MODE: Full Collection Success */}
+        {isFullyCollected && (
+          <div className="text-center py-8 space-y-3">
+            <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto">
+              <Check className="h-10 w-10 text-green-600" />
             </div>
+            <p className="text-xl font-semibold text-foreground">כל ההורים שילמו! 🎉</p>
+            <p className="text-sm text-muted-foreground">
+              {registeredCount} ילדים נרשמו ושילמו
+            </p>
           </div>
         )}
 
-        {/* Status Summary */}
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="bg-success/10 rounded-lg p-2 border border-success/20">
-            <p className="text-lg font-bold text-success">{paidChildren.length}</p>
-            <p className="text-xs text-muted-foreground">שילמו</p>
-          </div>
-          <div className="bg-warning/10 rounded-lg p-2 border border-warning/20">
-            <p className="text-lg font-bold text-warning">{unpaidChildren.length}</p>
-            <p className="text-xs text-muted-foreground">לא שילמו</p>
-          </div>
-          <div className="bg-muted rounded-lg p-2 border border-border">
-            <p className="text-lg font-bold text-muted-foreground">{notRegisteredCount}</p>
-            <p className="text-xs text-muted-foreground">לא נרשמו</p>
-          </div>
-        </div>
-
-        {/* Unpaid Children List */}
-        {unpaidChildren.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="font-medium text-foreground flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-warning" />
-                ממתינים לתשלום ({unpaidChildren.length})
-              </h4>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={selectAllUnpaid}
-                className="text-xs"
-              >
-                בחר הכל
-              </Button>
-            </div>
-
-            <div className="space-y-2 max-h-40 overflow-y-auto">
-              {unpaidChildren.map((child) => (
+        {/* MODE: All Registered Paid - Focus on Inviting More */}
+        {isAllRegisteredPaid && (
+          <div className="space-y-4">
+            {/* Progress indicator */}
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-foreground">התקדמות האיסוף</span>
+                <span className="text-sm font-bold text-blue-600">
+                  ₪{total.toLocaleString()} / ₪{collected.toLocaleString()} ({total > 0 ? Math.round((collected / total) * 100) : 0}%)
+                </span>
+              </div>
+              <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2.5">
                 <div
-                  key={child.id}
-                  onClick={() => toggleChildSelection(child.id)}
-                  className={cn(
-                    "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-colors",
-                    selectedChildren.includes(child.id)
-                      ? "bg-brand/10 border-brand/30"
-                      : "bg-muted/30 border-border hover:bg-muted/50"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
-                        selectedChildren.includes(child.id)
-                          ? "bg-brand border-brand"
-                          : "border-muted-foreground"
-                      )}
-                    >
-                      {selectedChildren.includes(child.id) && (
-                        <Check className="h-3 w-3 text-white" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">{child.name}</p>
-                      {child.parent_name && (
-                        <p className="text-xs text-muted-foreground">
-                          הורה: {child.parent_name}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {child.parent_phone && (
-                      <a
-                        href={`tel:${child.parent_phone}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-                      >
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                      </a>
-                    )}
-                    {onMarkAsPaid && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onMarkAsPaid(child.id);
-                        }}
-                        className="text-xs text-success hover:text-success"
-                      >
-                        סמן כשולם
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                  className="bg-blue-600 h-2.5 rounded-full transition-all"
+                  style={{ width: `${Math.min(100, (collected / total) * 100)}%` }}
+                />
+              </div>
             </div>
 
-            {/* Send Reminder Button */}
-            {selectedChildren.length > 0 && onSendReminder && (
-              <Button
-                onClick={handleSendReminders}
-                className="w-full gap-2 bg-brand hover:bg-brand/90"
-              >
-                <Send className="h-4 w-4" />
-                שלח תזכורת ל-{selectedChildren.length} הורים
-              </Button>
-            )}
-          </div>
-        )}
-
-        {/* Paid Children List */}
-        {paidChildren.length > 0 && (
-          <div className="space-y-3">
-            <h4 className="font-medium text-foreground flex items-center gap-2">
-              <Check className="h-4 w-4 text-success" />
-              שילמו ({paidChildren.length})
-            </h4>
-
-            <div className="space-y-2 max-h-32 overflow-y-auto">
-              {paidChildren.map((child) => (
-                <div
-                  key={child.id}
-                  className="flex items-center justify-between p-3 rounded-xl bg-success/5 border border-success/20"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded bg-success border-2 border-success flex items-center justify-center">
-                      <Check className="h-3 w-3 text-white" />
-                    </div>
-                    <p className="font-medium text-foreground">{child.name}</p>
-                  </div>
-                  {child.payment_date && (
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(child.payment_date).toLocaleDateString("he-IL")}
-                    </p>
-                  )}
+            {/* Invite section - now the primary focus */}
+            {inviteCode ? (
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-foreground">
+                  שלחו להורים קישור למילוי פרטים ותשלום:
+                </p>
+                <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                  <pre className="text-sm whitespace-pre-wrap font-sans text-foreground leading-relaxed">
+                    {inviteMessage}
+                  </pre>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Not Registered Notice */}
-        {notRegisteredCount > 0 && (
-          <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-xl border border-border">
-            <Users className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-foreground">
-                {notRegisteredCount} ילדים טרם נרשמו
-              </p>
-              <p className="text-xs text-muted-foreground">
-                שתף את קישור ההרשמה עם ההורים שטרם מילאו את הטופס
-              </p>
-              {registrationLink && (
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2">
+                  <Button
+                    onClick={shareInviteViaWhatsApp}
+                    className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    שלחו בוואטסאפ
+                  </Button>
                   <Button
                     variant="outline"
-                    size="sm"
+                    onClick={copyInviteMessage}
                     className="gap-2"
-                    onClick={copyRegistrationLink}
                   >
-                    {copiedRegistrationLink ? (
+                    {copiedInviteLink ? (
                       <>
-                        <Check className="h-4 w-4 text-success" />
+                        <Check className="h-4 w-4 text-green-600" />
                         הועתק!
                       </>
                     ) : (
                       <>
                         <Copy className="h-4 w-4" />
-                        העתק קישור
+                        העתיקו
                       </>
                     )}
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                    onClick={shareViaWhatsApp}
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    WhatsApp
-                  </Button>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <p className="text-sm text-center text-muted-foreground">
+                ממתינים שהורים ימלאו פרטי ילדיהם
+              </p>
+            )}
           </div>
+        )}
+
+        {/* MODE: Has Unpaid Children - Payment Reminder */}
+        {hasUnpaid && (
+          <>
+            {/* Message Preview */}
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-foreground">תצוגה מקדימה של ההודעה:</p>
+              <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                <pre className="text-sm whitespace-pre-wrap font-sans text-foreground leading-relaxed">
+                  {reminderMessage}
+                </pre>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <Button
+                onClick={shareViaWhatsApp}
+                className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white"
+              >
+                <MessageCircle className="h-4 w-4" />
+                שלחו בוואטסאפ
+              </Button>
+              <Button
+                variant="outline"
+                onClick={copyMessage}
+                className="gap-2"
+              >
+                {copiedMessage ? (
+                  <>
+                    <Check className="h-4 w-4 text-green-600" />
+                    הועתק!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    העתיקו
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Unpaid Parents List with Payment Toggle */}
+            {!hideUnpaidList && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">
+                  ממתינים לתשלום ({unpaidChildren.length}):
+                </p>
+                <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                  {unpaidChildren.map((child) => (
+                    <div
+                      key={child.id}
+                      className="flex items-center py-2 px-3 rounded-lg bg-muted/30 border border-border"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground">{child.name}</p>
+                        {child.parent_name && (
+                          <p className="text-xs text-muted-foreground">
+                            {child.parent_name}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mr-3">
+                        <span className="text-xs text-muted-foreground">לא שולם</span>
+                        <Switch
+                          checked={false}
+                          onCheckedChange={() => onMarkAsPaid?.(child.id)}
+                          className="data-[state=checked]:bg-green-600"
+                        />
+                        <span className="text-xs text-green-600 font-medium">שולם</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </DialogContent>
     </Dialog>

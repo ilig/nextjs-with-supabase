@@ -383,6 +383,134 @@ export async function updateEventBudget(eventId: string, budget: number) {
 }
 
 // ============================================
+// Class Budget Settings Actions
+// ============================================
+
+export async function updateClassBudgetSettings(data: {
+  classId: string;
+  amountPerChild: number;
+  estimatedChildren: number;
+  estimatedStaff: number;
+  totalBudget: number;
+}) {
+  const supabase = await createClient();
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated");
+
+    const { error } = await supabase
+      .from("classes")
+      .update({
+        annual_amount_per_child: data.amountPerChild,
+        budget_amount: data.amountPerChild,
+        estimated_children: data.estimatedChildren,
+        estimated_staff: data.estimatedStaff,
+        total_budget: data.totalBudget,
+      })
+      .eq("id", data.classId);
+
+    if (error) throw error;
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard-v2");
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating class budget settings:", error);
+    return { success: false, error: String(error) };
+  }
+}
+
+export async function updateEventAllocations(data: {
+  classId: string;
+  events: Array<{
+    id?: string;
+    eventType: string;
+    name: string;
+    amountPerKid: number;
+    amountPerStaff: number;
+    allocatedBudget: number;
+    allocatedForKids: number;
+    allocatedForStaff: number;
+    kidsCount: number;
+    staffCount: number;
+    isCustom?: boolean;
+  }>;
+  disabledEventIds: string[];
+}) {
+  const supabase = await createClient();
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated");
+
+    // Set allocated_budget to 0 for disabled events (don't delete, just zero out)
+    if (data.disabledEventIds.length > 0) {
+      const { error: disableError } = await supabase
+        .from("events")
+        .update({
+          allocated_budget: 0,
+          amount_per_kid: 0,
+          amount_per_staff: 0,
+          allocated_for_kids: 0,
+          allocated_for_staff: 0,
+        })
+        .in("id", data.disabledEventIds);
+
+      if (disableError) throw disableError;
+    }
+
+    // Update or create events
+    for (const event of data.events) {
+      if (event.id && !event.id.startsWith("new-")) {
+        // Update existing event
+        const { error: updateError } = await supabase
+          .from("events")
+          .update({
+            name: event.name,
+            allocated_budget: event.allocatedBudget,
+            amount_per_kid: event.amountPerKid,
+            amount_per_staff: event.amountPerStaff,
+            allocated_for_kids: event.allocatedForKids,
+            allocated_for_staff: event.allocatedForStaff,
+            kids_count: event.kidsCount,
+            staff_count: event.staffCount,
+          })
+          .eq("id", event.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Create new event
+        const { error: insertError } = await supabase
+          .from("events")
+          .insert({
+            class_id: data.classId,
+            name: event.name,
+            event_type: event.eventType,
+            allocated_budget: event.allocatedBudget,
+            amount_per_kid: event.amountPerKid,
+            amount_per_staff: event.amountPerStaff,
+            allocated_for_kids: event.allocatedForKids,
+            allocated_for_staff: event.allocatedForStaff,
+            kids_count: event.kidsCount,
+            staff_count: event.staffCount,
+            spent_amount: 0,
+          });
+
+        if (insertError) throw insertError;
+      }
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard-v2");
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating event allocations:", error);
+    return { success: false, error: String(error) };
+  }
+}
+
+// ============================================
 // Data Fetching Functions
 // ============================================
 

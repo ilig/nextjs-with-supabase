@@ -633,7 +633,7 @@ ${signature}`;
             <div className="overflow-hidden">
               <div className="px-4 pb-4 pt-0">
                 <p className="text-xs text-muted-foreground mb-3 mr-9">
-                  הוספה ידנית של מורות, גננות ואנשי צוות דרך המערכת
+                  הוספה ידנית של מורות / גננות ואנשי צוות דרך המערכת
                 </p>
 
                 {/* Single card for staff add */}

@@ -340,6 +340,11 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
               <p className="text-muted-foreground">
                 הפרטים של {submittedChildName} נשמרו בהצלחה.
               </p>
+              {payboxLink && (
+                <p className="text-sm text-foreground font-medium">
+                  כעת ניתן להמשיך לתשלום דמי ועד כיתה 👇
+                </p>
+              )}
               <div className="pt-4 space-y-3">
                 {/* Paybox payment button - primary action */}
                 {payboxLink && (
@@ -348,7 +353,7 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
                     className="w-full bg-[#00B4E5] hover:bg-[#00A3D1] text-white py-6 text-lg"
                   >
                     <a href={payboxLink} target="_blank" rel="noopener noreferrer">
-                      המשך ל-PayBox
+                      המשיכו לתשלום ב-PayBox
                     </a>
                   </Button>
                 )}

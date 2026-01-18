@@ -1,6 +1,6 @@
 "use client";
 
-import { Wallet, Users, Calendar, Gift, Settings, Bell, User } from "lucide-react";
+import { Wallet, Users, Calendar, Gift, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { DashboardTab } from "./mobile-bottom-nav";
@@ -82,21 +82,8 @@ export function DesktopTopNav({
         })}
       </div>
 
-      {/* User actions */}
-      <div className="flex items-center gap-2">
-        <button
-          className="p-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-          aria-label="התראות"
-        >
-          <Bell className="h-5 w-5" />
-        </button>
-        <button
-          className="p-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-          aria-label="פרופיל"
-        >
-          <User className="h-5 w-5" />
-        </button>
-      </div>
+{/* Empty div to maintain layout spacing */}
+      <div className="w-20" />
     </nav>
   );
 }

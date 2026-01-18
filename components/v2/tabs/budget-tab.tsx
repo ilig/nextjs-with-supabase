@@ -9,7 +9,6 @@ import {
   Calendar,
   Check,
   X,
-  ChevronLeft,
   ChevronDown,
   Pencil,
   Users,
@@ -30,10 +29,18 @@ import {
   Eye,
   Loader2,
   Tag,
+  CreditCard,
+  Settings,
+  Search,
+  XCircle,
+  Send,
+  Info,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import {
@@ -51,7 +58,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { createExpense, deleteExpense } from "@/app/actions/budget";
+import { getJewishHolidays } from "@/lib/jewish-holidays";
+import { BudgetEditorModal } from "@/components/v2/budget-editor-modal";
 
 type Event = {
   id: string;
@@ -63,6 +78,7 @@ type Event = {
   amount_per_staff?: number;
   allocated_for_kids?: number;
   allocated_for_staff?: number;
+  spent_amount?: number;
   is_paid?: boolean;
   kids_count?: number;
   staff_count?: number;
@@ -105,21 +121,15 @@ type BudgetTabProps = {
   estimatedStaff?: number;
   className?: string;
   classId?: string;
-  onEditBudget?: () => void;
-  onSendRegistrationLink?: () => void;
-  onMarkEventPaid?: (eventId: string) => void;
-  onEditAllocation?: (eventId: string) => void;
-  onUpdateEventAllocation?: (eventId: string, amountPerKid: number, amountPerStaff: number) => void;
-  onToggleEventEnabled?: (eventId: string, enabled: boolean) => void;
-  onBannerClick?: () => void;
-  onAddCustomEvent?: (name: string) => void;
-  onAddExpense?: (expense: { description: string; amount: number; expense_date: string; event_id?: string }) => void;
-  onDeleteExpense?: (expenseId: string) => void;
+  onOpenPaymentSheet?: () => void;
+  onOpenPaymentSheetWithoutList?: () => void;
+  onMarkChildPaid?: (childId: string) => void;
+  onMarkChildUnpaid?: (childId: string) => void;
 };
 
 type SelectedBlock = "budget" | "expenses" | "balance" | null;
 
-// Event icons mapping (matching onboarding step)
+// Event icons mapping
 const EVENT_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   "rosh-hashana": Star,
   "hanukkah": Sparkles,
@@ -133,13 +143,10 @@ const EVENT_ICONS: Record<string, React.ComponentType<{ className?: string }>> =
   "staff-birthdays": Gift,
 };
 
-// Get icon for event based on event_type or name
 function getEventIcon(event: Event): React.ComponentType<{ className?: string }> {
-  // Try to match by event_type first
   if (event.event_type && EVENT_ICONS[event.event_type]) {
     return EVENT_ICONS[event.event_type];
   }
-  // Try to match by common Hebrew names
   const name = event.name.toLowerCase();
   if (name.includes("ראש השנה")) return Star;
   if (name.includes("חנוכה")) return Sparkles;
@@ -160,7 +167,6 @@ const HEBREW_MONTHS = [
   "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"
 ];
 
-// Format date to Hebrew
 function formatHebrewDate(dateStr?: string): string {
   if (!dateStr) return "לא נקבע";
   const date = new Date(dateStr);
@@ -169,22 +175,35 @@ function formatHebrewDate(dateStr?: string): string {
   return `${day} ${month}`;
 }
 
-// Sort events by date
-function sortEventsByDate(events: Event[]): Event[] {
-  return [...events].sort((a, b) => {
-    if (!a.event_date) return 1;
-    if (!b.event_date) return -1;
-    return new Date(a.event_date).getTime() - new Date(b.event_date).getTime();
-  });
+// Map event_type to Jewish holiday Hebrew name
+const EVENT_TYPE_TO_HOLIDAY: Record<string, string> = {
+  "rosh-hashana": "ראש השנה",
+  "hanukkah": "חנוכה",
+  "tu-bishvat": "ט״ו בשבט",
+  "purim": "פורים",
+  "passover": "פסח",
+  "independence-day": "יום העצמאות",
+  "shavuot": "שבועות",
+};
+
+function getEventDateString(event: Event): string | null {
+  if (event.event_date) return event.event_date;
+  const holidayName = EVENT_TYPE_TO_HOLIDAY[event.event_type];
+  if (holidayName) {
+    const holidays = getJewishHolidays();
+    const matchingHoliday = holidays.find(h => h.hebrewName === holidayName || h.hebrewName.startsWith(holidayName));
+    if (matchingHoliday) return matchingHoliday.dateString;
+  }
+  return null;
 }
 
-// Filter to only future events
-function filterFutureEvents(events: Event[]): Event[] {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return events.filter(e => {
-    if (!e.event_date) return true;
-    return new Date(e.event_date) >= today;
+function sortEventsByDate(events: Event[]): Event[] {
+  return [...events].sort((a, b) => {
+    const dateA = getEventDateString(a);
+    const dateB = getEventDateString(b);
+    if (!dateA) return 1;
+    if (!dateB) return -1;
+    return new Date(dateA).getTime() - new Date(dateB).getTime();
   });
 }
 
@@ -197,23 +216,14 @@ export function BudgetTab({
   estimatedStaff = 0,
   className,
   classId,
-  onEditBudget,
-  onSendRegistrationLink,
-  onMarkEventPaid,
-  onEditAllocation,
-  onUpdateEventAllocation,
-  onToggleEventEnabled,
-  onBannerClick,
-  onAddCustomEvent,
-  onAddExpense,
-  onDeleteExpense,
+  onOpenPaymentSheet,
+  onOpenPaymentSheetWithoutList,
+  onMarkChildPaid,
+  onMarkChildUnpaid,
 }: BudgetTabProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [selectedBlock, setSelectedBlock] = useState<SelectedBlock>(null);
-  const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
-  const [showCustomEventInput, setShowCustomEventInput] = useState(false);
-  const [customEventName, setCustomEventName] = useState("");
 
   // Expense modal state
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
@@ -226,6 +236,23 @@ export function BudgetTab({
   });
   const [expenseFilter, setExpenseFilter] = useState<string>("all");
 
+  // Budget editor modal state
+  const [budgetEditorOpen, setBudgetEditorOpen] = useState(false);
+
+  // Event detail modal state
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
+
+  // Collapsible sections in Budget block
+  const [expandedSection, setExpandedSection] = useState<"budget-edit" | "collection" | null>(null);
+
+  // Children list modal state
+  const [childrenListModal, setChildrenListModal] = useState<{ open: boolean; type: "paid" | "unpaid" | null }>({
+    open: false,
+    type: null,
+  });
+  const [childrenSearchQuery, setChildrenSearchQuery] = useState("");
+
   const {
     total = 0,
     allocated = 0,
@@ -235,9 +262,15 @@ export function BudgetTab({
     collected = 0,
   } = budgetMetrics || {};
 
-  // Calculate kids vs staff allocation
-  const kidsAllocation = events.reduce((sum, e) => sum + (e.allocated_for_kids || 0), 0);
-  const staffAllocation = events.reduce((sum, e) => sum + (e.allocated_for_staff || 0), 0);
+  // Calculate actual balance (collected - spent)
+  const actualBalance = collected - spent;
+
+  // Calculate unallocated budget
+  const unallocated = total - allocated;
+
+  // Calculate allocations breakdown
+  const allocatedAndSpent = Math.min(spent, allocated);
+  const allocatedAndUnspent = Math.max(0, allocated - spent);
 
   // Collection tracking
   const paidChildren = children.filter(c => c.payment_status === "paid");
@@ -246,32 +279,36 @@ export function BudgetTab({
   const notRegisteredCount = Math.max(0, estimatedChildren - registeredCount);
   const collectionPercentage = total > 0 ? Math.round((collected / total) * 100) : 0;
 
-  // Pie chart data - spent vs remaining (budget utilization)
-  const budgetPieData = [
-    { name: "נוצלו", value: spent, color: "#f97316" },
-    { name: "נותרו", value: remaining, color: "#22c55e" },
+  // Pie chart data - Budget Utilization (spent vs remaining from collected)
+  const budgetUtilizationPieData = [
+    { name: "הוצאו", value: spent, color: "#f97316" },
+    { name: "נותרו", value: Math.max(0, collected - spent), color: "#22c55e" },
   ].filter(item => item.value > 0);
 
-  // Pie chart data - kids vs staff (expense distribution)
-  const allocationPieData = [
-    { name: "ילדים", value: kidsAllocation, color: "#8b5cf6" },
-    { name: "צוות", value: staffAllocation, color: "#3b82f6" },
+  // Calculate kids vs staff allocation totals
+  const totalKidsAllocation = events.reduce((sum, e) => sum + (e.allocated_for_kids || 0), 0);
+  const totalStaffAllocation = events.reduce((sum, e) => sum + (e.allocated_for_staff || 0), 0);
+
+  // Pie chart data - Kids vs Staff Distribution
+  const kidsStaffPieData = [
+    { name: "ילדים", value: totalKidsAllocation, color: "#3b82f6" },
+    { name: "צוות", value: totalStaffAllocation, color: "#8b5cf6" },
   ].filter(item => item.value > 0);
 
-  // Get budgeted events for the horizontal timeline bar chart (future only)
-  const budgetedEvents = sortEventsByDate(filterFutureEvents(events))
+  // Get budgeted events for timeline
+  const budgetedEvents = sortEventsByDate(events)
     .filter((e) => e.allocated_budget && e.allocated_budget > 0);
 
-  // Calculate max budget for bar width scaling
   const maxBudget = Math.max(...budgetedEvents.map(e => e.allocated_budget || 0), 1);
 
-  // Handle block click - toggle if same block clicked
   const handleBlockClick = (block: SelectedBlock) => {
     setSelectedBlock(prev => prev === block ? null : block);
+    setExpandedSection(null);
   };
 
-  // Unpaid events for Block 3
-  const unpaidEvents = events.filter(e => !e.is_paid && e.allocated_budget && e.allocated_budget > 0);
+  const toggleSection = (section: "budget-edit" | "collection") => {
+    setExpandedSection(prev => prev === section ? null : section);
+  };
 
   return (
     <div className={cn("p-4 md:p-6 space-y-6", className)}>
@@ -286,33 +323,55 @@ export function BudgetTab({
         </div>
       </div>
 
-      {/* Collection Banner - shown when collection < 100% */}
-      {collectionPercentage < 100 && total > 0 && (
-        <button
-          onClick={onBannerClick}
-          className="w-full text-right bg-gradient-to-r from-sky-500/15 to-blue-500/15 rounded-xl px-3 py-2.5 border border-sky-500/30 hover:border-sky-500/50 transition-colors cursor-pointer"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <PiggyBank className="h-4 w-4 text-sky-600 dark:text-sky-400 flex-shrink-0" />
-            <span className="font-semibold text-sm text-foreground flex-1">
-              נאספו ₪{collected.toLocaleString()} מתוך ₪{total.toLocaleString()} ({collectionPercentage}%)
-            </span>
-            <span className="text-xs text-muted-foreground">{paidChildren.length}/{estimatedChildren || "?"} שילמו</span>
-            <ChevronLeft className="h-4 w-4 text-sky-600 dark:text-sky-400 flex-shrink-0" />
+      {/* Collection Banner - Only show when collection is not complete */}
+      {collectionPercentage < 100 && (
+        <div className={cn(
+          "rounded-xl px-4 py-3 border",
+          unpaidChildren.length > 0
+            ? "bg-gradient-to-r from-amber-500/15 to-orange-500/15 border-amber-500/30"
+            : "bg-gradient-to-r from-rose-500/15 to-pink-500/15 border-rose-500/30"
+        )}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Info className={cn(
+                "h-5 w-5",
+                unpaidChildren.length > 0
+                  ? "text-amber-600 dark:text-amber-400"
+                  : "text-rose-600 dark:text-rose-400"
+              )} />
+              <span className="font-semibold text-foreground">
+                {unpaidChildren.length > 0
+                  ? `${unpaidChildren.length} ילדים נרשמו אך טרם שילמו`
+                  : `${notRegisteredCount} ילדים טרם נרשמו ושילמו`}
+              </span>
+            </div>
+            {/* CTA button based on state */}
+            {unpaidChildren.length > 0 ? (
+              <Button
+                onClick={onOpenPaymentSheetWithoutList}
+                size="sm"
+                className="gap-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                <Send className="h-4 w-4" />
+                שלחו תזכורת לתשלום
+              </Button>
+            ) : (
+              <Button
+                onClick={onOpenPaymentSheet}
+                size="sm"
+                className="gap-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white"
+              >
+                <UserPlus className="h-4 w-4" />
+                שלחו קישור הרשמה ותשלום
+              </Button>
+            )}
           </div>
-          {/* Progress bar */}
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-sky-500 rounded-full transition-all duration-500"
-              style={{ width: `${collectionPercentage}%` }}
-            />
-          </div>
-        </button>
+        </div>
       )}
 
       {/* 3 Clickable Metric Blocks */}
       <div className="grid grid-cols-3 gap-3">
-        {/* Block 1: Total Budget */}
+        {/* Block 1: Budget (shows collected / target) */}
         <button
           onClick={() => handleBlockClick("budget")}
           className={cn(
@@ -324,11 +383,21 @@ export function BudgetTab({
         >
           <div className="flex items-center gap-2 mb-2">
             <PiggyBank className="h-4 w-4 text-brand" />
-            <span className="text-xs font-medium text-muted-foreground">תקציב כולל</span>
+            <span className="text-xs font-medium text-muted-foreground">תקציב</span>
           </div>
           <p className="text-xl md:text-2xl font-bold text-foreground">
-            ₪{total.toLocaleString()}
+            ₪{collected.toLocaleString()}
           </p>
+          <p className="text-xs text-muted-foreground">
+            מתוך ₪{total.toLocaleString()}
+          </p>
+          {/* Mini progress bar */}
+          <div className="h-1 bg-muted rounded-full overflow-hidden mt-2">
+            <div
+              className="h-full bg-brand rounded-full transition-all duration-500"
+              style={{ width: `${collectionPercentage}%` }}
+            />
+          </div>
         </button>
 
         {/* Block 2: Expenses */}
@@ -350,7 +419,7 @@ export function BudgetTab({
           </p>
         </button>
 
-        {/* Block 3: Remaining */}
+        {/* Block 3: Balance */}
         <button
           onClick={() => handleBlockClick("balance")}
           className={cn(
@@ -364,25 +433,28 @@ export function BudgetTab({
             <Wallet className="h-4 w-4 text-success" />
             <span className="text-xs font-medium text-muted-foreground">יתרה</span>
           </div>
-          <p className="text-xl md:text-2xl font-bold text-foreground">
-            ₪{remaining.toLocaleString()}
+          <p className={cn(
+            "text-xl md:text-2xl font-bold",
+            actualBalance >= 0 ? "text-foreground" : "text-destructive"
+          )}>
+            ₪{actualBalance.toLocaleString()}
           </p>
         </button>
       </div>
 
       {/* Content Area - Changes based on selected block */}
       {selectedBlock === null ? (
-        /* Default View: Pie Charts */
+        /* Default View: Two Pie Charts */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Budget Utilization Pie Chart */}
           <div className="bg-card rounded-2xl p-4 border-2 border-border shadow-sm">
-            <h3 className="text-sm font-bold text-foreground mb-2">ניצול התקציב</h3>
-            {budgetPieData.length > 0 ? (
+            <h3 className="text-sm font-bold text-foreground mb-2">ניצול תקציב</h3>
+            {budgetUtilizationPieData.length > 0 && collected > 0 ? (
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={budgetPieData}
+                      data={budgetUtilizationPieData}
                       cx="50%"
                       cy="50%"
                       innerRadius={45}
@@ -390,7 +462,7 @@ export function BudgetTab({
                       paddingAngle={2}
                       dataKey="value"
                     >
-                      {budgetPieData.map((entry, index) => (
+                      {budgetUtilizationPieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -406,9 +478,9 @@ export function BudgetTab({
                       verticalAlign="bottom"
                       height={36}
                       formatter={(value) => {
-                        const item = budgetPieData.find(d => d.name === value);
-                        const chartTotal = spent + remaining;
-                        const percentage = chartTotal > 0 ? Math.round((item?.value || 0) / chartTotal * 100) : 0;
+                        const item = budgetUtilizationPieData.find(d => d.name === value);
+                        const total = budgetUtilizationPieData.reduce((sum, d) => sum + d.value, 0);
+                        const percentage = total > 0 ? Math.round((item?.value || 0) / total * 100) : 0;
                         return <span style={{ marginRight: '8px' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
                       }}
                     />
@@ -417,20 +489,23 @@ export function BudgetTab({
               </div>
             ) : (
               <div className="h-56 flex items-center justify-center text-muted-foreground">
-                אין נתונים להצגה
+                <div className="text-center">
+                  <PiggyBank className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>אין הכנסות עדיין</p>
+                </div>
               </div>
             )}
           </div>
 
-          {/* Expense Distribution Pie Chart */}
+          {/* Kids vs Staff Distribution Pie Chart */}
           <div className="bg-card rounded-2xl p-4 border-2 border-border shadow-sm">
-            <h3 className="text-sm font-bold text-foreground mb-2">התפלגות ההוצאות</h3>
-            {allocationPieData.length > 0 ? (
+            <h3 className="text-sm font-bold text-foreground mb-2">חלוקת תקציב: ילדים מול צוות</h3>
+            {kidsStaffPieData.length > 0 ? (
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={allocationPieData}
+                      data={kidsStaffPieData}
                       cx="50%"
                       cy="50%"
                       innerRadius={45}
@@ -438,7 +513,7 @@ export function BudgetTab({
                       paddingAngle={2}
                       dataKey="value"
                     >
-                      {allocationPieData.map((entry, index) => (
+                      {kidsStaffPieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -454,9 +529,9 @@ export function BudgetTab({
                       verticalAlign="bottom"
                       height={36}
                       formatter={(value) => {
-                        const item = allocationPieData.find(d => d.name === value);
-                        const chartTotal = kidsAllocation + staffAllocation;
-                        const percentage = chartTotal > 0 ? Math.round((item?.value || 0) / chartTotal * 100) : 0;
+                        const item = kidsStaffPieData.find(d => d.name === value);
+                        const total = kidsStaffPieData.reduce((sum, d) => sum + d.value, 0);
+                        const percentage = total > 0 ? Math.round((item?.value || 0) / total * 100) : 0;
                         return <span style={{ marginRight: '8px' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
                       }}
                     />
@@ -465,17 +540,20 @@ export function BudgetTab({
               </div>
             ) : (
               <div className="h-56 flex items-center justify-center text-muted-foreground">
-                אין נתונים להצגה
+                <div className="text-center">
+                  <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>אין הקצאות לאירועים עדיין</p>
+                </div>
               </div>
             )}
           </div>
         </div>
       ) : selectedBlock === "budget" ? (
-        /* Block 1: Budget Details */
+        /* Block 1: Budget Details - 3 Collapsible Sections */
         <div className="bg-card rounded-2xl border-2 border-border shadow-sm overflow-hidden">
           {/* Header with close button */}
           <div className="flex items-center justify-between p-4 border-b border-border">
-            <h3 className="font-bold text-foreground">תקציב כולל</h3>
+            <h3 className="font-bold text-foreground">תקציב</h3>
             <button
               onClick={() => setSelectedBlock(null)}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -485,335 +563,197 @@ export function BudgetTab({
             </button>
           </div>
 
-          <div className="p-4 space-y-6">
-            {/* Section 1: Budget Settings */}
+          <div className="divide-y divide-border">
+            {/* Section 1: Budget Edit - Combined budget + allocations */}
             <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-3">הגדרות תקציב</h4>
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
-                <div>
-                  <p className="font-bold text-foreground">₪{total.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground">
-                    ₪{amountPerChild.toLocaleString()} × {estimatedChildren} ילדים
-                  </p>
+              <button
+                onClick={() => toggleSection("budget-edit")}
+                className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium text-foreground">עריכת תקציב</span>
                 </div>
-                {onEditBudget && (
-                  <button
-                    onClick={onEditBudget}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
-                  >
-                    <Pencil className="h-4 w-4 text-muted-foreground" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Section 2: Collection Status */}
-            <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-3">מצב גבייה</h4>
-
-              {/* Progress */}
-              <div className="mb-4">
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-muted-foreground">התקדמות גבייה</span>
-                  <span className="font-medium">{collectionPercentage}%</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    ₪{total.toLocaleString()} תקציב · ₪{allocated.toLocaleString()} מוקצה ({total > 0 ? Math.round((allocated / total) * 100) : 0}%)
+                  </span>
+                  <ChevronDown className={cn(
+                    "h-4 w-4 text-muted-foreground transition-transform",
+                    expandedSection === "budget-edit" && "rotate-180"
+                  )} />
                 </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-brand rounded-full transition-all duration-500"
-                    style={{ width: `${collectionPercentage}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  נאספו ₪{collected.toLocaleString()} מתוך ₪{total.toLocaleString()}
-                </p>
-              </div>
+              </button>
 
-              {/* Children status */}
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  מצב רישום (מתוך {estimatedChildren} ילדים צפויים)
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {/* Paid */}
-                  <div className="p-3 bg-success/10 rounded-xl border border-success/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Check className="h-4 w-4 text-success" />
-                      <span className="text-sm font-medium text-success">שילמו ({paidChildren.length})</span>
-                    </div>
-                    {paidChildren.length > 0 ? (
-                      <div className="space-y-1">
-                        {paidChildren.slice(0, 5).map(child => (
-                          <p key={child.id} className="text-sm text-foreground">{child.name}</p>
-                        ))}
-                        {paidChildren.length > 5 && (
-                          <p className="text-xs text-muted-foreground">+{paidChildren.length - 5} נוספים</p>
-                        )}
+              {expandedSection === "budget-edit" && (
+                <div className="px-4 pb-4 space-y-4">
+                  {/* Budget Summary Card */}
+                  <div className="p-4 bg-muted/50 rounded-xl space-y-3">
+                    {/* Budget total */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">תקציב כולל</p>
+                        <p className="text-xl font-bold text-foreground">₪{total.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">
+                          ₪{amountPerChild} × {estimatedChildren} ילדים
+                        </p>
                       </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">אין עדיין</p>
-                    )}
-                  </div>
-
-                  {/* Registered but unpaid */}
-                  <div className="p-3 bg-warning/10 rounded-xl border border-warning/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <AlertCircle className="h-4 w-4 text-warning" />
-                      <span className="text-sm font-medium text-warning">נרשמו, לא שילמו ({unpaidChildren.length})</span>
+                      <Button
+                        onClick={() => setBudgetEditorOpen(true)}
+                        className="gap-2 rounded-lg bg-brand hover:bg-brand/90"
+                      >
+                        <Pencil className="h-4 w-4" />
+                        ערוך תקציב
+                      </Button>
                     </div>
-                    {unpaidChildren.length > 0 ? (
-                      <div className="space-y-1">
-                        {unpaidChildren.slice(0, 5).map(child => (
-                          <p key={child.id} className="text-sm text-foreground">{child.name}</p>
-                        ))}
-                        {unpaidChildren.length > 5 && (
-                          <p className="text-xs text-muted-foreground">+{unpaidChildren.length - 5} נוספים</p>
-                        )}
+
+                    {/* Allocation bar */}
+                    <div>
+                      <div className="flex items-center justify-between text-sm mb-1">
+                        <span className="text-muted-foreground">מוקצה לאירועים</span>
+                        <span className="font-medium">₪{allocated.toLocaleString()} ({total > 0 ? Math.round((allocated / total) * 100) : 0}%)</span>
                       </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">אין</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Not registered */}
-                {notRegisteredCount > 0 && (
-                  <div className="p-3 bg-muted/50 rounded-xl border border-border">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">❓</span>
-                      <span className="text-sm text-muted-foreground">
-                        טרם נרשמו ({notRegisteredCount}) - {notRegisteredCount} ילדים מתוך {estimatedChildren} עדיין לא מילאו את טופס ההרשמה
-                      </span>
+                      <div className="h-2 bg-background rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-brand rounded-full transition-all duration-500"
+                          style={{ width: `${total > 0 ? Math.min((allocated / total) * 100, 100) : 0}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                        <span>נותר להקצאה: ₪{Math.max(0, total - allocated).toLocaleString()}</span>
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
 
-              {/* Registration link button */}
-              {onSendRegistrationLink && (
-                <div className="mt-4">
-                  <button
-                    onClick={onSendRegistrationLink}
-                    className="w-full bg-brand text-white rounded-xl py-2.5 px-4 font-medium hover:bg-brand/90 transition-colors"
-                  >
-                    עדכון פרטי ילדכם ותשלום בקבוצת הפייבוקס
-                  </button>
-                  <p className="text-xs text-muted-foreground text-center mt-2">
-                    לסימון תשלום בודד → עבור לדף קשר
-                  </p>
+                  {/* Allocated events list */}
+                  {budgetedEvents.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-foreground">אירועים מוקצים:</p>
+                      <div className="space-y-1.5">
+                        {sortEventsByDate(events)
+                          .filter(e => (e.allocated_budget || 0) > 0)
+                          .map(event => {
+                            const Icon = getEventIcon(event);
+                            return (
+                              <div
+                                key={event.id}
+                                className="flex items-center justify-between p-2 bg-background rounded-lg"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Icon className="h-4 w-4 text-muted-foreground" />
+                                  <span className="text-sm text-foreground">{event.name}</span>
+                                </div>
+                                <span className="text-sm font-medium text-brand">
+                                  ₪{(event.allocated_budget || 0).toLocaleString()}
+                                </span>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Section 3: Event Allocation - with sticky summary */}
+            {/* Section 2: Collection Status - Collapsible */}
             <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-3">הקצאת תקציב לאירועים</h4>
-
-              {/* Sticky allocation summary */}
-              <div className="sticky top-0 z-10 bg-muted/80 backdrop-blur rounded-xl p-3 mb-3 border border-border">
-                <div className="flex items-center justify-between text-sm mb-1">
-                  <div className="flex items-center gap-4">
-                    <span>💰 תקציב: ₪{total.toLocaleString()}</span>
-                    <span>מוקצה: ₪{allocated.toLocaleString()}</span>
-                    <span>נותר: ₪{(total - allocated).toLocaleString()}</span>
-                  </div>
+              <button
+                onClick={() => toggleSection("collection")}
+                className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium text-foreground">מצב גבייה</span>
                 </div>
-                <div className="h-2 bg-background rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-brand rounded-full transition-all duration-500"
-                    style={{ width: `${total > 0 ? (allocated / total) * 100 : 0}%` }}
-                  />
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {paidChildren.length}/{estimatedChildren} שילמו ({collectionPercentage}%)
+                  </span>
+                  <ChevronDown className={cn(
+                    "h-4 w-4 text-muted-foreground transition-transform",
+                    expandedSection === "collection" && "rotate-180"
+                  )} />
                 </div>
-                <p className="text-xs text-muted-foreground text-left mt-1">
-                  {total > 0 ? Math.round((allocated / total) * 100) : 0}%
-                </p>
-              </div>
+              </button>
 
-              {/* Event list - interactive like onboarding */}
-              <div className="space-y-3">
-                {sortEventsByDate(events).map(event => {
-                  const Icon = getEventIcon(event);
-                  const isEnabled = event.allocated_budget && event.allocated_budget > 0;
-                  const isExpanded = expandedEventId === event.id;
-                  const eventKidsTotal = (event.amount_per_kid || 0) * (event.kids_count || estimatedChildren);
-                  const eventStaffTotal = (event.amount_per_staff || 0) * (event.staff_count || estimatedStaff);
-                  const eventTotal = event.allocated_budget || (eventKidsTotal + eventStaffTotal);
-
-                  return (
-                    <div
-                      key={event.id}
-                      className={cn(
-                        "bg-card rounded-2xl border-2 transition-all",
-                        isEnabled ? "border-border" : "border-border/50 opacity-60"
-                      )}
-                    >
-                      {/* Event Header - Clickable */}
-                      <div
-                        onClick={() => {
-                          if (onToggleEventEnabled) {
-                            onToggleEventEnabled(event.id, !isEnabled);
-                          }
-                          // Toggle expansion for editing
-                          setExpandedEventId(isExpanded ? null : event.id);
-                        }}
-                        className="w-full p-4 flex items-center gap-3 cursor-pointer hover:bg-muted/30 transition-colors rounded-t-2xl"
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            setExpandedEventId(isExpanded ? null : event.id);
-                          }
-                        }}
-                      >
-                        <div
-                          className={cn(
-                            "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors",
-                            isEnabled
-                              ? "bg-brand border-brand"
-                              : "border-border"
-                          )}
-                        >
-                          {isEnabled && <Check className="h-4 w-4 text-white" />}
-                        </div>
-                        <Icon className="h-5 w-5 text-muted-foreground" />
-                        <span className="font-medium text-foreground flex-1 text-right">
-                          {event.name}
-                        </span>
-                        {isEnabled && (
-                          <span className="text-sm font-bold text-brand">
-                            ₪{eventTotal.toLocaleString()}
-                          </span>
-                        )}
-                        <ChevronDown className={cn(
-                          "h-4 w-4 text-muted-foreground transition-transform",
-                          isExpanded && "rotate-180"
-                        )} />
-                      </div>
-
-                      {/* Allocation Inputs - Expandable */}
-                      {isExpanded && (
-                        <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
-                          {/* Kids allocation */}
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm text-muted-foreground w-16">ילדים:</span>
-                            <div className="flex items-center gap-2 flex-1">
-                              <Input
-                                type="number"
-                                min="0"
-                                value={event.amount_per_kid || ""}
-                                onChange={(e) => {
-                                  if (onUpdateEventAllocation) {
-                                    onUpdateEventAllocation(
-                                      event.id,
-                                      parseInt(e.target.value) || 0,
-                                      event.amount_per_staff || 0
-                                    );
-                                  }
-                                }}
-                                className="h-9 w-20 rounded-lg border text-center"
-                                placeholder="0"
-                              />
-                              <span className="text-sm text-muted-foreground">₪</span>
-                              <span className="text-sm text-muted-foreground">×</span>
-                              <span className="text-sm font-medium">{event.kids_count || estimatedChildren}</span>
-                              <span className="text-sm text-muted-foreground">=</span>
-                              <span className="text-sm font-bold text-foreground">
-                                ₪{eventKidsTotal.toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Staff allocation */}
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm text-muted-foreground w-16">צוות:</span>
-                            <div className="flex items-center gap-2 flex-1">
-                              <Input
-                                type="number"
-                                min="0"
-                                value={event.amount_per_staff || ""}
-                                onChange={(e) => {
-                                  if (onUpdateEventAllocation) {
-                                    onUpdateEventAllocation(
-                                      event.id,
-                                      event.amount_per_kid || 0,
-                                      parseInt(e.target.value) || 0
-                                    );
-                                  }
-                                }}
-                                className="h-9 w-20 rounded-lg border text-center"
-                                placeholder="0"
-                              />
-                              <span className="text-sm text-muted-foreground">₪</span>
-                              <span className="text-sm text-muted-foreground">×</span>
-                              <span className="text-sm font-medium">{event.staff_count || estimatedStaff}</span>
-                              <span className="text-sm text-muted-foreground">=</span>
-                              <span className="text-sm font-bold text-foreground">
-                                ₪{eventStaffTotal.toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+              {expandedSection === "collection" && (
+                <div className="px-4 pb-4 space-y-4">
+                  {/* Progress bar */}
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">התקדמות גבייה</span>
+                      <span className="font-medium">{collectionPercentage}%</span>
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-brand rounded-full transition-all duration-500"
+                        style={{ width: `${collectionPercentage}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      נאספו ₪{collected.toLocaleString()} מתוך ₪{total.toLocaleString()}
+                    </p>
+                  </div>
 
-              {/* Add Custom Event */}
-              {showCustomEventInput ? (
-                <div className="bg-card rounded-2xl border-2 border-dashed border-brand/50 p-4">
-                  <div className="flex gap-2">
-                    <Input
-                      type="text"
-                      placeholder="שם האירוע..."
-                      value={customEventName}
-                      onChange={(e) => setCustomEventName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && customEventName.trim()) {
-                          onAddCustomEvent?.(customEventName.trim());
-                          setCustomEventName("");
-                          setShowCustomEventInput(false);
-                        }
-                      }}
-                      className="h-10 rounded-xl border-2"
-                      autoFocus
-                    />
-                    <Button
-                      onClick={() => {
-                        if (customEventName.trim()) {
-                          onAddCustomEvent?.(customEventName.trim());
-                          setCustomEventName("");
-                          setShowCustomEventInput(false);
-                        }
-                      }}
-                      size="sm"
-                      className="rounded-xl bg-brand hover:bg-brand/90"
+                  {/* 3 Status Blocks - Side by Side */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {/* Paid Block - Clickable */}
+                    <div
+                      className={cn(
+                        "p-3 bg-success/10 rounded-xl border border-success/20 text-center transition-all flex flex-col",
+                        paidChildren.length > 0 && "hover:bg-success/20 hover:border-success/40"
+                      )}
                     >
-                      הוסף
-                    </Button>
-                    <Button
+                      <button
+                        onClick={() => {
+                          setChildrenSearchQuery("");
+                          setChildrenListModal({ open: true, type: "paid" });
+                        }}
+                        disabled={paidChildren.length === 0}
+                        className={cn(
+                          "flex-1",
+                          paidChildren.length > 0 && "cursor-pointer"
+                        )}
+                      >
+                        <Check className="h-5 w-5 text-success mx-auto mb-1" />
+                        <p className="text-2xl font-bold text-success">{paidChildren.length}</p>
+                        <p className="text-xs text-success/80">שילמו</p>
+                      </button>
+                    </div>
+
+                    {/* Unpaid Block - Clickable */}
+                    <button
                       onClick={() => {
-                        setShowCustomEventInput(false);
-                        setCustomEventName("");
+                        setChildrenSearchQuery("");
+                        setChildrenListModal({ open: true, type: "unpaid" });
                       }}
-                      variant="outline"
-                      size="sm"
-                      className="rounded-xl"
+                      disabled={unpaidChildren.length === 0}
+                      className={cn(
+                        "p-3 bg-orange-500/10 rounded-xl border border-orange-500/20 text-center transition-all",
+                        unpaidChildren.length > 0 && "hover:bg-orange-500/20 hover:border-orange-500/40 cursor-pointer"
+                      )}
                     >
-                      ביטול
-                    </Button>
+                      <XCircle className="h-5 w-5 text-orange-500 mx-auto mb-1" />
+                      <p className="text-2xl font-bold text-orange-500">{unpaidChildren.length}</p>
+                      <p className="text-xs text-orange-500/80">נרשמו ולא שילמו</p>
+                    </button>
+
+                    {/* Not Registered Block - Clickable */}
+                    <button
+                      onClick={() => onOpenPaymentSheetWithoutList?.()}
+                      disabled={notRegisteredCount === 0}
+                      className={cn(
+                        "p-3 bg-rose-500/10 rounded-xl border border-rose-500/20 text-center transition-all",
+                        notRegisteredCount > 0 && "hover:bg-rose-500/20 hover:border-rose-500/40 cursor-pointer"
+                      )}
+                    >
+                      <UserPlus className="h-5 w-5 text-rose-500 mx-auto mb-1" />
+                      <p className="text-2xl font-bold text-rose-500">{notRegisteredCount}</p>
+                      <p className="text-xs text-rose-500/80">לא נרשמו ולא שילמו</p>
+                    </button>
                   </div>
                 </div>
-              ) : (
-                <button
-                  onClick={() => setShowCustomEventInput(true)}
-                  className="w-full p-4 bg-card rounded-2xl border-2 border-dashed border-border hover:border-brand/50 transition-colors flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
-                >
-                  <Plus className="h-5 w-5" />
-                  <span>הוסף אירוע מותאם אישית</span>
-                </button>
               )}
             </div>
           </div>
@@ -821,7 +761,6 @@ export function BudgetTab({
       ) : selectedBlock === "expenses" ? (
         /* Block 2: Expenses Details */
         <div className="bg-card rounded-2xl border-2 border-border shadow-sm overflow-hidden">
-          {/* Header with close button */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h3 className="font-bold text-foreground">הוצאות</h3>
             <button
@@ -945,9 +884,8 @@ export function BudgetTab({
           </div>
         </div>
       ) : (
-        /* Block 3: Balance Details */
+        /* Block 3: Balance Details - Hierarchy */
         <div className="bg-card rounded-2xl border-2 border-border shadow-sm overflow-hidden">
-          {/* Header with close button */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h3 className="font-bold text-foreground">יתרה</h3>
             <button
@@ -974,38 +912,75 @@ export function BudgetTab({
                 </div>
                 <div className="border-t border-border pt-2 flex justify-between">
                   <span className="font-bold">= יתרה</span>
-                  <span className="font-bold text-success flex items-center gap-1">
-                    ₪{remaining.toLocaleString()}
-                    <Check className="h-4 w-4" />
+                  <span className={cn(
+                    "font-bold flex items-center gap-1",
+                    actualBalance >= 0 ? "text-success" : "text-destructive"
+                  )}>
+                    ₪{actualBalance.toLocaleString()}
+                    {actualBalance >= 0 && <Check className="h-4 w-4" />}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Allocation status */}
+            {/* Allocation status - from the balance */}
             <div>
-              <p className="text-sm text-muted-foreground mb-2">📊 מצב הקצאות</p>
-              <div className="bg-muted/50 rounded-xl p-4">
-                <div className="flex justify-between mb-2">
-                  <span>תקציב כולל</span>
-                  <span className="font-medium">₪{total.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span>הוקצה לאירועים</span>
-                  <span className="font-medium">
-                    ₪{allocated.toLocaleString()} ({total > 0 ? Math.round((allocated / total) * 100) : 0}%)
-                  </span>
-                </div>
-                <div className="h-2 bg-background rounded-full overflow-hidden mb-2">
-                  <div
-                    className="h-full bg-brand rounded-full transition-all duration-500"
-                    style={{ width: `${total > 0 ? (allocated / total) * 100 : 0}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>טרם הוקצה</span>
-                  <span>₪{(total - allocated).toLocaleString()} ({total > 0 ? Math.round(((total - allocated) / total) * 100) : 0}%)</span>
-                </div>
+              <p className="text-sm text-muted-foreground mb-2">📊 מצב הקצאות (מתוך היתרה)</p>
+              <div className="bg-muted/50 rounded-xl p-4 space-y-3">
+                {actualBalance > 0 ? (
+                  <>
+                    {/* How much of balance is allocated vs unallocated */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">מוקצה לאירועים</span>
+                        <span className="font-medium text-brand">
+                          ₪{Math.min(allocatedAndUnspent, actualBalance).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">טרם הוקצה</span>
+                        <span className="font-medium text-success">
+                          ₪{Math.max(0, actualBalance - allocatedAndUnspent).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Visual bar */}
+                    <div className="h-3 bg-background rounded-full overflow-hidden flex">
+                      <div
+                        className="h-full bg-brand transition-all duration-300"
+                        style={{
+                          width: actualBalance > 0
+                            ? `${Math.min((allocatedAndUnspent / actualBalance) * 100, 100)}%`
+                            : "0%"
+                        }}
+                      />
+                      <div
+                        className="h-full bg-success transition-all duration-300"
+                        style={{
+                          width: actualBalance > 0
+                            ? `${Math.max(0, ((actualBalance - allocatedAndUnspent) / actualBalance) * 100)}%`
+                            : "0%"
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex gap-4 text-xs">
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded bg-brand" />
+                        <span>מוקצה</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded bg-success" />
+                        <span>פנוי</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm text-destructive text-center py-2">
+                    אין יתרה להקצאה
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1018,94 +993,90 @@ export function BudgetTab({
                 </p>
               </div>
             )}
-
-            {/* Unpaid allocated events */}
-            {unpaidEvents.length > 0 && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">📅 אירועים שהוקצאו וטרם שולמו</p>
-                <div className="space-y-2">
-                  {unpaidEvents.map(event => (
-                    <div
-                      key={event.id}
-                      className="flex items-center justify-between p-3 bg-muted/30 rounded-xl"
-                    >
-                      <span className="text-foreground">{event.name}</span>
-                      <span className="text-brand font-medium">
-                        ₪{(event.allocated_budget || 0).toLocaleString()} מוקצה
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}
 
-      {/* Timeline: Budgeted Events (always visible) */}
+      {/* Timeline: Budgeted Events */}
       <div className="bg-card rounded-2xl p-4 border-2 border-border shadow-sm">
         <div className="flex items-center gap-2 mb-4">
           <Calendar className="h-5 w-5 text-brand" />
           <h3 className="text-sm font-bold text-foreground">אירועים שתוקצבו</h3>
         </div>
         {budgetedEvents.length > 0 ? (
-          <div className="space-y-3">
-            {budgetedEvents.map((event) => {
-              const barWidthPercent = Math.max(((event.allocated_budget || 0) / maxBudget) * 100, 20);
-              return (
-                <button
-                  key={event.id}
-                  onClick={() => onMarkEventPaid?.(event.id)}
-                  className="w-full text-right group"
-                >
-                  {/* Date and payment status row */}
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-muted-foreground">
-                      {formatHebrewDate(event.event_date)}
-                    </span>
-                    {/* Payment status badge */}
-                    <div className={cn(
-                      "flex items-center gap-1 text-xs px-2 py-0.5 rounded-full",
-                      event.is_paid
-                        ? "bg-success/20 text-success"
-                        : "bg-destructive/20 text-destructive"
-                    )}>
-                      {event.is_paid ? (
-                        <>
-                          <Check className="h-3 w-3" />
-                          <span>שולם</span>
-                        </>
-                      ) : (
-                        <>
-                          <X className="h-3 w-3" />
-                          <span>לא שולם</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  {/* Bar with event name and budget inside */}
-                  <div
-                    className={cn(
-                      "h-10 rounded-lg flex items-center justify-between px-3 transition-all",
-                      event.is_paid
-                        ? "bg-success/30 border border-success/50"
-                        : "bg-brand/30 border border-brand/50 group-hover:bg-brand/40"
-                    )}
-                    style={{ width: `${barWidthPercent}%`, minWidth: "180px" }}
-                  >
-                    <span className="font-medium text-sm text-foreground truncate">
-                      {event.name}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-brand">
-                        ₪{(event.allocated_budget || 0).toLocaleString()}
+          <div className="overflow-x-auto pb-2">
+            <div className="flex items-end gap-4 min-w-max px-2">
+              {budgetedEvents.map((event) => {
+                const Icon = getEventIcon(event);
+                const budget = event.allocated_budget || 0;
+                const eventExpenses = expenses.filter(exp => exp.event_id === event.id);
+                const totalSpent = eventExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+                const spentPercentage = budget > 0 ? Math.min((totalSpent / budget) * 100, 100) : 0;
+                const isOverBudget = totalSpent > budget;
+                const overage = isOverBudget ? totalSpent - budget : 0;
+                const minHeight = 80;
+                const maxHeight = 200;
+                const barHeight = Math.max(
+                  minHeight,
+                  Math.min(maxHeight, (budget / maxBudget) * maxHeight)
+                );
+                const eventDateStr = getEventDateString(event);
+                const formattedDate = eventDateStr
+                  ? `${new Date(eventDateStr).getDate().toString().padStart(2, '0')}.${(new Date(eventDateStr).getMonth() + 1).toString().padStart(2, '0')}`
+                  : "—";
+
+                return (
+                  <div key={event.id} className="flex flex-col items-center gap-2">
+                    {isOverBudget && (
+                      <span className="text-[10px] font-bold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                        +₪{overage.toLocaleString()}
                       </span>
-                      <ChevronLeft className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
+                    )}
+                    {!isOverBudget && (
+                      <span className="text-xs font-bold text-foreground whitespace-nowrap">
+                        ₪{budget.toLocaleString()}
+                      </span>
+                    )}
+
+                    <button
+                      onClick={() => setSelectedEventId(event.id)}
+                      className="w-14 rounded-lg border-2 border-border bg-muted relative overflow-hidden cursor-pointer hover:border-brand/50 transition-colors"
+                      style={{ height: `${barHeight}px` }}
+                      title={`${event.name}: ₪${totalSpent.toLocaleString()} / ₪${budget.toLocaleString()}`}
+                    >
+                      <div
+                        className={cn(
+                          "absolute bottom-0 left-0 right-0 transition-all duration-300",
+                          isOverBudget ? "bg-destructive/40" : "bg-success/40"
+                        )}
+                        style={{ height: `${spentPercentage}%` }}
+                      />
+                      <div className="absolute inset-0 flex flex-col items-center justify-start pt-2 pb-3 gap-1">
+                        <Icon className={cn(
+                          "h-5 w-5 flex-shrink-0 relative z-10",
+                          isOverBudget ? "text-destructive" : totalSpent > 0 ? "text-success" : "text-muted-foreground"
+                        )} />
+                        <div
+                          className="flex-1 flex items-center justify-center overflow-hidden"
+                          style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+                        >
+                          <span className={cn(
+                            "text-xs font-medium whitespace-nowrap relative z-10",
+                            isOverBudget ? "text-destructive" : totalSpent > 0 ? "text-success" : "text-foreground"
+                          )}>
+                            {event.name}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+
+                    <span className="text-xs text-muted-foreground">
+                      {formattedDate}
+                    </span>
                   </div>
-                </button>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         ) : (
           <p className="text-center text-muted-foreground py-4">
@@ -1113,6 +1084,19 @@ export function BudgetTab({
           </p>
         )}
       </div>
+
+      {/* Budget Editor Modal */}
+      {classId && (
+        <BudgetEditorModal
+          open={budgetEditorOpen}
+          onOpenChange={setBudgetEditorOpen}
+          classId={classId}
+          currentAmountPerChild={amountPerChild}
+          currentEstimatedChildren={estimatedChildren}
+          currentEstimatedStaff={estimatedStaff}
+          events={events}
+        />
+      )}
 
       {/* Add Expense Modal */}
       <Dialog open={expenseModalOpen} onOpenChange={setExpenseModalOpen}>
@@ -1272,6 +1256,255 @@ export function BudgetTab({
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               מחק
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Event Detail Modal */}
+      <Dialog open={!!selectedEventId} onOpenChange={(open) => !open && setSelectedEventId(null)}>
+        <DialogContent className="max-w-md" dir="rtl">
+          {selectedEvent && (() => {
+            const eventExpensesList = expenses.filter(exp => exp.event_id === selectedEvent.id);
+            const eventTotalSpent = eventExpensesList.reduce((sum, exp) => sum + exp.amount, 0);
+            const eventBudget = selectedEvent.allocated_budget || 0;
+            const eventIsOverBudget = eventTotalSpent > eventBudget;
+            const EventIcon = getEventIcon(selectedEvent);
+            const eventDateStr = getEventDateString(selectedEvent);
+
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="text-right flex items-center gap-2">
+                    <EventIcon className="h-5 w-5 text-brand" />
+                    {selectedEvent.name}
+                  </DialogTitle>
+                  <DialogDescription className="text-right">
+                    {eventDateStr ? formatHebrewDate(eventDateStr) : "תאריך לא נקבע"}
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4 py-4">
+                  <div className="bg-muted/50 rounded-xl p-3 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">תקציב מוקצה</span>
+                      <span className="font-medium">₪{eventBudget.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">סה״כ הוצאות</span>
+                      <span className={cn(
+                        "font-medium",
+                        eventIsOverBudget ? "text-destructive" : "text-success"
+                      )}>
+                        ₪{eventTotalSpent.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-background rounded-full overflow-hidden">
+                      <div
+                        className={cn(
+                          "h-full rounded-full transition-all duration-300",
+                          eventIsOverBudget ? "bg-destructive" : "bg-success"
+                        )}
+                        style={{ width: `${Math.min((eventTotalSpent / eventBudget) * 100, 100)}%` }}
+                      />
+                    </div>
+                    {eventIsOverBudget && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        חריגה של ₪{(eventTotalSpent - eventBudget).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-medium text-foreground mb-2">הוצאות ({eventExpensesList.length})</h4>
+                    {eventExpensesList.length > 0 ? (
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {eventExpensesList.map((expense) => (
+                          <div
+                            key={expense.id}
+                            className="flex items-center justify-between p-2 bg-muted/30 rounded-lg text-sm"
+                          >
+                            <div>
+                              <p className="font-medium text-foreground">{expense.description}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatHebrewDate(expense.expense_date)}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold">₪{expense.amount.toLocaleString()}</span>
+                              <button
+                                onClick={() => {
+                                  setSelectedEventId(null);
+                                  setDeleteExpenseId(expense.id);
+                                }}
+                                className="p-1 rounded hover:bg-destructive/10 transition-colors"
+                              >
+                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        אין הוצאות לאירוע זה
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <DialogFooter className="gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setSelectedEventId(null)}
+                    className="rounded-xl"
+                  >
+                    סגור
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setSelectedEventId(null);
+                      setExpenseForm({
+                        ...expenseForm,
+                        event_id: selectedEvent.id,
+                      });
+                      setExpenseModalOpen(true);
+                    }}
+                    className="rounded-xl gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    הוסף הוצאה
+                  </Button>
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Children List Modal (Paid/Unpaid) */}
+      <Dialog
+        open={childrenListModal.open}
+        onOpenChange={(open) => {
+          if (!open) {
+            setChildrenListModal({ open: false, type: null });
+            setChildrenSearchQuery("");
+          }
+        }}
+      >
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-right flex items-center gap-2">
+              {childrenListModal.type === "paid" ? (
+                <>
+                  <Check className="h-5 w-5 text-success" />
+                  ילדים ששילמו ({paidChildren.length})
+                </>
+              ) : (
+                <>
+                  <XCircle className="h-5 w-5 text-orange-500" />
+                  ילדים שלא שילמו ({unpaidChildren.length})
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription className="text-right">
+              {childrenListModal.type === "paid"
+                ? "רשימת כל הילדים ששילמו את דמי הוועד"
+                : "רשימת הילדים שעדיין לא שילמו"}
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Search Input */}
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="חיפוש לפי שם..."
+              value={childrenSearchQuery}
+              onChange={(e) => setChildrenSearchQuery(e.target.value)}
+              className="pr-10 rounded-xl"
+            />
+            {childrenSearchQuery && (
+              <button
+                onClick={() => setChildrenSearchQuery("")}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Children List */}
+          <div className="max-h-[300px] overflow-y-auto space-y-2">
+            {(() => {
+              const listToShow = childrenListModal.type === "paid" ? paidChildren : unpaidChildren;
+              const filteredList = listToShow.filter((child) =>
+                child.name.toLowerCase().includes(childrenSearchQuery.toLowerCase())
+              );
+
+              if (filteredList.length === 0) {
+                return (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Search className="h-10 w-10 mx-auto mb-2 opacity-50" />
+                    <p>לא נמצאו תוצאות</p>
+                  </div>
+                );
+              }
+
+              return filteredList.map((child) => (
+                <div
+                  key={child.id}
+                  className={cn(
+                    "flex items-center justify-between p-3 rounded-xl border",
+                    childrenListModal.type === "paid"
+                      ? "bg-success/5 border-success/20"
+                      : "bg-orange-500/5 border-orange-500/20"
+                  )}
+                >
+                  <span className="font-medium text-foreground">{child.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">לא שולם</span>
+                    <Switch
+                      checked={childrenListModal.type === "paid"}
+                      onCheckedChange={(checked) => {
+                        if (checked && onMarkChildPaid) {
+                          onMarkChildPaid(child.id);
+                        } else if (!checked && onMarkChildUnpaid) {
+                          onMarkChildUnpaid(child.id);
+                        }
+                      }}
+                      className="data-[state=checked]:bg-green-600"
+                    />
+                    <span className="text-xs text-green-600 font-medium">שולם</span>
+                  </div>
+                </div>
+              ));
+            })()}
+          </div>
+
+          <DialogFooter className="flex-row-reverse justify-between sm:justify-between gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setChildrenListModal({ open: false, type: null });
+                setChildrenSearchQuery("");
+              }}
+              className="rounded-xl"
+            >
+              סגור
+            </Button>
+            {childrenListModal.type === "unpaid" && unpaidChildren.length > 0 && (
+              <Button
+                onClick={() => {
+                  setChildrenListModal({ open: false, type: null });
+                  setChildrenSearchQuery("");
+                  onOpenPaymentSheetWithoutList?.();
+                }}
+                className="rounded-xl gap-1 bg-orange-600 hover:bg-orange-700 text-white"
+              >
+                <Send className="h-4 w-4" />
+                שלחו תזכורת
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

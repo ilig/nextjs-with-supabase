@@ -17,8 +17,6 @@ import {
   Check,
   UserPlus,
   Baby,
-  X,
-  CreditCard,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -50,6 +48,7 @@ import {
 } from "@/app/actions/manage-directory";
 import { AddChildrenSheet } from "@/components/v2/add-children-sheet";
 import { AddStaffSheet } from "@/components/v2/add-staff-sheet";
+import { Switch } from "@/components/ui/switch";
 
 type Child = {
   id: string;
@@ -88,6 +87,7 @@ type ContactsTabProps = {
   onKidsModalOpened?: () => void;
   expectedStaff?: number;
   onMarkAsPaid?: (childId: string) => void;
+  onMarkAsUnpaid?: (childId: string) => void;
 };
 
 type SubTab = "kids" | "staff";
@@ -144,6 +144,7 @@ export function ContactsTab({
   onKidsModalOpened,
   expectedStaff,
   onMarkAsPaid,
+  onMarkAsUnpaid,
 }: ContactsTabProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -233,23 +234,43 @@ export function ContactsTab({
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Handle marking a child as paid
-  const handleMarkAsPaid = async (childId: string) => {
-    if (onMarkAsPaid) {
-      onMarkAsPaid(childId);
-    } else {
-      // Fallback: update directly if no handler provided
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("children")
-        .update({
-          payment_status: "paid",
-          payment_date: new Date().toISOString(),
-        })
-        .eq("id", childId);
+  // Handle toggling payment status
+  const handlePaymentToggle = async (childId: string, isPaid: boolean) => {
+    if (isPaid) {
+      // Mark as paid
+      if (onMarkAsPaid) {
+        onMarkAsPaid(childId);
+      } else {
+        const supabase = createClient();
+        const { error } = await supabase
+          .from("children")
+          .update({
+            payment_status: "paid",
+            payment_date: new Date().toISOString(),
+          })
+          .eq("id", childId);
 
-      if (!error) {
-        router.refresh();
+        if (!error) {
+          router.refresh();
+        }
+      }
+    } else {
+      // Mark as unpaid
+      if (onMarkAsUnpaid) {
+        onMarkAsUnpaid(childId);
+      } else {
+        const supabase = createClient();
+        const { error } = await supabase
+          .from("children")
+          .update({
+            payment_status: "unpaid",
+            payment_date: null,
+          })
+          .eq("id", childId);
+
+        if (!error) {
+          router.refresh();
+        }
       }
     }
   };
@@ -482,20 +503,28 @@ export function ContactsTab({
                   className="bg-card rounded-2xl p-4 border-2 border-border shadow-sm"
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <h3 className="font-bold text-foreground">{child.name}</h3>
-                      {/* Payment status badge */}
-                      {child.payment_status === "paid" ? (
-                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-success/20 text-success">
-                          <Check className="h-3 w-3" />
-                          שילם
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-destructive/20 text-destructive">
-                          <X className="h-3 w-3" />
+                      {/* Payment status toggle */}
+                      <div className="flex items-center gap-2">
+                        <span className={cn(
+                          "text-xs font-medium transition-colors",
+                          child.payment_status === "paid" ? "text-muted-foreground" : "text-destructive"
+                        )}>
                           לא שילם
                         </span>
-                      )}
+                        <Switch
+                          checked={child.payment_status === "paid"}
+                          onCheckedChange={(checked) => handlePaymentToggle(child.id, checked)}
+                          aria-label={`סטטוס תשלום עבור ${child.name}`}
+                        />
+                        <span className={cn(
+                          "text-xs font-medium transition-colors",
+                          child.payment_status === "paid" ? "text-success" : "text-muted-foreground"
+                        )}>
+                          שילם
+                        </span>
+                      </div>
                     </div>
                     <div className="flex gap-1">
                       <button
@@ -549,19 +578,6 @@ export function ContactsTab({
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
                       <MapPin className="h-4 w-4" />
                       <span>{child.address}</span>
-                    </div>
-                  )}
-
-                  {/* Mark as paid button - only show for unpaid children */}
-                  {child.payment_status !== "paid" && (
-                    <div className="mt-3 pt-3 border-t border-border">
-                      <button
-                        onClick={() => handleMarkAsPaid(child.id)}
-                        className="flex items-center gap-2 text-sm text-brand hover:text-brand/80 transition-colors font-medium"
-                      >
-                        <CreditCard className="h-4 w-4" />
-                        סמן כשילם
-                      </button>
                     </div>
                   )}
                 </div>
