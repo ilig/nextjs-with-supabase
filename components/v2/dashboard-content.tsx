@@ -120,6 +120,7 @@ export function DashboardContent({
   const [activeTab, setActiveTab] = useState<DashboardTab>("budget");
   const [paymentSheetOpen, setPaymentSheetOpen] = useState(false);
   const [hideUnpaidListInSheet, setHideUnpaidListInSheet] = useState(false);
+  const [forceInviteModeInSheet, setForceInviteModeInSheet] = useState(false);
   const [openStaffModal, setOpenStaffModal] = useState(false);
   const [openKidsModal, setOpenKidsModal] = useState(false);
   const [paymentLinkSent, setPaymentLinkSent] = useState(false);
@@ -269,10 +270,17 @@ export function DashboardContent({
             classId={classData.id}
             onOpenPaymentSheet={() => {
               setHideUnpaidListInSheet(false);
+              setForceInviteModeInSheet(false);
               setPaymentSheetOpen(true);
             }}
             onOpenPaymentSheetWithoutList={() => {
               setHideUnpaidListInSheet(true);
+              setForceInviteModeInSheet(false);
+              setPaymentSheetOpen(true);
+            }}
+            onOpenPaymentSheetInviteMode={() => {
+              setHideUnpaidListInSheet(true);
+              setForceInviteModeInSheet(true);
               setPaymentSheetOpen(true);
             }}
             onMarkChildPaid={handleMarkAsPaid}
@@ -336,10 +344,17 @@ export function DashboardContent({
             classId={classData.id}
             onOpenPaymentSheet={() => {
               setHideUnpaidListInSheet(false);
+              setForceInviteModeInSheet(false);
               setPaymentSheetOpen(true);
             }}
             onOpenPaymentSheetWithoutList={() => {
               setHideUnpaidListInSheet(true);
+              setForceInviteModeInSheet(false);
+              setPaymentSheetOpen(true);
+            }}
+            onOpenPaymentSheetInviteMode={() => {
+              setHideUnpaidListInSheet(true);
+              setForceInviteModeInSheet(true);
               setPaymentSheetOpen(true);
             }}
             onMarkChildPaid={handleMarkAsPaid}
@@ -389,7 +404,10 @@ export function DashboardContent({
         open={paymentSheetOpen}
         onOpenChange={(open) => {
           setPaymentSheetOpen(open);
-          if (!open) setHideUnpaidListInSheet(false);
+          if (!open) {
+            setHideUnpaidListInSheet(false);
+            setForceInviteModeInSheet(false);
+          }
         }}
         children={childrenWithParentInfo}
         estimatedChildren={classData.estimated_children || 0}
@@ -403,6 +421,7 @@ export function DashboardContent({
         onMarkAsPaid={handleMarkAsPaid}
         onSendReminder={handleSendReminder}
         hideUnpaidList={hideUnpaidListInSheet}
+        forceInviteMode={forceInviteModeInSheet}
       />
     </div>
   );

@@ -43,6 +43,7 @@ type PaymentManagementSheetProps = {
   onSendReminder?: (childIds: string[]) => void;
   onMarkAsPaid?: (childId: string) => void;
   hideUnpaidList?: boolean;
+  forceInviteMode?: boolean;
 };
 
 export function PaymentManagementSheet({
@@ -59,6 +60,7 @@ export function PaymentManagementSheet({
   schoolName,
   onMarkAsPaid,
   hideUnpaidList = false,
+  forceInviteMode = false,
 }: PaymentManagementSheetProps) {
   const [copiedMessage, setCopiedMessage] = useState(false);
   const [showInviteCard, setShowInviteCard] = useState(false);
@@ -132,9 +134,9 @@ ${signature}`;
   };
 
   // Determine dialog mode
-  const isFullyCollected = collected >= total;
-  const isAllRegisteredPaid = unpaidChildren.length === 0 && !isFullyCollected;
-  const hasUnpaid = unpaidChildren.length > 0;
+  const isFullyCollected = collected >= total && !forceInviteMode;
+  const isAllRegisteredPaid = (unpaidChildren.length === 0 && !isFullyCollected) || forceInviteMode;
+  const hasUnpaid = unpaidChildren.length > 0 && !forceInviteMode;
 
   // Dynamic header based on mode
   const getHeaderContent = () => {

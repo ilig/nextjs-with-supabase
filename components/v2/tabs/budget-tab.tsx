@@ -10,7 +10,6 @@ import {
   Check,
   X,
   ChevronDown,
-  Pencil,
   Users,
   AlertCircle,
   Star,
@@ -29,8 +28,6 @@ import {
   Eye,
   Loader2,
   Tag,
-  CreditCard,
-  Settings,
   Search,
   XCircle,
   Send,
@@ -66,7 +63,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { createExpense, deleteExpense } from "@/app/actions/budget";
 import { getJewishHolidays } from "@/lib/jewish-holidays";
-import { BudgetEditorModal } from "@/components/v2/budget-editor-modal";
+import { BudgetDefinitionsBlock } from "@/components/v2/budget-definitions-block";
+import { EventAllocationsBlock } from "@/components/v2/event-allocations-block";
+import { CollectionStatusBlock } from "@/components/v2/collection-status-block";
 
 type Event = {
   id: string;
@@ -123,6 +122,7 @@ type BudgetTabProps = {
   classId?: string;
   onOpenPaymentSheet?: () => void;
   onOpenPaymentSheetWithoutList?: () => void;
+  onOpenPaymentSheetInviteMode?: () => void;
   onMarkChildPaid?: (childId: string) => void;
   onMarkChildUnpaid?: (childId: string) => void;
 };
@@ -218,6 +218,7 @@ export function BudgetTab({
   classId,
   onOpenPaymentSheet,
   onOpenPaymentSheetWithoutList,
+  onOpenPaymentSheetInviteMode,
   onMarkChildPaid,
   onMarkChildUnpaid,
 }: BudgetTabProps) {
@@ -236,15 +237,15 @@ export function BudgetTab({
   });
   const [expenseFilter, setExpenseFilter] = useState<string>("all");
 
-  // Budget editor modal state
-  const [budgetEditorOpen, setBudgetEditorOpen] = useState(false);
+  // Budget editor modal state - kept for backward compatibility but no longer used
+  // const [budgetEditorOpen, setBudgetEditorOpen] = useState(false);
 
   // Event detail modal state
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
 
-  // Collapsible sections in Budget block
-  const [expandedSection, setExpandedSection] = useState<"budget-edit" | "collection" | null>(null);
+  // Collapsible sections in Budget block - no longer used, each block manages its own state
+  // const [expandedSection, setExpandedSection] = useState<"budget-edit" | "collection" | null>(null);
 
   // Children list modal state
   const [childrenListModal, setChildrenListModal] = useState<{ open: boolean; type: "paid" | "unpaid" | null }>({
@@ -303,12 +304,9 @@ export function BudgetTab({
 
   const handleBlockClick = (block: SelectedBlock) => {
     setSelectedBlock(prev => prev === block ? null : block);
-    setExpandedSection(null);
   };
 
-  const toggleSection = (section: "budget-edit" | "collection") => {
-    setExpandedSection(prev => prev === section ? null : section);
-  };
+  // toggleSection no longer needed - each block manages its own expansion state
 
   return (
     <div className={cn("p-4 md:p-6 space-y-6", className)}>
@@ -339,7 +337,7 @@ export function BudgetTab({
                   ? "text-amber-600 dark:text-amber-400"
                   : "text-rose-600 dark:text-rose-400"
               )} />
-              <span className="font-semibold text-foreground">
+              <span className="font-semibold text-sm text-foreground">
                 {unpaidChildren.length > 0
                   ? `${unpaidChildren.length} ילדים נרשמו אך טרם שילמו`
                   : `${notRegisteredCount} ילדים טרם נרשמו ושילמו`}
@@ -357,7 +355,7 @@ export function BudgetTab({
               </Button>
             ) : (
               <Button
-                onClick={onOpenPaymentSheet}
+                onClick={onOpenPaymentSheetInviteMode}
                 size="sm"
                 className="gap-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white"
               >
@@ -436,8 +434,8 @@ export function BudgetTab({
           <p className={cn(
             "text-xl md:text-2xl font-bold",
             actualBalance >= 0 ? "text-foreground" : "text-destructive"
-          )}>
-            ₪{actualBalance.toLocaleString()}
+          )} dir="ltr">
+            {actualBalance < 0 ? `-₪${Math.abs(actualBalance).toLocaleString()}` : `₪${actualBalance.toLocaleString()}`}
           </p>
         </button>
       </div>
@@ -563,199 +561,48 @@ export function BudgetTab({
             </button>
           </div>
 
-          <div className="divide-y divide-border">
-            {/* Section 1: Budget Edit - Combined budget + allocations */}
-            <div>
-              <button
-                onClick={() => toggleSection("budget-edit")}
-                className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Wallet className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium text-foreground">עריכת תקציב</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    ₪{total.toLocaleString()} תקציב · ₪{allocated.toLocaleString()} מוקצה ({total > 0 ? Math.round((allocated / total) * 100) : 0}%)
-                  </span>
-                  <ChevronDown className={cn(
-                    "h-4 w-4 text-muted-foreground transition-transform",
-                    expandedSection === "budget-edit" && "rotate-180"
-                  )} />
-                </div>
-              </button>
+          {/* Two Budget Blocks */}
+          <div className="p-4 space-y-4">
+            {/* Block 1: Budget Definitions */}
+            {classId && (
+              <BudgetDefinitionsBlock
+                classId={classId}
+                amountPerChild={amountPerChild}
+                estimatedChildren={estimatedChildren}
+                estimatedStaff={estimatedStaff}
+                totalBudget={total}
+                allocatedBudget={allocated}
+              />
+            )}
 
-              {expandedSection === "budget-edit" && (
-                <div className="px-4 pb-4 space-y-4">
-                  {/* Budget Summary Card */}
-                  <div className="p-4 bg-muted/50 rounded-xl space-y-3">
-                    {/* Budget total */}
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">תקציב כולל</p>
-                        <p className="text-xl font-bold text-foreground">₪{total.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">
-                          ₪{amountPerChild} × {estimatedChildren} ילדים
-                        </p>
-                      </div>
-                      <Button
-                        onClick={() => setBudgetEditorOpen(true)}
-                        className="gap-2 rounded-lg bg-brand hover:bg-brand/90"
-                      >
-                        <Pencil className="h-4 w-4" />
-                        ערוך תקציב
-                      </Button>
-                    </div>
+            {/* Block 2: Event Allocations */}
+            {classId && (
+              <EventAllocationsBlock
+                classId={classId}
+                events={events}
+                totalBudget={total}
+                estimatedChildren={estimatedChildren}
+                estimatedStaff={estimatedStaff}
+              />
+            )}
 
-                    {/* Allocation bar */}
-                    <div>
-                      <div className="flex items-center justify-between text-sm mb-1">
-                        <span className="text-muted-foreground">מוקצה לאירועים</span>
-                        <span className="font-medium">₪{allocated.toLocaleString()} ({total > 0 ? Math.round((allocated / total) * 100) : 0}%)</span>
-                      </div>
-                      <div className="h-2 bg-background rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-brand rounded-full transition-all duration-500"
-                          style={{ width: `${total > 0 ? Math.min((allocated / total) * 100, 100) : 0}%` }}
-                        />
-                      </div>
-                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>נותר להקצאה: ₪{Math.max(0, total - allocated).toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Allocated events list */}
-                  {budgetedEvents.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-foreground">אירועים מוקצים:</p>
-                      <div className="space-y-1.5">
-                        {sortEventsByDate(events)
-                          .filter(e => (e.allocated_budget || 0) > 0)
-                          .map(event => {
-                            const Icon = getEventIcon(event);
-                            return (
-                              <div
-                                key={event.id}
-                                className="flex items-center justify-between p-2 bg-background rounded-lg"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <Icon className="h-4 w-4 text-muted-foreground" />
-                                  <span className="text-sm text-foreground">{event.name}</span>
-                                </div>
-                                <span className="text-sm font-medium text-brand">
-                                  ₪{(event.allocated_budget || 0).toLocaleString()}
-                                </span>
-                              </div>
-                            );
-                          })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Section 2: Collection Status - Collapsible */}
-            <div>
-              <button
-                onClick={() => toggleSection("collection")}
-                className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium text-foreground">מצב גבייה</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    {paidChildren.length}/{estimatedChildren} שילמו ({collectionPercentage}%)
-                  </span>
-                  <ChevronDown className={cn(
-                    "h-4 w-4 text-muted-foreground transition-transform",
-                    expandedSection === "collection" && "rotate-180"
-                  )} />
-                </div>
-              </button>
-
-              {expandedSection === "collection" && (
-                <div className="px-4 pb-4 space-y-4">
-                  {/* Progress bar */}
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">התקדמות גבייה</span>
-                      <span className="font-medium">{collectionPercentage}%</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-brand rounded-full transition-all duration-500"
-                        style={{ width: `${collectionPercentage}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      נאספו ₪{collected.toLocaleString()} מתוך ₪{total.toLocaleString()}
-                    </p>
-                  </div>
-
-                  {/* 3 Status Blocks - Side by Side */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {/* Paid Block - Clickable */}
-                    <div
-                      className={cn(
-                        "p-3 bg-success/10 rounded-xl border border-success/20 text-center transition-all flex flex-col",
-                        paidChildren.length > 0 && "hover:bg-success/20 hover:border-success/40"
-                      )}
-                    >
-                      <button
-                        onClick={() => {
-                          setChildrenSearchQuery("");
-                          setChildrenListModal({ open: true, type: "paid" });
-                        }}
-                        disabled={paidChildren.length === 0}
-                        className={cn(
-                          "flex-1",
-                          paidChildren.length > 0 && "cursor-pointer"
-                        )}
-                      >
-                        <Check className="h-5 w-5 text-success mx-auto mb-1" />
-                        <p className="text-2xl font-bold text-success">{paidChildren.length}</p>
-                        <p className="text-xs text-success/80">שילמו</p>
-                      </button>
-                    </div>
-
-                    {/* Unpaid Block - Clickable */}
-                    <button
-                      onClick={() => {
-                        setChildrenSearchQuery("");
-                        setChildrenListModal({ open: true, type: "unpaid" });
-                      }}
-                      disabled={unpaidChildren.length === 0}
-                      className={cn(
-                        "p-3 bg-orange-500/10 rounded-xl border border-orange-500/20 text-center transition-all",
-                        unpaidChildren.length > 0 && "hover:bg-orange-500/20 hover:border-orange-500/40 cursor-pointer"
-                      )}
-                    >
-                      <XCircle className="h-5 w-5 text-orange-500 mx-auto mb-1" />
-                      <p className="text-2xl font-bold text-orange-500">{unpaidChildren.length}</p>
-                      <p className="text-xs text-orange-500/80">נרשמו ולא שילמו</p>
-                    </button>
-
-                    {/* Not Registered Block - Clickable */}
-                    <button
-                      onClick={() => onOpenPaymentSheetWithoutList?.()}
-                      disabled={notRegisteredCount === 0}
-                      className={cn(
-                        "p-3 bg-rose-500/10 rounded-xl border border-rose-500/20 text-center transition-all",
-                        notRegisteredCount > 0 && "hover:bg-rose-500/20 hover:border-rose-500/40 cursor-pointer"
-                      )}
-                    >
-                      <UserPlus className="h-5 w-5 text-rose-500 mx-auto mb-1" />
-                      <p className="text-2xl font-bold text-rose-500">{notRegisteredCount}</p>
-                      <p className="text-xs text-rose-500/80">לא נרשמו ולא שילמו</p>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Block 3: Collection Status */}
+            <CollectionStatusBlock
+              totalBudget={total}
+              collected={collected}
+              estimatedChildren={estimatedChildren}
+              paidChildren={paidChildren}
+              unpaidChildren={unpaidChildren}
+              onOpenPaidChildrenList={() => {
+                setChildrenSearchQuery("");
+                setChildrenListModal({ open: true, type: "paid" });
+              }}
+              onOpenUnpaidChildrenList={() => {
+                setChildrenSearchQuery("");
+                setChildrenListModal({ open: true, type: "unpaid" });
+              }}
+              onOpenPaymentSheetInviteMode={onOpenPaymentSheetInviteMode}
+            />
           </div>
         </div>
       ) : selectedBlock === "expenses" ? (
@@ -900,7 +747,12 @@ export function BudgetTab({
           <div className="p-4 space-y-6">
             {/* Actual balance calculation */}
             <div>
-              <p className="text-sm text-muted-foreground mb-2">💵 יתרה בפועל</p>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 rounded-lg bg-success/10">
+                  <Wallet className="h-4 w-4 text-success" />
+                </div>
+                <span className="text-sm font-medium text-foreground">יתרה בפועל</span>
+              </div>
               <div className="bg-muted/50 rounded-xl p-4 space-y-2">
                 <div className="flex justify-between">
                   <span className="text-foreground">נאספו</span>
@@ -916,7 +768,7 @@ export function BudgetTab({
                     "font-bold flex items-center gap-1",
                     actualBalance >= 0 ? "text-success" : "text-destructive"
                   )}>
-                    ₪{actualBalance.toLocaleString()}
+                    <span dir="ltr">{actualBalance < 0 ? `-₪${Math.abs(actualBalance).toLocaleString()}` : `₪${actualBalance.toLocaleString()}`}</span>
                     {actualBalance >= 0 && <Check className="h-4 w-4" />}
                   </span>
                 </div>
@@ -925,7 +777,12 @@ export function BudgetTab({
 
             {/* Allocation status - from the balance */}
             <div>
-              <p className="text-sm text-muted-foreground mb-2">📊 מצב הקצאות (מתוך היתרה)</p>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 rounded-lg bg-brand/10">
+                  <PiggyBank className="h-4 w-4 text-brand" />
+                </div>
+                <span className="text-sm font-medium text-foreground">מצב הקצאות (מתוך היתרה)</span>
+              </div>
               <div className="bg-muted/50 rounded-xl p-4 space-y-3">
                 {actualBalance > 0 ? (
                   <>
@@ -1005,7 +862,7 @@ export function BudgetTab({
         </div>
         {budgetedEvents.length > 0 ? (
           <div className="overflow-x-auto pb-2">
-            <div className="flex items-end gap-4 min-w-max px-2">
+            <div className="flex flex-row-reverse items-end gap-4 min-w-max px-2">
               {budgetedEvents.map((event) => {
                 const Icon = getEventIcon(event);
                 const budget = event.allocated_budget || 0;
@@ -1022,7 +879,7 @@ export function BudgetTab({
                 );
                 const eventDateStr = getEventDateString(event);
                 const formattedDate = eventDateStr
-                  ? `${new Date(eventDateStr).getDate().toString().padStart(2, '0')}.${(new Date(eventDateStr).getMonth() + 1).toString().padStart(2, '0')}`
+                  ? `${new Date(eventDateStr).getDate().toString().padStart(2, '0')}.${(new Date(eventDateStr).getMonth() + 1).toString().padStart(2, '0')}.${new Date(eventDateStr).getFullYear().toString().slice(-2)}`
                   : "—";
 
                 return (
@@ -1085,18 +942,7 @@ export function BudgetTab({
         )}
       </div>
 
-      {/* Budget Editor Modal */}
-      {classId && (
-        <BudgetEditorModal
-          open={budgetEditorOpen}
-          onOpenChange={setBudgetEditorOpen}
-          classId={classId}
-          currentAmountPerChild={amountPerChild}
-          currentEstimatedChildren={estimatedChildren}
-          currentEstimatedStaff={estimatedStaff}
-          events={events}
-        />
-      )}
+      {/* Budget Editor Modal - Replaced by BudgetDefinitionsBlock and EventAllocationsBlock */}
 
       {/* Add Expense Modal */}
       <Dialog open={expenseModalOpen} onOpenChange={setExpenseModalOpen}>
