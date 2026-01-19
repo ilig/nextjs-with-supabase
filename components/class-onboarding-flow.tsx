@@ -152,7 +152,7 @@ export function ClassOnboardingFlow() {
 
         const parsedChildren: Child[] = jsonData.map((row, index) => ({
           id: `child-${index}`,
-          name: row["שם הילד"] || row["Child Name"] || "",
+          name: row["שם הילד/ה"] || row["שם הילד"] || row["Child Name"] || "",
           parent1Name: row["שם הורה 1"] || row["Parent 1 Name"] || "",
           parent1Phone: row["טלפון הורה 1"] || row["Parent 1 Phone"] || "",
           parent2Name: row["שם הורה 2"] || row["Parent 2 Name"] || "",
@@ -604,11 +604,11 @@ export function ClassOnboardingFlow() {
                   <Card key={child.id} className="p-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="col-span-2">
-                        <Label>שם הילד</Label>
+                        <Label>שם הילד/ה</Label>
                         <Input
                           value={child.name}
                           onChange={(e) => updateChild(child.id, "name", e.target.value)}
-                          placeholder="שם הילד"
+                          placeholder="שם הילד/ה"
                         />
                       </div>
                       <div>

@@ -42,7 +42,7 @@ export default function ClassSetupPage() {
     const newErrors: Record<string, string> = {};
 
     if (!child.childName.trim()) {
-      newErrors.childName = "שם הילד חובה";
+      newErrors.childName = "שם הילד/ה חובה";
     }
     if (!child.parent1.name.trim()) {
       newErrors.parent1Name = "שם הורה 1 חובה";
@@ -145,7 +145,7 @@ export default function ClassSetupPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Child Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="childName">שם הילד *</Label>
+                  <Label htmlFor="childName">שם הילד/ה *</Label>
                   <Input
                     id="childName"
                     value={currentChild.childName}

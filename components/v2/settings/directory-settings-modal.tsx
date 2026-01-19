@@ -69,26 +69,26 @@ export function DirectorySettingsModal({
     {
       key: "is_public" as const,
       icon: Eye,
-      title: "ספר כתובות ציבורי",
-      description: "אפשר לכל מי שיש לו את הקישור לצפות בספר הכתובות",
+      title: "דף קשר ציבורי",
+      description: "אפשר לכל מי שיש לו את הקישור לצפות בדף הקשר",
     },
     {
       key: "show_phone" as const,
       icon: Phone,
       title: "הצג מספרי טלפון",
-      description: "הצג את מספרי הטלפון של ההורים בספר הכתובות הציבורי",
+      description: "הצג את מספרי הטלפון של ההורים בדף הקשר הציבורי",
     },
     {
       key: "show_address" as const,
       icon: MapPin,
       title: "הצג כתובות",
-      description: "הצג את כתובות המגורים בספר הכתובות הציבורי",
+      description: "הצג את כתובות המגורים בדף הקשר הציבורי",
     },
     {
       key: "show_birthday" as const,
       icon: Calendar,
       title: "הצג תאריכי לידה",
-      description: "הצג את תאריכי הלידה של הילדים בספר הכתובות הציבורי",
+      description: "הצג את תאריכי הלידה של הילדים בדף הקשר הציבורי",
     },
   ];
 
@@ -98,7 +98,7 @@ export function DirectorySettingsModal({
         <DialogHeader>
           <DialogTitle className="text-right flex items-center gap-2">
             <Eye className="h-5 w-5" />
-            הגדרות ספר כתובות
+            הגדרות דף קשר
           </DialogTitle>
         </DialogHeader>
 
@@ -106,7 +106,7 @@ export function DirectorySettingsModal({
           {/* Info */}
           <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
             <p>
-              קבע אילו פרטים יהיו גלויים בספר הכתובות הציבורי שמשותף עם ההורים.
+              קבע אילו פרטים יהיו גלויים בדף הקשר הציבורי שמשותף עם ההורים.
             </p>
           </div>
 
@@ -150,7 +150,7 @@ export function DirectorySettingsModal({
           {!localSettings.is_public && (
             <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 text-sm text-warning">
               <p>
-                ספר הכתובות מוסתר. רק מנהלים יכולים לצפות בפרטים.
+                דף הקשר מוסתר. רק מנהלים יכולים לצפות בפרטים.
               </p>
             </div>
           )}

@@ -233,7 +233,7 @@ ${unpaidList}
   const exportToExcel = (round: PaymentRoundWithPayments) => {
     import("xlsx").then((XLSX) => {
       const data = round.payments.map(p => ({
-        "שם הילד": p.child.name,
+        "שם הילד/ה": p.child.name,
         "הורים": p.child.parents?.map(par => par.name).join(", ") || "",
         "טלפון": p.child.parents?.map(par => par.phone).filter(Boolean).join(", ") || "",
         "סכום": round.amount_per_child,
@@ -527,7 +527,7 @@ ${unpaidList}
                   value={name}
                   onChange={(e) => updateQuickAddName(index, e.target.value)}
                   onKeyDown={(e) => handleQuickAddKeyDown(e, index)}
-                  placeholder="שם הילד"
+                  placeholder="שם הילד/ה"
                   className={`flex-1 h-9 ${name.trim() ? "border-success/40 bg-success-muted/50" : ""}`}
                 />
                 {/* Empty space to align with payment toggle above */}

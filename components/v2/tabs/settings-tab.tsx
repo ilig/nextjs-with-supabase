@@ -232,7 +232,7 @@ export function SettingsTab({
     },
     {
       icon: Eye,
-      title: "הגדרות ספר כתובות",
+      title: "הגדרות דף קשר",
       description: directorySettings.is_public ? "ציבורי" : "פרטי",
       action: "נהל",
       onClick: () => setIsDirectoryOpen(true),

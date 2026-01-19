@@ -356,7 +356,7 @@ export function SimplifiedClassWizard() {
 
               <div>
                 <Label htmlFor="numberOfStaff" className="text-lg">
-                  מספר אנשי צוות (מורה, סייעת וכו')
+                  מספר אנשי צוות (מורה, סייע/ת וכו')
                 </Label>
                 <Input
                   id="numberOfStaff"

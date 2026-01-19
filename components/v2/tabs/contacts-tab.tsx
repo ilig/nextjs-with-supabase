@@ -94,9 +94,10 @@ type SubTab = "kids" | "staff";
 
 const roleLabels: Record<string, string> = {
   teacher: "מורה",
-  assistant: "סייעת",
+  kindergarten_teacher: "גננת",
+  assistant: "סייע/ת",
   גננת: "גננת",
-  סייעת: "סייעת",
+  סייעת: "סייע/ת",
   מורה: "מורה",
 };
 
@@ -840,7 +841,7 @@ export function ContactsTab({
                 </SelectTrigger>
                 <SelectContent dir="rtl">
                   <SelectItem value="teacher">מורה / גננת</SelectItem>
-                  <SelectItem value="assistant">סייעת</SelectItem>
+                  <SelectItem value="assistant">סייע/ת</SelectItem>
                 </SelectContent>
               </Select>
             </div>

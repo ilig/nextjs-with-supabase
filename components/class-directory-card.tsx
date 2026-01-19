@@ -178,7 +178,7 @@ export function ClassDirectoryCard({
       if (viewMode === "children") {
         // Validate name
         if (!editData.name || editData.name.trim() === '') {
-          setSaveError("שם הילד הוא שדה חובה");
+          setSaveError("שם הילד/ה הוא שדה חובה");
           setIsSaving(false);
           return;
         }
@@ -345,7 +345,7 @@ export function ClassDirectoryCard({
         const parent2 = childParentsList[1];
 
         return {
-          "שם הילד": child.name,
+          "שם הילד/ה": child.name,
           "תאריך לידה": formatBirthdayFull(child.birthday) || "",
           "כתובת": child.address || "",
           "הורה 1 - שם": parent1?.name || "",
@@ -436,7 +436,7 @@ export function ClassDirectoryCard({
 
           <div className="grid md:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">שם הילד *</Label>
+              <Label className="text-xs">שם הילד/ה *</Label>
               <Input
                 value={newEntryData.name || ""}
                 onChange={(e) => setNewEntryData({ ...newEntryData, name: e.target.value })}
@@ -649,11 +649,11 @@ export function ClassDirectoryCard({
                   {isEditing ? (
                     <div className="space-y-3">
                       <div>
-                        <label className="text-xs font-medium text-muted-foreground mb-1 block">שם הילד</label>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">שם הילד/ה</label>
                         <Input
                           value={editData.name || child.name}
                           onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                          placeholder="שם הילד"
+                          placeholder="שם הילד/ה"
                           className="text-right"
                         />
                       </div>

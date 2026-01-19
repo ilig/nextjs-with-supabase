@@ -221,7 +221,7 @@ export function AddChildrenSheet({
                       value={child.name}
                       onChange={(e) => updateChild(child.id, "name", e.target.value)}
                       onKeyDown={(e) => handleKeyDown(e, index)}
-                      placeholder="שם הילד"
+                      placeholder="שם הילד/ה"
                       className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-right"
                     />
 

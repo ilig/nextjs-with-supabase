@@ -11,9 +11,10 @@ import {
   User,
   Phone,
   MapPin,
-  Calendar,
+  Cake,
   Users,
   Lock,
+  UserCircle,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
@@ -231,9 +232,10 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
   const getRoleDisplay = (role: string): string => {
     const roles: Record<string, string> = {
       teacher: "מורה",
-      assistant: "סייעת",
+      kindergarten_teacher: "גננת",
+      assistant: "סייע/ת",
       גננת: "גננת",
-      סייעת: "סייעת",
+      סייעת: "סייע/ת",
       מורה: "מורה",
     };
     return roles[role] || role;
@@ -351,7 +353,7 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
                     {/* Birthday */}
                     {settings.show_birthday && child.birthday && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                        <Calendar className="h-4 w-4 flex-shrink-0" />
+                        <Cake className="h-4 w-4 flex-shrink-0" />
                         <span>{formatBirthday(child.birthday)}</span>
                       </div>
                     )}
@@ -369,7 +371,10 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
                       <div className="border-t border-border pt-3 space-y-2">
                         {child.parents.map((parent) => (
                           <div key={parent.id} className="flex items-center justify-between">
-                            <span className="text-foreground font-medium text-sm">{parent.name}</span>
+                            <div className="flex items-center gap-2">
+                              <UserCircle className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-foreground font-medium text-sm">{parent.name}</span>
+                            </div>
                             {settings.show_phone && (
                               <a
                                 href={`tel:${parent.phone}`}
@@ -414,7 +419,7 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
                       </div>
                       {settings.show_birthday && member.birthday && (
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
+                          <Cake className="h-4 w-4" />
                           <span>{formatStaffBirthday(member.birthday)}</span>
                         </div>
                       )}

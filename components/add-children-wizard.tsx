@@ -87,7 +87,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
 
           return {
             id: `child-${index}-${Date.now()}`,
-            name: row["שם הילד"] || row["Child Name"] || "",
+            name: row["שם הילד/ה"] || row["שם הילד"] || row["Child Name"] || "",
             parent1Name: row["שם הורה 1"] || row["Parent 1 Name"] || "",
             parent1Phone: String(row["טלפון הורה 1"] || row["Parent 1 Phone"] || ""),
             parent2Name: row["שם הורה 2"] || row["Parent 2 Name"] || "",
@@ -429,7 +429,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                   value={child.name}
                   onChange={(e) => updateChild(child.id, "name", e.target.value)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
-                  placeholder="שם הילד"
+                  placeholder="שם הילד/ה"
                   className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-right"
                 />
 

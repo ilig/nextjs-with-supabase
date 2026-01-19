@@ -127,7 +127,7 @@ export function ChildrenUploadTask({
 
           return {
             id: `child-${Date.now()}-${index}`,
-            name: row["שם הילד"] || row["Child Name"] || "",
+            name: row["שם הילד/ה"] || row["שם הילד"] || row["Child Name"] || "",
             birthday,
             parent1Name: row["שם הורה 1"] || row["Parent 1 Name"] || "",
             parent1Phone: (row["טלפון הורה 1"] || row["Parent 1 Phone"] || "").toString(),
@@ -151,7 +151,7 @@ export function ChildrenUploadTask({
   const downloadTemplate = () => {
     const template = [
       {
-        "שם הילד": "דוגמה - ישראל ישראלי",
+        "שם הילד/ה": "דוגמה - ישראל ישראלי",
         "תאריך לידה": "15/03/2018",
         "שם הורה 1": "דוד ישראלי",
         "טלפון הורה 1": "0501234567",
@@ -527,7 +527,7 @@ export function ChildrenUploadTask({
 
               <div className="grid md:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs">שם הילד *</Label>
+                  <Label className="text-xs">שם הילד/ה *</Label>
                   <Input
                     value={child.name}
                     onChange={(e) => updateChild(child.id, "name", e.target.value)}
@@ -655,7 +655,7 @@ export function ChildrenUploadTask({
                   value={child.name}
                   onChange={(e) => updateChild(child.id, "name", e.target.value)}
                   onKeyDown={(e) => handleKeyDown(e, child.id, index)}
-                  placeholder="שם הילד"
+                  placeholder="שם הילד/ה"
                   className="flex-1 h-9"
                 />
                 <button

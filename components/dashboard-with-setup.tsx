@@ -153,7 +153,7 @@ export function DashboardWithSetup(props: DashboardWithSetupProps) {
       if (member.birthday) {
         // Parse the birthday (stored as YYYY-MM-DD or 2000-MM-DD)
         const [, month, day] = member.birthday.split("-").map(Number);
-        const roleLabel = member.role === "teacher" ? "גננת" : "סייעת";
+        const roleLabel = member.role === "teacher" ? "גננת" : "סייע/ת";
 
         // Create birthdays for this year and next year using date strings (avoids timezone issues)
         const thisYearDateStr = `${currentYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;

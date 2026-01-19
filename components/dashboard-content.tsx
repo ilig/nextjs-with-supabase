@@ -196,7 +196,7 @@ export function DashboardContent({
         // Parse birthday as local date (YYYY-MM-DD format from DB)
         // Split the date string to avoid timezone issues
         const [, month, day] = member.birthday!.split("-").map(Number);
-        const roleLabel = member.role === "teacher" ? "גננת" : "סייעת";
+        const roleLabel = member.role === "teacher" ? "גננת" : "סייע/ת";
 
         // Create birthday for current year using date string (avoids timezone issues)
         const thisYearDateStr = `${currentYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
