@@ -139,7 +139,7 @@ export default function ClassSetupPage() {
 
           {/* Manual Entry Tab */}
           <TabsContent value="manual" className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-[#DFFAF7] p-6 space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border border-[#DFFAF7] p-6 space-y-6">
               <h2 className="text-2xl font-semibold text-[#4CD6CB]">הוסף ילד חדש</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -252,7 +252,7 @@ export default function ClassSetupPage() {
 
             {/* Children List */}
             {children.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm border border-[#DFFAF7] p-6 space-y-4">
+              <div className="bg-white rounded-xl shadow-sm border border-[#DFFAF7] p-6 space-y-4">
                 <h2 className="text-2xl font-semibold text-[#4CD6CB]">
                   ילדים שנוספו ({children.length})
                 </h2>
@@ -261,7 +261,7 @@ export default function ClassSetupPage() {
                   {children.map((child) => (
                     <div
                       key={child.id}
-                      className="flex items-start justify-between p-4 bg-[#DFFAF7] rounded-lg"
+                      className="flex items-start justify-between p-4 bg-[#DFFAF7] rounded-xl"
                     >
                       <div className="flex-1 space-y-1">
                         <p className="font-semibold text-[#FF4FA2]">{child.childName}</p>
@@ -296,7 +296,7 @@ export default function ClassSetupPage() {
 
           {/* Upload Tab */}
           <TabsContent value="upload" className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-[#DFFAF7] p-6 space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border border-[#DFFAF7] p-6 space-y-6">
               <h2 className="text-2xl font-semibold text-[#4CD6CB]">העלאת קובץ אקסל</h2>
 
               <div className="space-y-4">
@@ -313,7 +313,7 @@ export default function ClassSetupPage() {
                   הורד תבנית CSV
                 </Button>
 
-                <div className="border-2 border-dashed border-[#4CD6CB] rounded-lg p-8 text-center space-y-4">
+                <div className="border-2 border-dashed border-[#4CD6CB] rounded-xl p-8 text-center space-y-4">
                   <Upload className="h-12 w-12 mx-auto text-[#4CD6CB]" />
                   <div>
                     <Label
@@ -334,7 +334,7 @@ export default function ClassSetupPage() {
                   </div>
                 </div>
 
-                <div className="bg-[#FFE5F1] p-4 rounded-lg">
+                <div className="bg-[#FFE5F1] p-4 rounded-xl">
                   <p className="text-sm font-medium text-[#FF4FA2] mb-2">פורמט הקובץ:</p>
                   <table className="w-full text-sm border-collapse">
                     <thead>
@@ -365,7 +365,7 @@ export default function ClassSetupPage() {
         </Tabs>
 
         {/* Privacy Notice */}
-        <div className="bg-[#DFFAF7] p-4 rounded-lg border border-[#4CD6CB]">
+        <div className="bg-[#DFFAF7] p-4 rounded-xl border border-[#4CD6CB]">
           <p className="text-sm text-[#222222]">
             🔒 <span className="font-semibold">פרטיות ואבטחה:</span> הפרטים נשמרים רק לכם ולעוזרי הועד שאתם מוסיפים. לא נשתף עם אף אחד אחר.
           </p>

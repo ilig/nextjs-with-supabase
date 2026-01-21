@@ -902,7 +902,7 @@ export function ClassOnboardingFlow() {
 
               {budgetAmount > 0 && (
                 <Card className="p-4 bg-purple-500/20 rounded-2xl">
-                  <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                  <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">
                     תקציב כולל: ₪{totalBudget.toLocaleString()}
                   </p>
                   {budgetType === "per-child" && (

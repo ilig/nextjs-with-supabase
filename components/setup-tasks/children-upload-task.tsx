@@ -398,11 +398,11 @@ export function ChildrenUploadTask({
 
         <div className="grid md:grid-cols-2 gap-4">
           <Card
-            className="p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all"
+            className="p-6 cursor-pointer hover:border-brand hover:shadow-lg transition-all"
             onClick={() => setUploadMethod("excel")}
           >
             <div className="text-center space-y-3">
-              <FileSpreadsheet className="h-12 w-12 mx-auto text-green-600" />
+              <FileSpreadsheet className="h-12 w-12 mx-auto text-success" />
               <h4 className="font-semibold text-lg">העלאה מאקסל</h4>
               <p className="text-sm text-muted-foreground">
                 אם יש לכם קובץ עם כל הפרטים
@@ -412,11 +412,11 @@ export function ChildrenUploadTask({
           </Card>
 
           <Card
-            className="p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all"
+            className="p-6 cursor-pointer hover:border-brand hover:shadow-lg transition-all"
             onClick={() => setUploadMethod("manual")}
           >
             <div className="text-center space-y-3">
-              <Plus className="h-12 w-12 mx-auto text-blue-600" />
+              <Plus className="h-12 w-12 mx-auto text-brand" />
               <h4 className="font-semibold text-lg">הזנה מהירה</h4>
               <p className="text-sm text-muted-foreground">
                 הקלידו שמות במהירות, השלימו פרטים אחר כך
@@ -448,9 +448,9 @@ export function ChildrenUploadTask({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
+          className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
             isDragging
-              ? "border-blue-500 bg-blue-500/10"
+              ? "border-brand bg-brand-muted"
               : "border-border hover:border-muted-foreground"
           }`}
         >
@@ -472,8 +472,8 @@ export function ChildrenUploadTask({
           </label>
         </div>
 
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-          <p className="text-sm font-semibold mb-2">💡 אין לכם קובץ מוכן?</p>
+        <div className="bg-brand-muted border border-brand/20 rounded-xl p-4">
+          <p className="text-sm font-semibold mb-2">אין לכם קובץ מוכן?</p>
           <p className="text-sm text-foreground mb-3">
             הורידו את התבנית שלנו, מלאו אותה, והעלו בחזרה
           </p>
@@ -521,7 +521,7 @@ export function ChildrenUploadTask({
                   size="sm"
                   onClick={() => removeChild(child.id)}
                 >
-                  <Trash2 className="h-4 w-4 text-red-500" />
+                  <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
 
@@ -626,9 +626,9 @@ export function ChildrenUploadTask({
         </span>
       </div>
 
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-sm">
-        <p className="text-blue-700 dark:text-blue-300">
-          💡 הקלידו שמות ולחצו Enter למעבר לשורה הבאה.
+      <div className="bg-brand-muted border border-brand/20 rounded-xl p-3 text-sm">
+        <p className="text-brand-muted-foreground">
+          הקלידו שמות ולחצו Enter למעבר לשורה הבאה.
           לחצו על ▼ להוספת פרטים נוספים (הורים, יום הולדת).
         </p>
       </div>
@@ -641,8 +641,8 @@ export function ChildrenUploadTask({
           return (
             <div
               key={child.id}
-              className={`border rounded-lg transition-all ${
-                hasName ? "border-green-500/30 bg-green-500/10" : "border-border"
+              className={`border rounded-xl transition-all duration-200 ${
+                hasName ? "border-success/30 bg-success/10" : "border-border"
               }`}
             >
               {/* Compact row */}
@@ -672,10 +672,10 @@ export function ChildrenUploadTask({
                 {hasName && (
                   <button
                     onClick={() => removeChild(child.id)}
-                    className="p-1 hover:bg-red-500/20 rounded transition-colors"
+                    className="p-1 hover:bg-destructive/20 rounded-xl transition-colors duration-200"
                     title="מחק"
                   >
-                    <Trash2 className="h-4 w-4 text-red-400" />
+                    <Trash2 className="h-4 w-4 text-destructive" />
                   </button>
                 )}
               </div>
@@ -765,7 +765,7 @@ export function ChildrenUploadTask({
         הוסף עוד 5 שורות
       </Button>
 
-      <div className="bg-muted/50 border rounded-lg p-3 text-sm text-muted-foreground">
+      <div className="bg-muted/50 border rounded-xl p-3 text-sm text-muted-foreground">
         <p>
           ℹ️ אפשר להשלים פרטי הורים, כתובת וימי הולדת גם אחר כך דרך ניהול הכיתה
         </p>

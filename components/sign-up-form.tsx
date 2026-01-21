@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Sparkles } from "lucide-react";
 
 export function SignUpForm({
   className,
@@ -72,7 +73,7 @@ export function SignUpForm({
       <Link href="/" className="flex items-center justify-center gap-3 group">
         <div className="relative">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand to-info flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-            <span className="text-2xl">✨</span>
+            <Sparkles className="h-6 w-6 text-white" />
           </div>
           <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-accent-yellow rounded-full border-2 border-background"></div>
         </div>

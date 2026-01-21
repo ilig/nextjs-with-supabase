@@ -238,7 +238,7 @@ export function SetupChecklist({
             <p className="text-muted-foreground">
               הכיתה שלכם מוכנה לחלוטין!
             </p>
-            <div className="bg-card rounded-lg p-4 border border-green-200 dark:border-green-800">
+            <div className="bg-card rounded-xl p-4 border border-green-200 dark:border-green-800">
               <p className="font-semibold mb-2 text-foreground">עכשיו תוכלו:</p>
               <ul className="text-sm text-right space-y-1 text-foreground">
                 <li>✓ לנהל את כל האירועים במקום אחד</li>
@@ -295,7 +295,7 @@ export function SetupChecklist({
             return (
               <div
                 key={task.id}
-                className="flex items-center gap-3 p-2 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 opacity-60"
+                className="flex items-center gap-3 p-2 rounded-xl bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 opacity-60"
               >
                 {getStatusIcon(task.status)}
                 <div className="flex-1">
@@ -311,7 +311,7 @@ export function SetupChecklist({
           return (
             <div
               key={task.id}
-              className={`border rounded-lg transition-all ${
+              className={`border rounded-xl transition-all ${
                 isCompleted
                   ? "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800"
                   : isExpanded
@@ -367,7 +367,7 @@ export function SetupChecklist({
                       <div className="grid grid-cols-2 gap-3">
                         <div
                           onClick={() => handleTaskAction(task, "excel")}
-                          className="bg-card border-2 border-border rounded-lg p-4 cursor-pointer hover:border-green-500 dark:hover:border-green-400 hover:shadow-md transition-all"
+                          className="bg-card border-2 border-border rounded-xl p-4 cursor-pointer hover:border-green-500 dark:hover:border-green-400 hover:shadow-md transition-all"
                         >
                           <div className="text-center space-y-3">
                             <FileSpreadsheet className="h-12 w-12 mx-auto text-green-600 dark:text-green-400" />
@@ -379,7 +379,7 @@ export function SetupChecklist({
                         </div>
                         <div
                           onClick={() => handleTaskAction(task, "manual")}
-                          className="bg-card border-2 border-border rounded-lg p-4 cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-md transition-all"
+                          className="bg-card border-2 border-border rounded-xl p-4 cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-md transition-all"
                         >
                           <div className="text-center space-y-3">
                             <Edit3 className="h-12 w-12 mx-auto text-blue-600 dark:text-blue-400" />
@@ -419,7 +419,7 @@ export function SetupChecklist({
                   )}
 
                   {/* Why Important tooltip - at bottom */}
-                  <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4 space-y-2">
+                  <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-4 space-y-2">
                     <div className="flex items-center gap-2 font-semibold text-blue-900 dark:text-blue-200">
                       <Info className="h-4 w-4" />
                       <span>💡 למה זה חשוב?</span>

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle, Loader2, AlertCircle } from "lucide-react";
+import { CheckCircle, Loader2, AlertCircle, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
@@ -513,7 +513,7 @@ export function ParentFormClient({ token }: ParentFormClientProps) {
 
               {/* Error message */}
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div className="bg-red-50 border border-red-200 rounded-xl p-3">
                   <p className="text-sm text-red-800">{error}</p>
                 </div>
               )}
@@ -553,8 +553,8 @@ function SimpleHeader() {
       <div className="w-full max-w-7xl flex justify-center items-center py-4 px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 md:gap-3 group">
           <div className="relative">
-            <div className="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-gradient-to-br from-[#A78BFA] to-[#60A5FA] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-              <span className="text-xl md:text-2xl">✨</span>
+            <div className="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-gradient-to-br from-brand to-info flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+              <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-white" />
             </div>
             <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-accent-yellow rounded-full border-2 border-white"></div>
           </div>

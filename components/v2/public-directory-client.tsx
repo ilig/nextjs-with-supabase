@@ -15,6 +15,7 @@ import {
   Users,
   Lock,
   UserCircle,
+  Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
@@ -292,8 +293,8 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500">
-              <Users className="h-6 w-6 text-white" />
+            <div className="p-3 rounded-2xl bg-brand">
+              <Users className="h-6 w-6 text-brand-foreground" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">דף קשר</h1>
@@ -320,11 +321,11 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="w-full mb-4 rounded-xl">
-            <TabsTrigger value="staff" className="flex-1 rounded-lg gap-2">
+            <TabsTrigger value="staff" className="flex-1 rounded-xl gap-2">
               <Users className="h-4 w-4" />
               צוות ({staff.length})
             </TabsTrigger>
-            <TabsTrigger value="children" className="flex-1 rounded-lg gap-2">
+            <TabsTrigger value="children" className="flex-1 rounded-xl gap-2">
               <User className="h-4 w-4" />
               ילדים והורים ({children.length})
             </TabsTrigger>
@@ -408,8 +409,8 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
                 <Card key={member.id} className="overflow-hidden">
                   <CardContent className="p-4" dir="rtl">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                        <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      <div className="w-10 h-10 rounded-full bg-brand/20 dark:bg-brand/30 flex items-center justify-center flex-shrink-0">
+                        <Users className="h-5 w-5 text-brand" />
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-foreground">{member.name}</h3>
@@ -449,10 +450,10 @@ function SimpleHeader() {
       <div className="w-full max-w-7xl flex justify-center items-center py-4 px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 md:gap-3 group">
           <div className="relative">
-            <div className="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-gradient-to-br from-[#A78BFA] to-[#60A5FA] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-              <span className="text-xl md:text-2xl">✨</span>
+            <div className="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-gradient-to-br from-brand to-info flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+              <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-white" />
             </div>
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-accent-yellow rounded-full border-2 border-white dark:border-gray-900"></div>
+            <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-accent-yellow rounded-full border-2 border-background"></div>
           </div>
           <div className="flex flex-col leading-tight">
             <span className="text-xl md:text-2xl font-extrabold text-foreground group-hover:text-brand transition-colors">

@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Users,
   Check,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -309,8 +310,8 @@ ${signature}`;
         <div className={cn(
           "rounded-xl border overflow-hidden",
           isPaymentComplete
-            ? "bg-emerald-50/30 dark:bg-emerald-950/10 border-emerald-200/30 dark:border-emerald-800/20"
-            : "bg-[#00B4E5]/5 dark:bg-[#00B4E5]/10 border-[#00B4E5]/20 dark:border-[#00B4E5]/30"
+            ? "bg-success/10 dark:bg-success/20 border-success/30 dark:border-success/40"
+            : "bg-brand/5 dark:bg-brand/10 border-brand/20 dark:border-brand/30"
         )}>
           {/* Collapsible Header */}
           <div className="flex items-center gap-3 p-4">
@@ -321,23 +322,23 @@ ${signature}`;
               onClick={() => setExpandedSection(expandedSection === "payment" ? null : "payment")}
               onKeyDown={(e) => e.key === "Enter" && setExpandedSection(expandedSection === "payment" ? null : "payment")}
               className={cn(
-                "flex-1 flex items-center gap-3 cursor-pointer transition-colors rounded-lg -m-2 p-2",
+                "flex-1 flex items-center gap-3 cursor-pointer transition-colors rounded-xl -m-2 p-2",
                 isPaymentComplete
-                  ? "hover:bg-emerald-100/30 dark:hover:bg-emerald-900/20"
-                  : "hover:bg-[#00B4E5]/10 dark:hover:bg-[#00B4E5]/20"
+                  ? "hover:bg-success/20 dark:hover:bg-success/30"
+                  : "hover:bg-brand/10 dark:hover:bg-brand/20"
               )}
             >
               {/* Step number or checkmark */}
               <div className={cn(
                 "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
                 isPaymentComplete
-                  ? "bg-emerald-100 dark:bg-emerald-900/50"
-                  : "bg-[#00B4E5]/20 dark:bg-[#00B4E5]/30"
+                  ? "bg-success/20 dark:bg-success/30"
+                  : "bg-brand/20 dark:bg-brand/30"
               )}>
                 {isPaymentComplete ? (
-                  <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <Check className="h-3.5 w-3.5 text-success" />
                 ) : (
-                  <span className="text-xs font-bold text-[#00B4E5]">{getSectionNumber("payment")}</span>
+                  <span className="text-xs font-bold text-brand">{getSectionNumber("payment")}</span>
                 )}
               </div>
 
@@ -363,10 +364,10 @@ ${signature}`;
             <button
               onClick={() => handleDismiss("payment")}
               className={cn(
-                "p-1 rounded-lg transition-colors flex-shrink-0",
+                "p-1 rounded-xl transition-colors flex-shrink-0",
                 isPaymentComplete
-                  ? "hover:bg-emerald-200 dark:hover:bg-emerald-800/50"
-                  : "hover:bg-[#00B4E5]/20 dark:hover:bg-[#00B4E5]/30"
+                  ? "hover:bg-success/30 dark:hover:bg-success/40"
+                  : "hover:bg-brand/20 dark:hover:bg-brand/30"
               )}
               aria-label="סגור התראה"
             >
@@ -388,16 +389,16 @@ ${signature}`;
                 </p>
 
                 {/* PayBox setup card */}
-                <div className="bg-card rounded-lg p-3 border border-border hover:border-[#00B4E5]/50 transition-colors flex flex-col mr-9">
+                <div className="bg-card rounded-xl p-3 border border-border hover:border-brand/50 transition-colors flex flex-col mr-9">
                   {!hasPaymentSetup && (
-                    <p className="text-xs text-[#00B4E5] mb-2 flex items-center gap-1">
-                      <span>⚠️</span>
+                    <p className="text-xs text-brand mb-2 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
                       <span>יש ליצור קבוצת PayBox ולהזין את הקישור לתשלום</span>
                     </p>
                   )}
                   <button
                     onClick={handleWithPaymentShare}
-                    className="w-full inline-flex items-center justify-center gap-1.5 bg-[#00B4E5] text-white rounded-lg py-2.5 px-3 text-sm font-medium hover:bg-[#00A3D1] transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-1.5 bg-brand text-white rounded-xl py-2.5 px-3 text-sm font-medium hover:bg-brand/90 transition-colors"
                   >
                     {hasPaymentSetup ? (
                       <>
@@ -423,8 +424,8 @@ ${signature}`;
         <div className={cn(
           "rounded-xl border overflow-hidden",
           isContactsComplete
-            ? "bg-emerald-50/30 dark:bg-emerald-950/10 border-emerald-200/30 dark:border-emerald-800/20"
-            : "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200/50 dark:border-blue-800/30"
+            ? "bg-success/10 dark:bg-success/20 border-success/30 dark:border-success/40"
+            : "bg-brand/5 dark:bg-brand/10 border-brand/20 dark:border-brand/30"
         )}>
           {/* Collapsible Header */}
           <div className="flex items-center gap-3 p-4">
@@ -435,23 +436,23 @@ ${signature}`;
               onClick={() => setExpandedSection(expandedSection === "contacts" ? null : "contacts")}
               onKeyDown={(e) => e.key === "Enter" && setExpandedSection(expandedSection === "contacts" ? null : "contacts")}
               className={cn(
-                "flex-1 flex items-center gap-3 cursor-pointer transition-colors rounded-lg -m-2 p-2",
+                "flex-1 flex items-center gap-3 cursor-pointer transition-colors rounded-xl -m-2 p-2",
                 isContactsComplete
-                  ? "hover:bg-emerald-100/30 dark:hover:bg-emerald-900/20"
-                  : "hover:bg-blue-100/30 dark:hover:bg-blue-900/20"
+                  ? "hover:bg-success/20 dark:hover:bg-success/30"
+                  : "hover:bg-brand/10 dark:hover:bg-brand/20"
               )}
             >
               {/* Step number or checkmark */}
               <div className={cn(
                 "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
                 isContactsComplete
-                  ? "bg-emerald-100 dark:bg-emerald-900/50"
-                  : "bg-blue-100 dark:bg-blue-900/50"
+                  ? "bg-success/20 dark:bg-success/30"
+                  : "bg-brand/20 dark:bg-brand/30"
               )}>
                 {isContactsComplete ? (
-                  <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <Check className="h-3.5 w-3.5 text-success" />
                 ) : (
-                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400">{getSectionNumber("contacts")}</span>
+                  <span className="text-xs font-bold text-brand">{getSectionNumber("contacts")}</span>
                 )}
               </div>
 
@@ -468,7 +469,7 @@ ${signature}`;
               {expectedChildren > 0 && (
                 <span className={cn(
                   "text-xs",
-                  isContactsComplete ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
+                  isContactsComplete ? "text-success" : "text-muted-foreground"
                 )}>
                   נוספו {childrenCount}/{expectedChildren}
                 </span>
@@ -487,10 +488,10 @@ ${signature}`;
             <button
               onClick={() => handleDismiss("contacts")}
               className={cn(
-                "p-1 rounded-lg transition-colors flex-shrink-0",
+                "p-1 rounded-xl transition-colors flex-shrink-0",
                 isContactsComplete
-                  ? "hover:bg-emerald-200 dark:hover:bg-emerald-800/50"
-                  : "hover:bg-blue-200 dark:hover:bg-blue-800/50"
+                  ? "hover:bg-success/30 dark:hover:bg-success/40"
+                  : "hover:bg-brand/20 dark:hover:bg-brand/30"
               )}
               aria-label="סגור התראה"
             >
@@ -514,9 +515,9 @@ ${signature}`;
                 {/* Two option cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mr-9">
                   {/* Option 1: Send link (info only) */}
-                  <div className="bg-card rounded-lg p-3 border border-border hover:border-blue-400/50 transition-colors flex flex-col">
+                  <div className="bg-card rounded-xl p-3 border border-border hover:border-brand/50 transition-colors flex flex-col">
                     <div className="flex items-center gap-2 mb-2">
-                      <Share2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <Share2 className="h-4 w-4 text-brand" />
                       <span className="font-medium text-sm">קישור להורים</span>
                     </div>
                     <p className="text-xs text-muted-foreground mb-2 flex-1">
@@ -524,7 +525,7 @@ ${signature}`;
                     </p>
                     <button
                       onClick={handleInfoOnlyShare}
-                      className="w-full inline-flex items-center justify-center gap-1.5 bg-blue-600 text-white rounded-lg py-2.5 px-3 text-sm font-medium hover:bg-blue-700 transition-colors mt-auto"
+                      className="w-full inline-flex items-center justify-center gap-1.5 bg-brand text-white rounded-xl py-2.5 px-3 text-sm font-medium hover:bg-brand/90 transition-colors mt-auto"
                     >
                       <Share2 className="h-4 w-4" />
                       <span>שליחת קישור</span>
@@ -532,9 +533,9 @@ ${signature}`;
                   </div>
 
                   {/* Option 2: Manual entry */}
-                  <div className="bg-card rounded-lg p-3 border border-border hover:border-blue-400/50 transition-colors flex flex-col">
+                  <div className="bg-card rounded-xl p-3 border border-border hover:border-brand/50 transition-colors flex flex-col">
                     <div className="flex items-center gap-2 mb-2">
-                      <UserPlus className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <UserPlus className="h-4 w-4 text-brand" />
                       <span className="font-medium text-sm">הוספה ידנית</span>
                     </div>
                     <p className="text-xs text-muted-foreground mb-2 flex-1">
@@ -542,7 +543,7 @@ ${signature}`;
                     </p>
                     <button
                       onClick={() => onManageContacts?.()}
-                      className="w-full inline-flex items-center justify-center gap-1.5 bg-blue-600 text-white rounded-lg py-2.5 px-3 text-sm font-medium hover:bg-blue-700 transition-colors mt-auto"
+                      className="w-full inline-flex items-center justify-center gap-1.5 bg-brand text-white rounded-xl py-2.5 px-3 text-sm font-medium hover:bg-brand/90 transition-colors mt-auto"
                     >
                       <UserPlus className="h-4 w-4" />
                       <span>הוספת פרטים</span>
@@ -560,8 +561,8 @@ ${signature}`;
         <div className={cn(
           "rounded-xl border overflow-hidden",
           isStaffComplete
-            ? "bg-emerald-50/30 dark:bg-emerald-950/10 border-emerald-200/30 dark:border-emerald-800/20"
-            : "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/50 dark:border-emerald-800/30"
+            ? "bg-success/10 dark:bg-success/20 border-success/30 dark:border-success/40"
+            : "bg-brand/5 dark:bg-brand/10 border-brand/20 dark:border-brand/30"
         )}>
           {/* Collapsible Header */}
           <div className="flex items-center gap-3 p-4">
@@ -571,17 +572,24 @@ ${signature}`;
               tabIndex={0}
               onClick={() => setExpandedSection(expandedSection === "staff" ? null : "staff")}
               onKeyDown={(e) => e.key === "Enter" && setExpandedSection(expandedSection === "staff" ? null : "staff")}
-              className="flex-1 flex items-center gap-3 cursor-pointer transition-colors rounded-lg -m-2 p-2 hover:bg-emerald-100/30 dark:hover:bg-emerald-900/20"
+              className={cn(
+                "flex-1 flex items-center gap-3 cursor-pointer transition-colors rounded-xl -m-2 p-2",
+                isStaffComplete
+                  ? "hover:bg-success/20 dark:hover:bg-success/30"
+                  : "hover:bg-brand/10 dark:hover:bg-brand/20"
+              )}
             >
               {/* Step number or checkmark */}
               <div className={cn(
                 "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
-                "bg-emerald-100 dark:bg-emerald-900/50"
+                isStaffComplete
+                  ? "bg-success/20 dark:bg-success/30"
+                  : "bg-brand/20 dark:bg-brand/30"
               )}>
                 {isStaffComplete ? (
-                  <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <Check className="h-3.5 w-3.5 text-success" />
                 ) : (
-                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{getSectionNumber("staff")}</span>
+                  <span className="text-xs font-bold text-brand">{getSectionNumber("staff")}</span>
                 )}
               </div>
 
@@ -598,7 +606,7 @@ ${signature}`;
               {expectedStaff > 0 && (
                 <span className={cn(
                   "text-xs",
-                  isStaffComplete ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
+                  isStaffComplete ? "text-success" : "text-muted-foreground"
                 )}>
                   נוספו {staffCount}/{expectedStaff}
                 </span>
@@ -616,7 +624,12 @@ ${signature}`;
             {/* Dismiss button - outside the clickable area */}
             <button
               onClick={() => handleDismiss("staff")}
-              className="p-1 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-800/50 transition-colors flex-shrink-0"
+              className={cn(
+                "p-1 rounded-xl transition-colors flex-shrink-0",
+                isStaffComplete
+                  ? "hover:bg-success/30 dark:hover:bg-success/40"
+                  : "hover:bg-brand/20 dark:hover:bg-brand/30"
+              )}
               aria-label="סגור התראה"
             >
               <X className="h-4 w-4 text-muted-foreground" />
@@ -637,10 +650,10 @@ ${signature}`;
                 </p>
 
                 {/* Single card for staff add */}
-                <div className="bg-card rounded-lg p-3 border border-border hover:border-emerald-500/50 transition-colors flex flex-col mr-9">
+                <div className="bg-card rounded-xl p-3 border border-border hover:border-brand/50 transition-colors flex flex-col mr-9">
                   <button
                     onClick={() => onAddStaff?.()}
-                    className="w-full inline-flex items-center justify-center gap-1.5 bg-emerald-600 text-white rounded-lg py-2.5 px-3 text-sm font-medium hover:bg-emerald-700 transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-1.5 bg-brand text-white rounded-xl py-2.5 px-3 text-sm font-medium hover:bg-brand/90 transition-colors"
                   >
                     <UserPlus className="h-4 w-4" />
                     <span>הוספת אנשי צוות</span>
@@ -657,7 +670,7 @@ ${signature}`;
         <DialogContent className="sm:max-w-md" dir="rtl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-right">
-              <Link className="h-5 w-5 text-[#00B4E5]" />
+              <Link className="h-5 w-5 text-brand" />
               הגדרת קישור תשלום
             </DialogTitle>
             <DialogDescription className="text-right">
@@ -732,7 +745,7 @@ ${signature}`;
             <Button
               onClick={handleSavePaybox}
               disabled={payboxSaving || !payboxInputValue.trim()}
-              className="flex-1 bg-[#00B4E5] text-white hover:bg-[#00A3D1]"
+              className="flex-1 bg-brand text-white hover:bg-brand/90"
             >
               {payboxSaving ? (
                 <>
@@ -819,7 +832,7 @@ ${signature}`;
                 <button
                   onClick={handleCopyMessage}
                   className={cn(
-                    "inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-lg transition-colors",
+                    "inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-xl transition-colors",
                     copiedMessage
                       ? "bg-success/20 text-success"
                       : "hover:bg-muted text-muted-foreground"
@@ -829,7 +842,7 @@ ${signature}`;
                   <span>{copiedMessage ? "הועתק!" : "העתק"}</span>
                 </button>
               </div>
-              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-xl p-4 border border-blue-200 dark:border-blue-900">
+              <div className="bg-brand/10 dark:bg-brand/20 rounded-xl p-4 border border-brand/20 dark:border-brand/30">
                 <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">
                   {getSuggestedMessage(shareMode === "with-payment")}
                 </p>
@@ -844,7 +857,7 @@ ${signature}`;
               <>
                 <Button
                   onClick={handlePaymentLinkSent}
-                  className="flex-1 bg-[#00B4E5] text-white hover:bg-[#00A3D1]"
+                  className="flex-1 bg-brand text-white hover:bg-brand/90"
                 >
                   שלחתי את הקישור
                 </Button>
@@ -859,7 +872,7 @@ ${signature}`;
               <>
                 <Button
                   onClick={() => setShareDialogOpen(false)}
-                  className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+                  className="flex-1 bg-brand text-white hover:bg-brand/90"
                 >
                   סיימתי לשלוח
                 </Button>

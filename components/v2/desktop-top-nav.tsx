@@ -1,6 +1,6 @@
 "use client";
 
-import { Wallet, Users, Calendar, Gift, Settings } from "lucide-react";
+import { Wallet, Users, Calendar, Gift, Settings, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { DashboardTab } from "./mobile-bottom-nav";
@@ -38,7 +38,7 @@ export function DesktopTopNav({
       <div className="flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2 group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand to-info flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-            <span className="text-lg">✨</span>
+            <Sparkles className="h-5 w-5 text-white" />
           </div>
           <span className="text-lg font-bold text-foreground group-hover:text-brand transition-colors">
             ClassEase

@@ -375,6 +375,7 @@ export function DashboardContent({
 
       {/* Main content */}
       <main className="flex-1 overflow-auto pb-20 md:pb-0">
+        <div className="max-w-3xl mx-auto">
         {/* Setup notification banners */}
         <SetupBanners
           payboxLink={classData.paybox_link}
@@ -394,6 +395,7 @@ export function DashboardContent({
         />
 
         {renderTabContent()}
+        </div>
       </main>
 
       {/* Mobile navigation */}

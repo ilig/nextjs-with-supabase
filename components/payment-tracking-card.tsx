@@ -63,7 +63,7 @@ export function PaymentTrackingCard({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600">
               <Wallet className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -136,17 +136,17 @@ export function PaymentTrackingCard({
         <div className="grid grid-cols-3 gap-2 pt-2 border-t">
           <div className="text-center">
             <div className="text-xs text-muted-foreground">תשלום לכל הורה</div>
-            <div className="text-lg font-bold text-foreground">₪{expectedPaymentPerParent}</div>
+            <div className="text-lg font-semibold text-foreground">₪{expectedPaymentPerParent}</div>
           </div>
           <div className="text-center border-x">
             <div className="text-xs text-muted-foreground">ממוצע ששולם</div>
-            <div className="text-lg font-bold text-foreground">
+            <div className="text-lg font-semibold text-foreground">
               ₪{parentsPaidCount > 0 ? Math.round(totalCollected / parentsPaidCount) : 0}
             </div>
           </div>
           <div className="text-center">
             <div className="text-xs text-muted-foreground">נותר לאסוף</div>
-            <div className="text-lg font-bold text-destructive">
+            <div className="text-lg font-semibold text-destructive">
               ₪{Math.max(0, expectedTotal - totalCollected).toLocaleString()}
             </div>
           </div>

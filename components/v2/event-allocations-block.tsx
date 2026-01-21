@@ -323,7 +323,7 @@ export function EventAllocationsBlock({
         <div className="flex items-center gap-3">
           <div className="text-left">
             <p className="text-xs text-muted-foreground">מוקצה</p>
-            <p className="text-lg font-bold text-brand">
+            <p className="text-lg font-semibold text-brand">
               ₪{currentAllocatedBudget.toLocaleString()}
               <span className="text-sm font-normal text-muted-foreground mr-1">
                 ({currentPercentageUsed}%)
@@ -508,14 +508,14 @@ export function EventAllocationsBlock({
                     value={customEventName}
                     onChange={(e) => setCustomEventName(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && addCustomEvent()}
-                    className="h-9 rounded-lg"
+                    className="h-9 rounded-xl"
                     autoFocus
                     disabled={isPending}
                   />
                   <Button
                     onClick={addCustomEvent}
                     size="sm"
-                    className="rounded-lg bg-brand hover:bg-brand/90"
+                    className="rounded-xl bg-brand hover:bg-brand/90"
                     disabled={isPending}
                   >
                     הוסף
@@ -527,7 +527,7 @@ export function EventAllocationsBlock({
                     }}
                     variant="outline"
                     size="sm"
-                    className="rounded-lg"
+                    className="rounded-xl"
                     disabled={isPending}
                   >
                     ביטול

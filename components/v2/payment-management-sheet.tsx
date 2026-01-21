@@ -142,20 +142,20 @@ ${signature}`;
   const getHeaderContent = () => {
     if (isFullyCollected) {
       return {
-        icon: <PartyPopper className="h-5 w-5 text-green-600" />,
+        icon: <PartyPopper className="h-5 w-5 text-success" />,
         title: "איסוף הושלם בהצלחה!",
         description: `נאספו ₪${collected.toLocaleString()} מתוך ₪${total.toLocaleString()}`,
       };
     }
     if (isAllRegisteredPaid) {
       return {
-        icon: <UserPlus className="h-5 w-5 text-blue-600" />,
+        icon: <UserPlus className="h-5 w-5 text-brand" />,
         title: "חסרים פרטים ותשלומים",
         description: `${notRegisteredCount} הורים טרם מילאו את פרטי ילדיהם ושילמו`,
       };
     }
     return {
-      icon: <Send className="h-5 w-5 text-amber-600" />,
+      icon: <Send className="h-5 w-5 text-warning" />,
       title: "שליחת תזכורת תשלום",
       description: `שלחו תזכורת ל-${unpaidChildren.length} הורים שטרם שילמו`,
     };
@@ -179,8 +179,8 @@ ${signature}`;
         {/* MODE: Full Collection Success */}
         {isFullyCollected && (
           <div className="text-center py-8 space-y-3">
-            <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto">
-              <Check className="h-10 w-10 text-green-600" />
+            <div className="w-20 h-20 rounded-full bg-success/20 dark:bg-success/30 flex items-center justify-center mx-auto">
+              <Check className="h-10 w-10 text-success" />
             </div>
             <p className="text-xl font-semibold text-foreground">כל ההורים שילמו! 🎉</p>
             <p className="text-sm text-muted-foreground">
@@ -193,16 +193,16 @@ ${signature}`;
         {isAllRegisteredPaid && (
           <div className="space-y-4">
             {/* Progress indicator */}
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+            <div className="p-4 bg-brand/10 dark:bg-brand/20 rounded-xl border border-brand/20 dark:border-brand/30">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-foreground">התקדמות האיסוף</span>
-                <span className="text-sm font-bold text-blue-600">
+                <span className="text-sm font-bold text-brand">
                   ₪{total.toLocaleString()} / ₪{collected.toLocaleString()} ({total > 0 ? Math.round((collected / total) * 100) : 0}%)
                 </span>
               </div>
-              <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2.5">
+              <div className="w-full bg-brand/30 dark:bg-brand/40 rounded-full h-2.5">
                 <div
-                  className="bg-blue-600 h-2.5 rounded-full transition-all"
+                  className="bg-brand h-2.5 rounded-full transition-all"
                   style={{ width: `${Math.min(100, (collected / total) * 100)}%` }}
                 />
               </div>
@@ -222,7 +222,7 @@ ${signature}`;
                 <div className="flex gap-2">
                   <Button
                     onClick={shareInviteViaWhatsApp}
-                    className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white"
+                    className="flex-1 gap-2 bg-success hover:bg-success/90 text-white"
                   >
                     <MessageCircle className="h-4 w-4" />
                     שלחו בוואטסאפ
@@ -234,7 +234,7 @@ ${signature}`;
                   >
                     {copiedInviteLink ? (
                       <>
-                        <Check className="h-4 w-4 text-green-600" />
+                        <Check className="h-4 w-4 text-success" />
                         הועתק!
                       </>
                     ) : (
@@ -271,7 +271,7 @@ ${signature}`;
             <div className="flex gap-2">
               <Button
                 onClick={shareViaWhatsApp}
-                className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white"
+                className="flex-1 gap-2 bg-success hover:bg-success/90 text-white"
               >
                 <MessageCircle className="h-4 w-4" />
                 שלחו בוואטסאפ
@@ -283,7 +283,7 @@ ${signature}`;
               >
                 {copiedMessage ? (
                   <>
-                    <Check className="h-4 w-4 text-green-600" />
+                    <Check className="h-4 w-4 text-success" />
                     הועתק!
                   </>
                 ) : (
@@ -305,7 +305,7 @@ ${signature}`;
                   {unpaidChildren.map((child) => (
                     <div
                       key={child.id}
-                      className="flex items-center py-2 px-3 rounded-lg bg-muted/30 border border-border"
+                      className="flex items-center py-2 px-3 rounded-xl bg-muted/30 border border-border"
                     >
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground">{child.name}</p>
@@ -320,9 +320,9 @@ ${signature}`;
                         <Switch
                           checked={false}
                           onCheckedChange={() => onMarkAsPaid?.(child.id)}
-                          className="data-[state=checked]:bg-green-600"
+                          className="data-[state=checked]:bg-success"
                         />
-                        <span className="text-xs text-green-600 font-medium">שולם</span>
+                        <span className="text-xs text-success font-medium">שולם</span>
                       </div>
                     </div>
                   ))}

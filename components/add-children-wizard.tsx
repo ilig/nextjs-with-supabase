@@ -291,12 +291,12 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
               <FileSpreadsheet className="h-10 w-10 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <h3 className="font-bold text-lg text-foreground">העלאה מאקסל</h3>
+              <h3 className="font-semibold text-lg text-foreground">העלאה מאקסל</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 העלה קובץ אקסל עם רשימת הילדים
               </p>
             </div>
-            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
               בחר באפשרות זו
             </Button>
           </div>
@@ -315,12 +315,12 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
               <Edit3 className="h-10 w-10 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h3 className="font-bold text-lg text-foreground">הזנה ידנית</h3>
+              <h3 className="font-semibold text-lg text-foreground">הזנה ידנית</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 הוסף ילדים אחד אחד באופן ידני
               </p>
             </div>
-            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
               בחר באפשרות זו
             </Button>
           </div>
@@ -399,7 +399,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
       </div>
 
       {/* Instructions */}
-      <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
+      <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-3 flex items-start gap-2">
         <Lightbulb className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
         <p className="text-sm text-amber-800 dark:text-amber-200">
           הקלידו שמות ולחצו Enter למעבר לשורה הבאה. לחצו על <ChevronDown className="inline h-4 w-4" /> להוספת פרטים נוספים (הורים, יום הולדת).
@@ -407,7 +407,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
       </div>
 
       {/* Children list */}
-      <div className="space-y-2 max-h-[350px] overflow-y-auto border border-border rounded-lg">
+      <div className="space-y-2 max-h-[350px] overflow-y-auto border border-border rounded-xl">
         {children.map((child, index) => {
           const isExpanded = expandedChildId === child.id;
 
@@ -515,7 +515,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
       </Button>
 
       {/* Info note */}
-      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3 flex items-start gap-2">
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-3 flex items-start gap-2">
         <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
         <p className="text-sm text-blue-800 dark:text-blue-200">
           אפשר להשלים פרטי הורים, כתובת וימי הולדת גם אחר כך דרך ניהול הכיתה

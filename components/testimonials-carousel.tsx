@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Star } from "lucide-react";
 
 const testimonials = [
   {
@@ -49,12 +50,10 @@ export function TestimonialsCarousel() {
         }`}
       >
         <div className="flex justify-center mb-6">
-          <div className="flex gap-2 text-4xl">
-            <span>⭐</span>
-            <span>⭐</span>
-            <span>⭐</span>
-            <span>⭐</span>
-            <span>⭐</span>
+          <div className="flex gap-1">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="h-8 w-8 fill-warning text-warning" />
+            ))}
           </div>
         </div>
         <blockquote className="text-2xl md:text-3xl text-center leading-relaxed mb-8 font-bold text-foreground px-4">

@@ -145,7 +145,7 @@ export function BudgetDefinitionsBlock({
         <div className="flex items-center gap-3">
           <div className="text-left">
             <p className="text-xs text-muted-foreground">תקציב כולל</p>
-            <p className="text-lg font-bold text-foreground">₪{totalBudget.toLocaleString()}</p>
+            <p className="text-lg font-semibold text-foreground">₪{totalBudget.toLocaleString()}</p>
           </div>
           <ChevronDown
             className={cn(
@@ -175,7 +175,7 @@ export function BudgetDefinitionsBlock({
                   setAmountPerChild(parseInt(e.target.value) || 0);
                   setValidationError(null);
                 }}
-                className="h-10 rounded-lg text-center"
+                className="h-10 rounded-xl text-center"
                 disabled={isPending}
               />
             </div>
@@ -194,7 +194,7 @@ export function BudgetDefinitionsBlock({
                   setEstimatedChildren(parseInt(e.target.value) || 0);
                   setValidationError(null);
                 }}
-                className="h-10 rounded-lg text-center"
+                className="h-10 rounded-xl text-center"
                 disabled={isPending}
               />
             </div>
@@ -213,7 +213,7 @@ export function BudgetDefinitionsBlock({
                   setEstimatedStaff(parseInt(e.target.value) || 0);
                   setValidationError(null);
                 }}
-                className="h-10 rounded-lg text-center"
+                className="h-10 rounded-xl text-center"
                 disabled={isPending}
               />
             </div>
@@ -223,7 +223,7 @@ export function BudgetDefinitionsBlock({
           <div className="bg-muted/50 rounded-xl p-3 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">תקציב חדש:</span>
-              <span className="text-lg font-bold text-foreground">
+              <span className="text-lg font-semibold text-foreground">
                 ₪{newTotalBudget.toLocaleString()}
               </span>
             </div>

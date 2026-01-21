@@ -189,9 +189,9 @@ export function AddChildrenSheet({
 
         <div className="space-y-3 flex-1 overflow-hidden flex flex-col">
           {/* Instructions */}
-          <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-2 flex items-center gap-2">
-            <Lightbulb className="h-4 w-4 text-amber-500 flex-shrink-0" />
-            <p className="text-xs text-amber-800 dark:text-amber-200">
+          <div className="bg-warning/10 dark:bg-warning/20 border border-warning/20 dark:border-warning/30 rounded-xl p-2 flex items-center gap-2">
+            <Lightbulb className="h-4 w-4 text-warning flex-shrink-0" />
+            <p className="text-xs text-warning-foreground dark:text-warning">
               הקלידו שמות ולחצו Enter למעבר לשורה הבאה. לחצו על{" "}
               <ChevronDown className="inline h-3 w-3" /> להוספת פרטים נוספים
               (הורים, יום הולדת).
@@ -199,7 +199,7 @@ export function AddChildrenSheet({
           </div>
 
           {/* Children list */}
-          <div className="flex-1 overflow-y-auto border border-border rounded-lg min-h-0">
+          <div className="flex-1 overflow-y-auto border border-border rounded-xl min-h-0">
             {children.map((child, index) => {
               const isExpanded = expandedChildId === child.id;
 
@@ -350,9 +350,9 @@ export function AddChildrenSheet({
             </Button>
 
             {/* Info note */}
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-2 flex items-center gap-2">
-              <Info className="h-4 w-4 text-blue-500 flex-shrink-0" />
-              <p className="text-xs text-blue-800 dark:text-blue-200">
+            <div className="bg-info/10 dark:bg-info/20 border border-info/20 dark:border-info/30 rounded-xl p-2 flex items-center gap-2">
+              <Info className="h-4 w-4 text-info flex-shrink-0" />
+              <p className="text-xs text-info-foreground dark:text-info">
                 אפשר להשלים פרטי הורים, כתובת וימי הולדת גם אחר כך דרך עריכת הילד
               </p>
             </div>

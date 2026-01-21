@@ -176,7 +176,7 @@ export function AddStaffSheet({
                   variant="ghost"
                   size="sm"
                   onClick={() => removeStaffMember(member.id)}
-                  className="absolute top-2 left-2 h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                  className="absolute top-2 left-2 h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -209,7 +209,7 @@ export function AddStaffSheet({
                           e.target.value as "teacher" | "assistant"
                         )
                       }
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-right ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm text-right ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
                       <option value="teacher">מורה</option>
                       <option value="kindergarten_teacher">גננת</option>
@@ -246,9 +246,9 @@ export function AddStaffSheet({
             </Button>
 
             {/* Info note */}
-            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-2 flex items-center gap-2">
-              <Lightbulb className="h-4 w-4 text-amber-500 flex-shrink-0" />
-              <p className="text-xs text-amber-800 dark:text-amber-200">
+            <div className="bg-warning/10 dark:bg-warning/20 border border-warning/20 dark:border-warning/30 rounded-xl p-2 flex items-center gap-2">
+              <Lightbulb className="h-4 w-4 text-warning flex-shrink-0" />
+              <p className="text-xs text-warning-foreground dark:text-warning">
                 יום ההולדת אינו חובה, אך יעזור לכם לקבל תזכורות למתנות
               </p>
             </div>

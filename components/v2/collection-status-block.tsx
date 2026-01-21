@@ -72,7 +72,7 @@ export function CollectionStatusBlock({
         <div className="flex items-center gap-3">
           <div className="text-left">
             <p className="text-xs text-muted-foreground">נאספו</p>
-            <p className="text-lg font-bold text-brand">
+            <p className="text-lg font-semibold text-brand">
               ₪{collected.toLocaleString()}
               <span className="text-sm font-normal text-muted-foreground mr-1">
                 ({collectionPercentage}%)
@@ -135,13 +135,13 @@ export function CollectionStatusBlock({
               }}
               disabled={unpaidChildren.length === 0}
               className={cn(
-                "p-3 bg-orange-500/10 rounded-xl border border-orange-500/20 text-center transition-all",
-                unpaidChildren.length > 0 && "hover:bg-orange-500/20 hover:border-orange-500/40 cursor-pointer"
+                "p-3 bg-warning/10 rounded-xl border border-warning/20 text-center transition-all",
+                unpaidChildren.length > 0 && "hover:bg-warning/20 hover:border-warning/40 cursor-pointer"
               )}
             >
-              <XCircle className="h-5 w-5 text-orange-500 mx-auto mb-1" />
-              <p className="text-2xl font-bold text-orange-500">{unpaidChildren.length}</p>
-              <p className="text-xs text-orange-500/80">נרשמו ולא שילמו</p>
+              <XCircle className="h-5 w-5 text-warning mx-auto mb-1" />
+              <p className="text-2xl font-bold text-warning">{unpaidChildren.length}</p>
+              <p className="text-xs text-warning/80">נרשמו ולא שילמו</p>
             </button>
 
             {/* Not Registered Block - Clickable */}
@@ -152,13 +152,13 @@ export function CollectionStatusBlock({
               }}
               disabled={notRegisteredCount === 0}
               className={cn(
-                "p-3 bg-rose-500/10 rounded-xl border border-rose-500/20 text-center transition-all",
-                notRegisteredCount > 0 && "hover:bg-rose-500/20 hover:border-rose-500/40 cursor-pointer"
+                "p-3 bg-destructive/10 rounded-xl border border-destructive/20 text-center transition-all",
+                notRegisteredCount > 0 && "hover:bg-destructive/20 hover:border-destructive/40 cursor-pointer"
               )}
             >
-              <UserPlus className="h-5 w-5 text-rose-500 mx-auto mb-1" />
-              <p className="text-2xl font-bold text-rose-500">{notRegisteredCount}</p>
-              <p className="text-xs text-rose-500/80">לא נרשמו ולא שילמו</p>
+              <UserPlus className="h-5 w-5 text-destructive mx-auto mb-1" />
+              <p className="text-2xl font-bold text-destructive">{notRegisteredCount}</p>
+              <p className="text-xs text-destructive/80">לא נרשמו ולא שילמו</p>
             </button>
           </div>
         </div>

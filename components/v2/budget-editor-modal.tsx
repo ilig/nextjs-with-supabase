@@ -321,7 +321,7 @@ export function BudgetEditorModal({
                   min="0"
                   value={amountPerChild || ""}
                   onChange={(e) => setAmountPerChild(parseInt(e.target.value) || 0)}
-                  className="h-10 rounded-lg text-center"
+                  className="h-10 rounded-xl text-center"
                 />
               </div>
 
@@ -336,7 +336,7 @@ export function BudgetEditorModal({
                   min="1"
                   value={estimatedChildren || ""}
                   onChange={(e) => setEstimatedChildren(parseInt(e.target.value) || 0)}
-                  className="h-10 rounded-lg text-center"
+                  className="h-10 rounded-xl text-center"
                 />
               </div>
 
@@ -351,7 +351,7 @@ export function BudgetEditorModal({
                   min="0"
                   value={estimatedStaff || ""}
                   onChange={(e) => setEstimatedStaff(parseInt(e.target.value) || 0)}
-                  className="h-10 rounded-lg text-center"
+                  className="h-10 rounded-xl text-center"
                 />
               </div>
             </div>
@@ -523,13 +523,13 @@ export function BudgetEditorModal({
                     value={customEventName}
                     onChange={(e) => setCustomEventName(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && addCustomEvent()}
-                    className="h-9 rounded-lg"
+                    className="h-9 rounded-xl"
                     autoFocus
                   />
                   <Button
                     onClick={addCustomEvent}
                     size="sm"
-                    className="rounded-lg bg-brand hover:bg-brand/90"
+                    className="rounded-xl bg-brand hover:bg-brand/90"
                   >
                     הוסף
                   </Button>
@@ -540,7 +540,7 @@ export function BudgetEditorModal({
                     }}
                     variant="outline"
                     size="sm"
-                    className="rounded-lg"
+                    className="rounded-xl"
                   >
                     ביטול
                   </Button>

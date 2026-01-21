@@ -186,7 +186,7 @@ export function AddStaffWizard({ classId, onClose, onSuccess }: AddStaffWizardPr
           + הוסף איש צוות נוסף
         </Button>
 
-        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
+        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-3 flex items-start gap-2">
           <Lightbulb className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-amber-800 dark:text-amber-200">
             יום ההולדת אינו חובה, אך יעזור לכם לקבל תזכורות למתנות

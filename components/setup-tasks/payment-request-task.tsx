@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Check, Copy, MessageCircle, Mail, Link2 } from "lucide-react";
+import { Check, Copy, MessageCircle, Mail, Link2, Lightbulb, AlertTriangle } from "lucide-react";
 
 interface PaymentRequestTaskProps {
   classId: string;
@@ -91,18 +91,18 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
       </div>
 
       {/* Amount Display */}
-      <Card className="p-4 bg-green-50 border-green-200">
+      <Card className="p-4 bg-success/10 border-success/20">
         <div className="text-center">
           <p className="text-sm text-muted-foreground">סכום לגבייה מכל הורה:</p>
-          <p className="text-3xl font-bold text-green-600">₪{amountPerChild}</p>
+          <p className="text-3xl font-bold text-success">₪{amountPerChild}</p>
         </div>
       </Card>
 
       {/* PayBox Link Input */}
-      <Card className="p-4 bg-blue-50 border-blue-200">
+      <Card className="p-4 bg-brand/10 border-brand/20">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Link2 className="h-5 w-5 text-blue-600" />
+            <Link2 className="h-5 w-5 text-brand" />
             <label className="text-sm font-semibold text-foreground">
               קישור לקבוצת PayBox שלכם:
             </label>
@@ -114,8 +114,8 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
             className="text-left"
             dir="ltr"
           />
-          <p className="text-xs text-muted-foreground">
-            💡 היכנסו לאפליקציית PayBox ← בחרו את הקבוצה ← שתפו קישור
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <Lightbulb className="h-3 w-3 text-warning" /> היכנסו לאפליקציית PayBox ← בחרו את הקבוצה ← שתפו קישור
           </p>
         </div>
       </Card>
@@ -131,7 +131,7 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
             className="flex flex-col h-auto py-3 gap-1"
             disabled={!payboxLink}
           >
-            <MessageCircle className="h-5 w-5 text-green-600" />
+            <MessageCircle className="h-5 w-5 text-success" />
             <span className="text-xs">WhatsApp</span>
           </Button>
 
@@ -141,7 +141,7 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
             className="flex flex-col h-auto py-3 gap-1"
             disabled={!payboxLink}
           >
-            <Mail className="h-5 w-5 text-blue-600" />
+            <Mail className="h-5 w-5 text-brand" />
             <span className="text-xs">Email</span>
           </Button>
         </div>
@@ -151,7 +151,7 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
       <Card className="p-4 bg-muted">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-foreground">💡 תצוגה מקדימה של ההודעה:</p>
+            <p className="text-sm font-semibold text-foreground flex items-center gap-1"><Lightbulb className="h-4 w-4 text-warning" /> תצוגה מקדימה של ההודעה:</p>
             <Button
               size="sm"
               variant="ghost"
@@ -169,9 +169,9 @@ ${payboxLink || "[הדביקו כאן את הלינק לPayBox]"}
       </Card>
 
       {!payboxLink && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-          <p className="text-xs text-yellow-800">
-            ⚠️ הזינו את הקישור ל-PayBox כדי לשלוח את ההודעה
+        <div className="bg-warning/10 border border-warning/20 rounded-xl p-3">
+          <p className="text-xs text-warning flex items-center gap-1">
+            <AlertTriangle className="h-3 w-3" /> הזינו את הקישור ל-PayBox כדי לשלוח את ההודעה
           </p>
         </div>
       )}

@@ -304,7 +304,7 @@ export function StaffAdditionTask({
                   size="sm"
                   onClick={() => removeStaff(person.id)}
                 >
-                  <Trash2 className="h-4 w-4 text-red-500" />
+                  <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               )}
             </div>
@@ -376,9 +376,9 @@ export function StaffAdditionTask({
         הוסף איש צוות נוסף
       </Button>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-        <p className="text-xs text-blue-900">
-          💡 יום ההולדת אינו חובה, אך יעזור לכם לקבל תזכורות למתנות
+      <div className="bg-brand/10 border border-brand/20 rounded-xl p-3">
+        <p className="text-xs text-brand">
+          יום ההולדת אינו חובה, אך יעזור לכם לקבל תזכורות למתנות
         </p>
       </div>
 

@@ -213,28 +213,28 @@ export function SettingsTab({
       icon: User,
       title: "פרטי הכיתה",
       description: "שם הכיתה, מוסד ויישוב",
-      action: "ערוך",
+      action: "עריכה",
       onClick: () => setIsEditClassOpen(true),
     },
     {
       icon: Users,
       title: "מנהלים",
       description: `${admins.length} מנהלים`,
-      action: "נהל",
+      action: "עריכה",
       onClick: () => setIsAdminOpen(true),
     },
     {
       icon: LinkIcon,
       title: "קישור לתשלום",
       description: classData.paybox_link ? "קישור מוגדר" : "לא הוגדר קישור",
-      action: "הגדר",
+      action: "עריכה",
       onClick: () => setIsPayboxOpen(true),
     },
     {
       icon: Eye,
       title: "הגדרות דף קשר",
       description: directorySettings.is_public ? "ציבורי" : "פרטי",
-      action: "נהל",
+      action: "עריכה",
       onClick: () => setIsDirectoryOpen(true),
     },
   ];
@@ -247,8 +247,8 @@ export function SettingsTab({
     <div className={cn("p-4 md:p-6 space-y-6", className)}>
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="p-3 rounded-2xl bg-gradient-to-br from-gray-500 to-slate-600">
-          <Settings className="h-6 w-6 text-white" />
+        <div className="p-3 rounded-2xl bg-brand">
+          <Settings className="h-6 w-6 text-brand-foreground" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground">הגדרות</h1>
@@ -258,15 +258,9 @@ export function SettingsTab({
 
       {/* Class Info Card */}
       <div className="bg-card rounded-2xl p-4 border-2 border-border shadow-sm">
-        <h2 className="font-bold text-foreground mb-2">{classData.name}</h2>
-        <p className="text-sm text-muted-foreground">
-          {classData.school_name} • {classData.city}
+        <p className="font-bold text-foreground">
+          {classData.name} • {classData.school_name} • {classData.city}
         </p>
-        {classData.invite_code && (
-          <p className="text-xs text-muted-foreground mt-2">
-            קוד הזמנה: <span className="font-mono text-brand">{classData.invite_code}</span>
-          </p>
-        )}
       </div>
 
       {/* Settings Sections */}

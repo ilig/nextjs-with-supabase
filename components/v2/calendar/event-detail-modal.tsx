@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,15 @@ import {
   CheckCircle,
   AlertCircle,
   ExternalLink,
+  Cake,
+  Gift,
+  Star,
+  Sparkles,
+  TreeDeciduous,
+  PartyPopper,
+  Sun,
+  Flag,
+  GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CalendarEvent, CalendarDayData } from "./hebrew-calendar";
@@ -43,6 +52,24 @@ type EventDetailModalProps = {
 
 // ============================================
 // Helper Functions
+
+function getEventIconComponent(eventType: string): React.ComponentType<{ className?: string }> {
+  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    birthday_kids: Cake,
+    birthday_staff: Gift,
+    hanukkah: Sparkles,
+    purim: PartyPopper,
+    passover: Sun,
+    rosh_hashana: Star,
+    sukkot: TreeDeciduous,
+    shavuot: Sun,
+    tu_bishvat: TreeDeciduous,
+    independence_day: Flag,
+    end_of_year: GraduationCap,
+    custom: Calendar,
+  };
+  return iconMap[eventType] || Calendar;
+}
 // ============================================
 
 function formatDate(date: Date): string {
@@ -165,7 +192,7 @@ export function EventDetailModal({
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-right flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+              <Calendar className="h-5 w-5 text-brand" />
               {formatDate(dayData.date)}
             </DialogTitle>
           </DialogHeader>
@@ -183,9 +210,9 @@ export function EventDetailModal({
 
             {/* Birthdays */}
             {dayData.birthdays.length > 0 && (
-              <div className="bg-muted/50 rounded-lg p-4">
+              <div className="bg-muted/50 rounded-xl p-4">
                 <h4 className="font-medium mb-2 flex items-center gap-2">
-                  🎂 ימי הולדת
+                  <Cake className="h-4 w-4 text-brand" /> ימי הולדת
                 </h4>
                 <ul className="space-y-1">
                   {dayData.birthdays.map((b, idx) => (
@@ -216,14 +243,17 @@ export function EventDetailModal({
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
           <DialogTitle className="text-right flex items-center gap-2">
-            <span className="text-xl">{event.icon || "🎉"}</span>
+            {(() => {
+              const Icon = getEventIconComponent(event.event_type);
+              return <Icon className="h-5 w-5 text-brand" />;
+            })()}
             {isEditing ? (
               <Input
                 value={editedEvent.name || ""}
                 onChange={(e) =>
                   setEditedEvent({ ...editedEvent, name: e.target.value })
                 }
-                className="text-lg font-bold"
+                className="text-lg font-semibold"
               />
             ) : (
               <span>{event.name}</span>
@@ -267,7 +297,7 @@ export function EventDetailModal({
 
           {/* Budget section (only for budgeted events) */}
           {isBudgetedEvent && (
-            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+            <div className="bg-muted/50 rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium flex items-center gap-2">
                   <Coins className="h-4 w-4" />
@@ -307,7 +337,7 @@ export function EventDetailModal({
                 <div className="pt-2 border-t border-border">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">סה״כ מוקצה:</span>
-                    <span className="text-lg font-bold text-brand">
+                    <span className="text-lg font-semibold text-brand">
                       ₪{event.allocated_budget.toLocaleString()}
                     </span>
                   </div>
@@ -318,7 +348,7 @@ export function EventDetailModal({
 
           {/* Warning for non-budgeted events */}
           {!isBudgetedEvent && isAdmin && (
-            <div className="bg-warning/10 text-warning rounded-lg p-3 flex items-start gap-2">
+            <div className="bg-warning/10 text-warning rounded-xl p-3 flex items-start gap-2">
               <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
               <div className="text-sm">
                 <p className="font-medium">אירוע ללא תקציב</p>
@@ -383,7 +413,7 @@ export function EventDetailModal({
 
 function HolidayCard({ holiday }: { holiday: JewishHoliday }) {
   return (
-    <div className="bg-muted/50 rounded-lg p-4">
+    <div className="bg-muted/50 rounded-xl p-4">
       <div className="flex items-center gap-2 mb-2">
         <span className="text-xl">{holiday.icon}</span>
         <h4 className="font-medium">{holiday.hebrewName}</h4>
@@ -400,7 +430,7 @@ function HolidayCard({ holiday }: { holiday: JewishHoliday }) {
 
 function SchoolBreakCard({ schoolBreak }: { schoolBreak: SchoolBreak }) {
   return (
-    <div className="bg-blue-500/10 rounded-lg p-4">
+    <div className="bg-muted rounded-xl p-4">
       <div className="flex items-center gap-2 mb-2">
         <span className="text-xl">{schoolBreak.icon}</span>
         <h4 className="font-medium">{schoolBreak.name}</h4>

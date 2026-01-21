@@ -233,7 +233,7 @@ export function OnboardingWizard() {
             {isSubmitting ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <Loader2 className="h-12 w-12 text-brand animate-spin mb-4" />
-                <p className="text-lg font-medium text-foreground">יוצרים את הכיתה...</p>
+                <p className="text-lg font-semibold text-foreground">יוצרים את הכיתה...</p>
                 <p className="text-sm text-muted-foreground">רק עוד רגע</p>
               </div>
             ) : (

@@ -120,7 +120,7 @@ export function EditClassModal({
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
           <DialogTitle className="text-right flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
+            <Building2 className="h-5 w-5 text-brand" />
             עריכת פרטי הכיתה
           </DialogTitle>
         </DialogHeader>

@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Users,
+  User,
   Search,
   Share2,
   Pencil,
@@ -17,6 +18,7 @@ import {
   Check,
   UserPlus,
   Baby,
+  Briefcase,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -426,8 +428,8 @@ export function ContactsTab({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600">
-            <Users className="h-6 w-6 text-white" />
+          <div className="p-3 rounded-2xl bg-brand">
+            <Users className="h-6 w-6 text-brand-foreground" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">דף קשר</h1>
@@ -450,7 +452,7 @@ export function ContactsTab({
         <button
           onClick={() => setActiveSubTab("kids")}
           className={cn(
-            "flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all",
+            "flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all",
             activeSubTab === "kids"
               ? "bg-card text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
@@ -461,7 +463,7 @@ export function ContactsTab({
         <button
           onClick={() => setActiveSubTab("staff")}
           className={cn(
-            "flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all",
+            "flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all",
             activeSubTab === "staff"
               ? "bg-card text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
@@ -480,12 +482,13 @@ export function ContactsTab({
             placeholder="חיפוש..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pr-10 h-11 rounded-xl border-2"
+            className="pr-10"
           />
         </div>
         <Button
+          size="lg"
           onClick={activeSubTab === "kids" ? openAddChildModal : openAddStaffModal}
-          className="h-11 rounded-xl gap-2"
+          className="gap-2"
         >
           <Plus className="h-4 w-4" />
           <span>{activeSubTab === "kids" ? "הוסף ילד/ה" : "הוסף איש צוות"}</span>
@@ -530,7 +533,7 @@ export function ContactsTab({
                     <div className="flex gap-1">
                       <button
                         onClick={() => openEditChildModal(child)}
-                        className="p-2 rounded-lg hover:bg-muted transition-colors"
+                        className="p-2 rounded-xl hover:bg-muted transition-colors"
                       >
                         <Pencil className="h-4 w-4 text-muted-foreground" />
                       </button>
@@ -538,7 +541,7 @@ export function ContactsTab({
                         onClick={() =>
                           openDeleteModal("child", child.id, child.name)
                         }
-                        className="p-2 rounded-lg hover:bg-destructive/10 transition-colors"
+                        className="p-2 rounded-xl hover:bg-destructive/10 transition-colors"
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </button>
@@ -557,9 +560,7 @@ export function ContactsTab({
                       key={idx}
                       className="flex items-center gap-2 text-sm text-muted-foreground mb-1"
                     >
-                      <span>
-                        {parent.relationship === "parent1" ? "👨" : "👩"}
-                      </span>
+                      <User className="h-4 w-4 flex-shrink-0" />
                       <span>{parent.name}</span>
                       {parent.phone && (
                         <>
@@ -612,7 +613,7 @@ export function ContactsTab({
                 <div className="flex gap-1">
                   <button
                     onClick={() => openEditStaffModal(member)}
-                    className="p-2 rounded-lg hover:bg-muted transition-colors"
+                    className="p-2 rounded-xl hover:bg-muted transition-colors"
                   >
                     <Pencil className="h-4 w-4 text-muted-foreground" />
                   </button>
@@ -620,7 +621,7 @@ export function ContactsTab({
                     onClick={() =>
                       openDeleteModal("staff", member.id, member.name)
                     }
-                    className="p-2 rounded-lg hover:bg-destructive/10 transition-colors"
+                    className="p-2 rounded-xl hover:bg-destructive/10 transition-colors"
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </button>
@@ -628,7 +629,7 @@ export function ContactsTab({
               </div>
 
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                <span>👩‍🏫</span>
+                <Briefcase className="h-4 w-4 flex-shrink-0" />
                 <span>{roleLabels[member.role] || member.role}</span>
               </div>
 
@@ -927,10 +928,10 @@ export function ContactsTab({
 
       {/* Delete Confirmation Modal */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm" dir="rtl">
           <DialogHeader>
-            <DialogTitle>אישור מחיקה</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-right">אישור מחיקה</DialogTitle>
+            <DialogDescription className="text-right">
               האם אתה בטוח שברצונך למחוק את{" "}
               <span className="font-bold">{deleteTarget?.name}</span>?
               <br />
@@ -1028,10 +1029,10 @@ export function ContactsTab({
                 setAddChoiceModalOpen(false);
                 setAddChildrenSheetOpen(true);
               }}
-              className="bg-card rounded-xl p-4 border-2 border-border hover:border-amber-500/50 transition-colors text-right flex items-start gap-3"
+              className="bg-card rounded-xl p-4 border-2 border-border hover:border-brand/50 transition-colors duration-200 text-right flex items-start gap-3"
             >
-              <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/50">
-                <Baby className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <div className="p-2 rounded-xl bg-brand-muted">
+                <Baby className="h-4 w-4 text-brand" />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-foreground mb-1">ילדים והורים</h3>
@@ -1047,10 +1048,10 @@ export function ContactsTab({
                 setAddChoiceModalOpen(false);
                 setAddStaffSheetOpen(true);
               }}
-              className="bg-card rounded-xl p-4 border-2 border-border hover:border-emerald-500/50 transition-colors text-right flex items-start gap-3"
+              className="bg-card rounded-xl p-4 border-2 border-border hover:border-brand/50 transition-colors duration-200 text-right flex items-start gap-3"
             >
-              <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
-                <UserPlus className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <div className="p-2 rounded-xl bg-success-muted">
+                <UserPlus className="h-4 w-4 text-success" />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-foreground mb-1">אנשי צוות</h3>

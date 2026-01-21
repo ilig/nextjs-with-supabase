@@ -281,9 +281,10 @@ export function BudgetTab({
   const collectionPercentage = total > 0 ? Math.round((collected / total) * 100) : 0;
 
   // Pie chart data - Budget Utilization (spent vs remaining from collected)
+  // Using CSS variable colors converted to hex for Recharts compatibility
   const budgetUtilizationPieData = [
-    { name: "הוצאו", value: spent, color: "#f97316" },
-    { name: "נותרו", value: Math.max(0, collected - spent), color: "#22c55e" },
+    { name: "הוצאו", value: spent, color: "hsl(var(--warning))" },
+    { name: "נותרו", value: Math.max(0, collected - spent), color: "hsl(var(--success))" },
   ].filter(item => item.value > 0);
 
   // Calculate kids vs staff allocation totals
@@ -292,8 +293,8 @@ export function BudgetTab({
 
   // Pie chart data - Kids vs Staff Distribution
   const kidsStaffPieData = [
-    { name: "ילדים", value: totalKidsAllocation, color: "#3b82f6" },
-    { name: "צוות", value: totalStaffAllocation, color: "#8b5cf6" },
+    { name: "ילדים", value: totalKidsAllocation, color: "hsl(var(--brand))" },
+    { name: "צוות", value: totalStaffAllocation, color: "hsl(var(--muted-foreground))" },
   ].filter(item => item.value > 0);
 
   // Get budgeted events for timeline
@@ -312,8 +313,8 @@ export function BudgetTab({
     <div className={cn("p-4 md:p-6 space-y-6", className)}>
       {/* Budget Header */}
       <div className="flex items-center gap-3">
-        <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600">
-          <Wallet className="h-6 w-6 text-white" />
+        <div className="p-3 rounded-2xl bg-brand">
+          <Wallet className="h-6 w-6 text-brand-foreground" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground">תקציב הכיתה</h1>
@@ -324,18 +325,18 @@ export function BudgetTab({
       {/* Collection Banner - Only show when collection is not complete */}
       {collectionPercentage < 100 && (
         <div className={cn(
-          "rounded-xl px-4 py-3 border",
+          "rounded-2xl px-4 py-3 border",
           unpaidChildren.length > 0
-            ? "bg-gradient-to-r from-amber-500/15 to-orange-500/15 border-amber-500/30"
-            : "bg-gradient-to-r from-rose-500/15 to-pink-500/15 border-rose-500/30"
+            ? "bg-warning-muted border-warning/30"
+            : "bg-destructive/10 border-destructive/30"
         )}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Info className={cn(
-                "h-5 w-5",
+                "h-4 w-4",
                 unpaidChildren.length > 0
-                  ? "text-amber-600 dark:text-amber-400"
-                  : "text-rose-600 dark:text-rose-400"
+                  ? "text-warning"
+                  : "text-destructive"
               )} />
               <span className="font-semibold text-sm text-foreground">
                 {unpaidChildren.length > 0
@@ -348,7 +349,8 @@ export function BudgetTab({
               <Button
                 onClick={onOpenPaymentSheetWithoutList}
                 size="sm"
-                className="gap-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white"
+                
+                className="gap-2"
               >
                 <Send className="h-4 w-4" />
                 שלחו תזכורת לתשלום
@@ -357,7 +359,8 @@ export function BudgetTab({
               <Button
                 onClick={onOpenPaymentSheetInviteMode}
                 size="sm"
-                className="gap-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white"
+                
+                className="gap-2"
               >
                 <UserPlus className="h-4 w-4" />
                 שלחו קישור הרשמה ותשלום
@@ -621,12 +624,12 @@ export function BudgetTab({
 
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-lg font-bold text-foreground">
+              <p className="text-lg font-semibold text-foreground">
                 סה״כ הוצאות: ₪{spent.toLocaleString()}
               </p>
               <button
                 onClick={() => setExpenseModalOpen(true)}
-                className="bg-brand text-white rounded-lg py-2 px-4 text-sm font-medium hover:bg-brand/90 transition-colors flex items-center gap-1"
+                className="bg-brand text-white rounded-xl py-2 px-4 text-sm font-medium hover:bg-brand/90 transition-colors flex items-center gap-1"
               >
                 <Plus className="h-4 w-4" />
                 הוסף
@@ -702,7 +705,7 @@ export function BudgetTab({
                           <div className="flex gap-1">
                             {expense.receipt_url && (
                               <button
-                                className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                                className="p-1.5 rounded-xl hover:bg-muted transition-colors"
                                 title="צפה בקבלה"
                               >
                                 <Eye className="h-4 w-4 text-muted-foreground" />
@@ -710,7 +713,7 @@ export function BudgetTab({
                             )}
                             <button
                               onClick={() => setDeleteExpenseId(expense.id)}
-                              className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors"
+                              className="p-1.5 rounded-xl hover:bg-destructive/10 transition-colors"
                               title="מחק"
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
@@ -748,7 +751,7 @@ export function BudgetTab({
             {/* Actual balance calculation */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <div className="p-1.5 rounded-lg bg-success/10">
+                <div className="p-1.5 rounded-xl bg-success/10">
                   <Wallet className="h-4 w-4 text-success" />
                 </div>
                 <span className="text-sm font-medium text-foreground">יתרה בפועל</span>
@@ -778,7 +781,7 @@ export function BudgetTab({
             {/* Allocation status - from the balance */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <div className="p-1.5 rounded-lg bg-brand/10">
+                <div className="p-1.5 rounded-xl bg-brand/10">
                   <PiggyBank className="h-4 w-4 text-brand" />
                 </div>
                 <span className="text-sm font-medium text-foreground">מצב הקצאות (מתוך היתרה)</span>
@@ -897,7 +900,7 @@ export function BudgetTab({
 
                     <button
                       onClick={() => setSelectedEventId(event.id)}
-                      className="w-14 rounded-lg border-2 border-border bg-muted relative overflow-hidden cursor-pointer hover:border-brand/50 transition-colors"
+                      className="w-14 rounded-xl border-2 border-border bg-muted relative overflow-hidden cursor-pointer hover:border-brand/50 transition-colors"
                       style={{ height: `${barHeight}px` }}
                       title={`${event.name}: ₪${totalSpent.toLocaleString()} / ₪${budget.toLocaleString()}`}
                     >
@@ -1168,7 +1171,7 @@ export function BudgetTab({
                         {eventExpensesList.map((expense) => (
                           <div
                             key={expense.id}
-                            className="flex items-center justify-between p-2 bg-muted/30 rounded-lg text-sm"
+                            className="flex items-center justify-between p-2 bg-muted/30 rounded-xl text-sm"
                           >
                             <div>
                               <p className="font-medium text-foreground">{expense.description}</p>
@@ -1248,7 +1251,7 @@ export function BudgetTab({
                 </>
               ) : (
                 <>
-                  <XCircle className="h-5 w-5 text-orange-500" />
+                  <XCircle className="h-5 w-5 text-warning" />
                   ילדים שלא שילמו ({unpaidChildren.length})
                 </>
               )}
@@ -1303,7 +1306,7 @@ export function BudgetTab({
                     "flex items-center justify-between p-3 rounded-xl border",
                     childrenListModal.type === "paid"
                       ? "bg-success/5 border-success/20"
-                      : "bg-orange-500/5 border-orange-500/20"
+                      : "bg-warning/5 border-warning/20"
                   )}
                 >
                   <span className="font-medium text-foreground">{child.name}</span>
@@ -1318,9 +1321,9 @@ export function BudgetTab({
                           onMarkChildUnpaid(child.id);
                         }
                       }}
-                      className="data-[state=checked]:bg-green-600"
+                      className="data-[state=checked]:bg-success"
                     />
-                    <span className="text-xs text-green-600 font-medium">שולם</span>
+                    <span className="text-xs text-success font-medium">שולם</span>
                   </div>
                 </div>
               ));
@@ -1345,7 +1348,8 @@ export function BudgetTab({
                   setChildrenSearchQuery("");
                   onOpenPaymentSheetWithoutList?.();
                 }}
-                className="rounded-xl gap-1 bg-orange-600 hover:bg-orange-700 text-white"
+                
+                className="gap-1"
               >
                 <Send className="h-4 w-4" />
                 שלחו תזכורת

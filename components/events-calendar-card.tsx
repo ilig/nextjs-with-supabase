@@ -294,7 +294,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-pink-500 to-rose-600">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600">
                   <Calendar className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -345,7 +345,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                   <div
                     key={item.id}
                     className={cn(
-                      "flex items-center justify-between p-4 rounded-lg border transition-colors cursor-pointer",
+                      "flex items-center justify-between p-4 rounded-xl border transition-colors cursor-pointer",
                       item.isHoliday
                         ? "border-orange-200 hover:border-orange-400 hover:bg-orange-50"
                         : "border-border hover:border-pink-300 hover:bg-pink-50"
@@ -505,7 +505,7 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                           <div className="text-4xl">{item.icon || "📅"}</div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <h4 className="font-bold text-lg text-foreground">{item.name}</h4>
+                              <h4 className="font-semibold text-lg text-foreground">{item.name}</h4>
                               {item.isHoliday && (
                                 <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
                                   חג
@@ -541,23 +541,23 @@ export function EventsCalendarCard({ events, className, onEventClick, hideHeader
                         </Badge>
                       </div>
                       {!item.isHoliday && (item.allocated_budget ?? 0) > 0 && item.event_type !== "birthday" && item.event_type !== "staff-birthday" && (
-                        <div className="flex items-center justify-between bg-purple-50 rounded-lg p-3 mt-3">
+                        <div className="flex items-center justify-between bg-purple-50 rounded-xl p-3 mt-3">
                           <div>
                             <p className="text-xs text-muted-foreground">תקציב מוקצה</p>
-                            <p className="text-lg font-bold text-brand">
+                            <p className="text-lg font-semibold text-brand">
                               ₪{item.allocated_budget!.toLocaleString()}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">נוצל</p>
-                            <p className="text-lg font-bold text-foreground">
+                            <p className="text-lg font-semibold text-foreground">
                               ₪{(item.spent_amount || 0).toLocaleString()}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">יתרה</p>
                             <p className={cn(
-                              "text-lg font-bold",
+                              "text-lg font-semibold",
                               (item.spent_amount || 0) > item.allocated_budget! ? "text-red-600" : "text-green-600"
                             )}>
                               ₪{(item.allocated_budget! - (item.spent_amount || 0)).toLocaleString()}

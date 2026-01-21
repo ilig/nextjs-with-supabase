@@ -400,7 +400,7 @@ export function ClassDirectoryCard({
     <div className="space-y-3">
       {/* Incomplete children banner */}
       {incompleteChildrenCount > 0 && (
-        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-center justify-between">
+        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-amber-500"></span>
             <span className="text-sm text-amber-800 dark:text-amber-200">
@@ -563,7 +563,7 @@ export function ClassDirectoryCard({
             <div
               key={child.id}
               className={cn(
-                "rounded-lg border transition-colors",
+                "rounded-xl border transition-colors",
                 isExpanded
                   ? "border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950 p-4"
                   : isComplete
@@ -803,7 +803,7 @@ export function ClassDirectoryCard({
                     <div className="space-y-2">
                       {/* Show missing fields notice for incomplete children */}
                       {!isComplete && (
-                        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-3">
+                        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl p-3 mb-3">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="w-2 h-2 rounded-full bg-amber-400"></span>
                             <span className="text-sm font-medium text-amber-800 dark:text-amber-200">חסרים פרטים:</span>
@@ -990,7 +990,7 @@ export function ClassDirectoryCard({
           return (
             <div
               key={member.id}
-              className="p-4 rounded-lg border border-border hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950 transition-colors"
+              className="p-4 rounded-xl border border-border hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950 transition-colors"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -1210,7 +1210,7 @@ export function ClassDirectoryCard({
 
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-600">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600">
               <ViewIcon className="h-5 w-5 text-white" />
             </div>
             <div>

@@ -165,13 +165,13 @@ export function AdminManagementModal({
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
           <DialogTitle className="text-right flex items-center gap-2">
-            <Users className="h-5 w-5" />
+            <Users className="h-5 w-5 text-brand" />
             ניהול מנהלים
           </DialogTitle>
         </DialogHeader>
 
         {/* Explanatory Copy */}
-        <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+        <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-xl">
           מנהלים יכולים לערוך את פרטי הכיתה, להוסיף ילדים וצוות, לנהל אירועים ותקציב, ולצפות בכל המידע של הכיתה.
         </p>
 
@@ -194,7 +194,7 @@ export function AdminManagementModal({
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-muted">
+                      <div className="p-2 rounded-xl bg-muted">
                         <Shield className="h-4 w-4 text-muted-foreground" />
                       </div>
                       <div>
@@ -234,17 +234,17 @@ export function AdminManagementModal({
                 {pendingInvitations.map((invitation) => (
                   <div
                     key={invitation.id}
-                    className="flex items-center justify-between p-3 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/50"
+                    className="flex items-center justify-between p-3 rounded-xl border-2 border-dashed border-warning/50 bg-warning/10"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-amber-100">
-                        <Mail className="h-4 w-4 text-amber-600" />
+                      <div className="p-2 rounded-xl bg-warning/20">
+                        <Mail className="h-4 w-4 text-warning" />
                       </div>
                       <div>
                         <p className="text-sm font-medium text-foreground">
                           {invitation.email}
                         </p>
-                        <span className="text-xs text-amber-600">ממתין/ה להרשמה</span>
+                        <span className="text-xs text-warning">ממתין/ה להרשמה</span>
                       </div>
                     </div>
                     <Button
@@ -276,7 +276,7 @@ export function AdminManagementModal({
                   <Button
                     type="button"
                     variant="outline"
-                    className="flex-1 gap-2 bg-[#25D366]/10 border-[#25D366]/30 text-[#25D366] hover:bg-[#25D366]/20"
+                    className="flex-1 gap-2 bg-success/10 border-success/30 text-success hover:bg-success/20"
                     onClick={handleWhatsAppShare}
                   >
                     <MessageCircle className="h-4 w-4" />
@@ -341,12 +341,12 @@ export function AdminManagementModal({
 
           {/* Messages */}
           {error && (
-            <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">
+            <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-xl">
               {error}
             </p>
           )}
           {success && (
-            <p className="text-sm text-success bg-success/10 p-3 rounded-lg">
+            <p className="text-sm text-success bg-success/10 p-3 rounded-xl">
               {success}
             </p>
           )}

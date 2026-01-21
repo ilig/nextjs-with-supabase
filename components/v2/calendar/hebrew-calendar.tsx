@@ -255,7 +255,7 @@ export function HebrewCalendar({
         </div>
 
         <div className="text-center">
-          <h2 className="text-lg font-bold text-foreground">{gregorianHeader}</h2>
+          <h2 className="text-lg font-semibold text-foreground">{gregorianHeader}</h2>
           <p className="text-sm text-muted-foreground">{hebrewHeader}</p>
         </div>
 
@@ -311,7 +311,7 @@ export function HebrewCalendar({
           <span>🎉</span> אירוע
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-blue-500"></span> חופשה
+          <span className="w-2 h-2 rounded-full bg-muted-foreground"></span> חופשה
         </span>
       </div>
     </div>
@@ -365,7 +365,7 @@ function CalendarDay({ dayData, isSelected, onClick, onEventClick }: CalendarDay
     <button
       onClick={onClick}
       className={cn(
-        "relative min-h-[48px] md:min-h-[64px] p-1 rounded-lg transition-colors",
+        "relative min-h-[48px] md:min-h-[64px] p-1 rounded-xl transition-colors",
         "flex flex-col items-center justify-start",
         "hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring",
         // Current month styling
@@ -377,7 +377,7 @@ function CalendarDay({ dayData, isSelected, onClick, onEventClick }: CalendarDay
         // Weekend styling
         isWeekend && isCurrentMonth && "bg-muted/50",
         // School break styling
-        isSchoolBreakDay && isCurrentMonth && "bg-blue-500/10"
+        isSchoolBreakDay && isCurrentMonth && "bg-muted"
       )}
     >
       {/* Date number */}
@@ -409,7 +409,7 @@ function CalendarDay({ dayData, isSelected, onClick, onEventClick }: CalendarDay
       {/* School break indicator */}
       {isSchoolBreakDay && isCurrentMonth && (
         <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2">
-          <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
         </div>
       )}
     </button>

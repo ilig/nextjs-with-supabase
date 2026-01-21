@@ -43,8 +43,8 @@ export function StepAnnualAmount({
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 mx-auto mb-4 flex items-center justify-center">
-          <Wallet className="h-8 w-8 text-white" />
+        <div className="w-16 h-16 rounded-2xl bg-brand mx-auto mb-4 flex items-center justify-center">
+          <Wallet className="h-8 w-8 text-brand-foreground" />
         </div>
         <h1 className="text-2xl font-bold text-foreground">כמה לאסוף לילד לשנה?</h1>
         <p className="text-muted-foreground mt-2">קבעו את הסכום השנתי לכל ילד</p>

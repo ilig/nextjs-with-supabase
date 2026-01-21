@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Plus } from "lucide-react";
+import { Calendar, Plus, Lightbulb } from "lucide-react";
 
 // ============================================
 // Types
@@ -159,7 +159,7 @@ export function AddEventModal({
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
           <DialogTitle className="text-right flex items-center gap-2">
-            <Plus className="h-5 w-5" />
+            <Plus className="h-5 w-5 text-brand" />
             הוספת אירוע חדש
           </DialogTitle>
         </DialogHeader>
@@ -167,7 +167,7 @@ export function AddEventModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Selected date display */}
           {selectedDate && (
-            <div className="bg-muted/50 rounded-lg p-3 flex items-center gap-2">
+            <div className="bg-muted/50 rounded-xl p-3 flex items-center gap-2">
               <Calendar className="h-5 w-5 text-muted-foreground" />
               <span className="text-foreground font-medium">
                 {formatDateDisplay(selectedDate)}
@@ -226,9 +226,10 @@ export function AddEventModal({
           )}
 
           {/* Info about budget */}
-          <div className="bg-muted/30 rounded-lg p-3 text-sm text-muted-foreground">
+          <div className="bg-muted/30 rounded-xl p-3 text-sm text-muted-foreground flex items-start gap-2">
+            <Lightbulb className="h-4 w-4 flex-shrink-0 mt-0.5" />
             <p>
-              💡 להקצאת תקציב לאירוע זה, עבור ללשונית <strong>תקציב</strong> לאחר השמירה.
+              להקצאת תקציב לאירוע זה, עבור ללשונית <strong>תקציב</strong> לאחר השמירה.
             </p>
           </div>
 

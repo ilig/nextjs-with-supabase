@@ -223,7 +223,7 @@ export function StepBudgetAllocation({
               >
                 <div
                   className={cn(
-                    "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors",
+                    "w-6 h-6 rounded-xl border-2 flex items-center justify-center transition-colors",
                     event.enabled
                       ? "bg-brand border-brand"
                       : "border-border"
@@ -246,7 +246,7 @@ export function StepBudgetAllocation({
                       e.stopPropagation();
                       removeCustomEvent(event.eventId);
                     }}
-                    className="p-1 hover:bg-destructive/10 rounded-lg"
+                    className="p-1 hover:bg-destructive/10 rounded-xl"
                   >
                     <X className="h-4 w-4 text-destructive" />
                   </button>
@@ -269,7 +269,7 @@ export function StepBudgetAllocation({
                             amountPerKid: parseInt(e.target.value) || 0,
                           })
                         }
-                        className="h-9 w-20 rounded-lg border text-center"
+                        className="h-9 w-20 rounded-xl border text-center"
                       />
                       <span className="text-sm text-muted-foreground">₪</span>
                       <span className="text-sm text-muted-foreground">×</span>
@@ -294,7 +294,7 @@ export function StepBudgetAllocation({
                             amountPerStaff: parseInt(e.target.value) || 0,
                           })
                         }
-                        className="h-9 w-20 rounded-lg border text-center"
+                        className="h-9 w-20 rounded-xl border text-center"
                       />
                       <span className="text-sm text-muted-foreground">₪</span>
                       <span className="text-sm text-muted-foreground">×</span>

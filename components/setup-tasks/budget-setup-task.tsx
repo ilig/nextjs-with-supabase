@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check } from "lucide-react";
+import { Check, Users, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type EventTemplate = {
@@ -198,10 +198,10 @@ export function BudgetSetupTask({
       <div className="space-y-4 p-4" dir="rtl">
         <h3 className="text-lg font-semibold text-center">איזה סכום תרצו לגבות?</h3>
 
-        <Card className="p-4 border-blue-500 bg-blue-50 dark:bg-blue-950">
+        <Card className="p-4 border-brand bg-brand-muted">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-foreground">
-              <span className="text-xl">👧👦</span>
+              <Users className="h-4 w-4 text-brand flex-shrink-0" />
               <span>מספר ילדים בכיתה:</span>
               <Input
                 type="number"
@@ -212,7 +212,7 @@ export function BudgetSetupTask({
             </div>
 
             <div className="flex items-center gap-2 text-foreground">
-              <span className="text-xl">💰</span>
+              <Wallet className="h-4 w-4 text-brand flex-shrink-0" />
               <span>סכום לכל ילד (₪):</span>
               <Input
                 type="number"
@@ -223,9 +223,9 @@ export function BudgetSetupTask({
               />
             </div>
 
-            <div className="text-center bg-card rounded-lg p-3 border border-border">
+            <div className="text-center bg-card rounded-xl p-3 border border-border">
               <p className="text-muted-foreground">
-                {childrenCount} ילדים × ₪{amountPerChild} = <span className="font-bold text-blue-600 text-lg">₪{totalBudget.toLocaleString()}</span>
+                {childrenCount} ילדים × ₪{amountPerChild} = <span className="font-semibold text-brand text-lg">₪{totalBudget.toLocaleString()}</span>
               </p>
             </div>
           </div>
@@ -248,16 +248,16 @@ export function BudgetSetupTask({
     <div className="space-y-4 p-4" dir="rtl">
       <div>
         <h3 className="text-lg font-semibold">איזה אירועים רלוונטיים עבורכם?</h3>
-        <div className="flex items-center justify-between mt-2 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div className="flex items-center justify-between mt-2 p-3 bg-brand-muted rounded-xl border border-brand/20">
           <div>
             <p className="text-sm font-semibold">תקציב כולל</p>
-            <p className="text-2xl font-bold text-blue-600">
+            <p className="text-2xl font-bold text-brand">
               ₪{totalBudget.toLocaleString()}
             </p>
           </div>
           <div className="text-left">
             <p className="text-sm">מוקצה: ₪{allocatedBudget.toLocaleString()}</p>
-            <p className={`text-sm font-semibold ${remainingBudget < 0 ? "text-red-600" : "text-green-600"}`}>
+            <p className={`text-sm font-semibold ${remainingBudget < 0 ? "text-destructive" : "text-success"}`}>
               נותר: ₪{remainingBudget.toLocaleString()}
             </p>
           </div>
@@ -289,7 +289,7 @@ export function BudgetSetupTask({
             <Card
               key={event.id}
               className={`p-3 cursor-pointer transition-all ${
-                isSelected ? "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950" : "border-border"
+                isSelected ? "border-brand bg-brand-muted" : "border-border"
               }`}
               onClick={() => toggleEvent(event.id)}
             >
@@ -323,7 +323,7 @@ export function BudgetSetupTask({
                       placeholder="0"
                       className="w-[72px] h-8 text-sm text-center"
                     />
-                    <span className="text-sm font-medium text-blue-600 w-[90px] text-center">
+                    <span className="text-sm font-medium text-brand w-[90px] text-center">
                       = ₪{totalForEvent.toLocaleString()}
                     </span>
                   </div>
@@ -344,7 +344,7 @@ export function BudgetSetupTask({
             <Card
               key={event.id}
               className={`p-3 cursor-pointer transition-all ${
-                isSelected ? "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950" : "border-border"
+                isSelected ? "border-brand bg-brand-muted" : "border-border"
               }`}
               onClick={() => toggleEvent(event.id)}
             >
@@ -378,7 +378,7 @@ export function BudgetSetupTask({
                       placeholder="0"
                       className="w-[72px] h-8 text-sm text-center"
                     />
-                    <span className="text-sm font-medium text-blue-600 w-[90px] text-center">
+                    <span className="text-sm font-medium text-brand w-[90px] text-center">
                       = ₪{totalForEvent.toLocaleString()}
                     </span>
                   </div>
@@ -408,11 +408,11 @@ export function BudgetSetupTask({
       </div>
 
       {remainingBudget < 0 && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-          <p className="text-sm text-red-700 dark:text-red-400 font-semibold">
+        <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-3">
+          <p className="text-sm text-destructive font-semibold">
             ⚠️ עברתם את התקציב ב-₪{Math.abs(remainingBudget).toLocaleString()}
           </p>
-          <p className="text-xs text-red-600 dark:text-red-500">אנא הפחיתו את ההקצאות או הגדילו את התקציב</p>
+          <p className="text-xs text-destructive">אנא הפחיתו את ההקצאות או הגדילו את התקציב</p>
         </div>
       )}
 

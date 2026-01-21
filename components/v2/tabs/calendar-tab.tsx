@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar as CalendarIcon, Plus, Share2, Copy, Check } from "lucide-react";
+import { Calendar as CalendarIcon, Plus, Share2, Copy, Check, Cake, Gift, Star, Sparkles, TreeDeciduous, PartyPopper, Sun, Heart, Flag, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -192,8 +192,8 @@ export function CalendarTab({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600">
-            <CalendarIcon className="h-6 w-6 text-white" />
+          <div className="p-3 rounded-2xl bg-brand">
+            <CalendarIcon className="h-6 w-6 text-brand-foreground" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">לוח שנה</h1>
@@ -214,6 +214,7 @@ export function CalendarTab({
               <span>שיתוף לוח שנה</span>
             </Button>
             <Button
+              
               size="sm"
               onClick={() => {
                 setSelectedDate(new Date());
@@ -243,7 +244,7 @@ export function CalendarTab({
       {/* Upcoming events list */}
       {events.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-lg font-bold text-foreground">אירועים קרובים</h2>
+          <h2 className="text-lg font-semibold text-foreground">אירועים קרובים</h2>
           <div className="space-y-2">
             {events
               .filter((e) => e.event_date && new Date(e.event_date) >= new Date())
@@ -256,7 +257,10 @@ export function CalendarTab({
                   className="w-full bg-card rounded-xl p-4 border-2 border-border shadow-sm flex items-center justify-between hover:bg-accent transition-colors text-right"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">{getEventIcon(event.event_type)}</span>
+                    {(() => {
+                      const Icon = getEventIcon(event.event_type);
+                      return <Icon className="h-5 w-5 text-brand flex-shrink-0" />;
+                    })()}
                     <div>
                       <h3 className="font-medium text-foreground">{event.name}</h3>
                       {event.event_date && (
@@ -302,7 +306,7 @@ export function CalendarTab({
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-right flex items-center gap-2">
-              <Share2 className="h-5 w-5" />
+              <Share2 className="h-5 w-5 text-brand" />
               שיתוף לוח שנה
             </DialogTitle>
           </DialogHeader>
@@ -315,7 +319,7 @@ export function CalendarTab({
 
             {inviteCode ? (
               <div className="flex gap-2">
-                <div className="flex-1 bg-muted rounded-lg p-3 text-sm font-mono break-all">
+                <div className="flex-1 bg-muted rounded-xl p-3 text-sm font-mono break-all">
                   {shareUrl}
                 </div>
                 <Button
@@ -353,22 +357,22 @@ export function CalendarTab({
 // Helper Functions
 // ============================================
 
-function getEventIcon(eventType: string): string {
-  const iconMap: Record<string, string> = {
-    birthday_kids: "🎂",
-    birthday_staff: "🎁",
-    hanukkah: "🕎",
-    purim: "🎭",
-    passover: "🍷",
-    rosh_hashana: "🍎",
-    sukkot: "🌿",
-    shavuot: "🌾",
-    tu_bishvat: "🌳",
-    independence_day: "🇮🇱",
-    end_of_year: "🎉",
-    custom: "📅",
+function getEventIcon(eventType: string): React.ComponentType<{ className?: string }> {
+  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    birthday_kids: Cake,
+    birthday_staff: Gift,
+    hanukkah: Sparkles,
+    purim: PartyPopper,
+    passover: Sun,
+    rosh_hashana: Star,
+    sukkot: TreeDeciduous,
+    shavuot: Sun,
+    tu_bishvat: TreeDeciduous,
+    independence_day: Flag,
+    end_of_year: GraduationCap,
+    custom: CalendarIcon,
   };
-  return iconMap[eventType] || "🎉";
+  return iconMap[eventType] || CalendarIcon;
 }
 
 function formatEventDate(dateStr: string): string {

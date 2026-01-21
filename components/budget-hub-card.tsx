@@ -354,7 +354,7 @@ ${unpaidList}
     <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 border border-brand/30">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600">
             <PiggyBank className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -363,7 +363,7 @@ ${unpaidList}
               <select
                 value={selectedRound?.id || ""}
                 onChange={(e) => setSelectedRoundId(e.target.value)}
-                className="font-bold text-lg text-foreground bg-transparent border-none cursor-pointer focus:outline-none focus:ring-0 pr-1"
+                className="font-semibold text-lg text-foreground bg-transparent border-none cursor-pointer focus:outline-none focus:ring-0 pr-1"
               >
                 {paymentRounds.map((round) => (
                   <option key={round.id} value={round.id}>
@@ -372,7 +372,7 @@ ${unpaidList}
                 ))}
               </select>
             ) : (
-              <h4 className="font-bold text-lg text-foreground">
+              <h4 className="font-semibold text-lg text-foreground">
                 {selectedRound?.name || "תשלום שנתי"}
               </h4>
             )}
@@ -434,7 +434,7 @@ ${unpaidList}
               />
             </div>
             {newRoundAmount && (
-              <div className="bg-brand-muted rounded-lg p-3 text-sm">
+              <div className="bg-brand-muted rounded-xl p-3 text-sm">
                 <p className="text-brand-muted-foreground">
                   סה״כ צפוי לאיסוף: <span className="font-bold">₪{(parseFloat(newRoundAmount) * targetChildrenCount).toLocaleString()}</span>
                 </p>
@@ -489,7 +489,7 @@ ${unpaidList}
             {children.map((child, index) => (
               <div
                 key={child.id}
-                className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                className={`flex items-center gap-2 p-2 rounded-xl transition-colors ${
                   localPaidStatus[child.id] ? "bg-success-muted border border-success/30" : "bg-muted border border-border"
                 }`}
               >
@@ -935,7 +935,7 @@ function ExpensesTab({
             <div className="space-y-2">
               <Label>צרף חשבונית / קבלה (אופציונלי)</Label>
               {receiptFile ? (
-                <div className="border-2 border-dashed border-success/40 bg-success-muted rounded-lg p-3">
+                <div className="border-2 border-dashed border-success/40 bg-success-muted rounded-xl p-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {receiptPreviewUrl ? (
@@ -970,7 +970,7 @@ function ExpensesTab({
                 </div>
               ) : (
                 <label
-                  className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center gap-2 cursor-pointer transition-colors ${
+                  className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer transition-colors ${
                     isDragging
                       ? "border-brand bg-brand-muted scale-[1.02]"
                       : "border-border hover:border-brand hover:bg-brand-muted"
@@ -1124,7 +1124,7 @@ function ExpensesTab({
                   </p>
                 </div>
                 <div className="text-left">
-                  <p className="text-lg font-bold text-destructive">-₪{expense.amount.toLocaleString()}</p>
+                  <p className="text-lg font-semibold text-destructive">-₪{expense.amount.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground">
                     יתרה: ₪{expense.runningBalance.toLocaleString()}
                   </p>
@@ -1302,11 +1302,11 @@ function AllocationsTab({
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 text-center">
           <p className="text-xs text-brand-muted-foreground">תקציב כולל</p>
-          <p className="text-lg font-bold text-brand">₪{totalBudget.toLocaleString()}</p>
+          <p className="text-lg font-semibold text-brand">₪{totalBudget.toLocaleString()}</p>
         </div>
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 text-center">
           <p className="text-xs text-info">מוקצה</p>
-          <p className="text-lg font-bold text-info">₪{totalAllocated.toLocaleString()}</p>
+          <p className="text-lg font-semibold text-info">₪{totalAllocated.toLocaleString()}</p>
         </div>
         <div className={`rounded-xl p-3 text-center ${
           isOverAllocated
@@ -1316,7 +1316,7 @@ function AllocationsTab({
           <p className={`text-xs ${isOverAllocated ? "text-destructive" : "text-success"}`}>
             {isOverAllocated ? "חריגה" : "פנוי"}
           </p>
-          <p className={`text-lg font-bold ${isOverAllocated ? "text-destructive" : "text-success"}`}>
+          <p className={`text-lg font-semibold ${isOverAllocated ? "text-destructive" : "text-success"}`}>
             ₪{Math.abs(unallocated).toLocaleString()}
           </p>
         </div>
@@ -1330,7 +1330,7 @@ function AllocationsTab({
           </DialogHeader>
 
           {/* Budget Summary in Dialog */}
-          <div className="flex items-center justify-between p-3 bg-brand-muted rounded-lg border border-brand/30">
+          <div className="flex items-center justify-between p-3 bg-brand-muted rounded-xl border border-brand/30">
             <div>
               <p className="text-sm font-semibold">תקציב כולל</p>
               <p className="text-xl font-bold text-brand">₪{totalBudget.toLocaleString()}</p>
@@ -1369,7 +1369,7 @@ function AllocationsTab({
               return (
                 <div
                   key={template.id}
-                  className={`p-3 rounded-lg cursor-pointer transition-all border-2 ${
+                  className={`p-3 rounded-xl cursor-pointer transition-all border-2 ${
                     isSelected ? "border-brand/40 bg-brand-muted" : "border-border hover:border-border"
                   }`}
                   onClick={() => toggleEvent(template.id)}
@@ -1420,7 +1420,7 @@ function AllocationsTab({
               return (
                 <div
                   key={event.id}
-                  className={`p-3 rounded-lg cursor-pointer transition-all border-2 ${
+                  className={`p-3 rounded-xl cursor-pointer transition-all border-2 ${
                     isSelected ? "border-brand/40 bg-brand-muted" : "border-border hover:border-border"
                   }`}
                   onClick={() => toggleEvent(event.id)}
@@ -1462,7 +1462,7 @@ function AllocationsTab({
             })}
 
             {/* Add Custom Event */}
-            <div className="p-3 bg-muted rounded-lg border-2 border-dashed border-border">
+            <div className="p-3 bg-muted rounded-xl border-2 border-dashed border-border">
               <div className="flex items-center gap-2">
                 <Input
                   value={customEventName}
@@ -1483,7 +1483,7 @@ function AllocationsTab({
 
           {/* Warning if over budget */}
           {(totalBudget - totalAllocated - dialogAllocatedBudget) < 0 && (
-            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3">
+            <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3">
               <p className="text-sm text-destructive font-semibold">
                 ⚠️ עברתם את התקציב ב-₪{Math.abs(totalBudget - totalAllocated - dialogAllocatedBudget).toLocaleString()}
               </p>
@@ -1536,7 +1536,7 @@ function AllocationsTab({
                   <div className="flex items-center gap-3">
                     <div className="text-3xl">{event.icon || "📅"}</div>
                     <div>
-                      <h4 className="font-bold text-lg text-foreground">{event.name}</h4>
+                      <h4 className="font-semibold text-lg text-foreground">{event.name}</h4>
                       {event.event_date && (
                         <p className="text-sm text-muted-foreground">
                           {new Date(event.event_date).toLocaleDateString('he-IL', {
@@ -1577,7 +1577,7 @@ function AllocationsTab({
                       <>
                         <div className="text-left">
                           <p className="text-sm text-muted-foreground">הוקצה</p>
-                          <p className={`text-lg font-bold ${isOverspent ? 'text-destructive' : 'text-brand'}`}>
+                          <p className={`text-lg font-semibold ${isOverspent ? 'text-destructive' : 'text-brand'}`}>
                             ₪{event.allocated_budget.toLocaleString()}
                           </p>
                         </div>
@@ -1851,7 +1851,7 @@ export function BudgetHubCard({
           <span className="text-sm font-medium text-foreground">יתרת קופה</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`text-lg font-bold ${isNegativeBalance ? "text-destructive" : "text-success"}`}>
+          <span className={`text-lg font-semibold ${isNegativeBalance ? "text-destructive" : "text-success"}`}>
             {isNegativeBalance ? "-" : ""}₪{Math.abs(balance).toLocaleString()}
           </span>
           <span className="text-muted-foreground">/</span>
@@ -1976,7 +1976,7 @@ export function BudgetHubCard({
             <ChevronUp className="h-4 w-4 ml-1" />
             חזרה
           </Button>
-          <h3 className="font-bold text-lg text-foreground">{viewTitles[activeView]}</h3>
+          <h3 className="font-semibold text-lg text-foreground">{viewTitles[activeView]}</h3>
         </div>
 
         {/* Detail content */}

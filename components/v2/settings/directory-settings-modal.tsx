@@ -97,14 +97,14 @@ export function DirectorySettingsModal({
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
           <DialogTitle className="text-right flex items-center gap-2">
-            <Eye className="h-5 w-5" />
+            <Eye className="h-5 w-5 text-brand" />
             הגדרות דף קשר
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Info */}
-          <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
+          <div className="bg-muted/50 rounded-xl p-3 text-sm text-muted-foreground">
             <p>
               קבע אילו פרטים יהיו גלויים בדף הקשר הציבורי שמשותף עם ההורים.
             </p>
@@ -124,7 +124,7 @@ export function DirectorySettingsModal({
                   }`}
                 >
                   <div className="flex items-center gap-3 flex-1">
-                    <div className="p-2 rounded-lg bg-muted">
+                    <div className="p-2 rounded-xl bg-muted">
                       <Icon className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div>
@@ -148,7 +148,7 @@ export function DirectorySettingsModal({
 
           {/* Warning when public is disabled */}
           {!localSettings.is_public && (
-            <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 text-sm text-warning">
+            <div className="bg-warning/10 border border-warning/30 rounded-xl p-3 text-sm text-warning">
               <p>
                 דף הקשר מוסתר. רק מנהלים יכולים לצפות בפרטים.
               </p>

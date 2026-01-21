@@ -65,7 +65,7 @@ export function GiftCatalogCard({ className }: GiftCatalogCardProps) {
           <h4 className="font-semibold text-foreground mb-3">מה יכלול הקטלוג?</h4>
 
           <div className="flex items-start gap-3 p-3 bg-muted rounded-xl">
-            <div className="bg-pink-100 p-2 rounded-lg">
+            <div className="bg-pink-100 p-2 rounded-xl">
               <Package className="h-4 w-4 text-pink-600" />
             </div>
             <div>
@@ -75,7 +75,7 @@ export function GiftCatalogCard({ className }: GiftCatalogCardProps) {
           </div>
 
           <div className="flex items-start gap-3 p-3 bg-muted rounded-xl">
-            <div className="bg-purple-100 p-2 rounded-lg">
+            <div className="bg-purple-100 p-2 rounded-xl">
               <ShoppingBag className="h-4 w-4 text-purple-600" />
             </div>
             <div>
@@ -85,7 +85,7 @@ export function GiftCatalogCard({ className }: GiftCatalogCardProps) {
           </div>
 
           <div className="flex items-start gap-3 p-3 bg-muted rounded-xl">
-            <div className="bg-blue-100 p-2 rounded-lg">
+            <div className="bg-blue-100 p-2 rounded-xl">
               <Gift className="h-4 w-4 text-blue-600" />
             </div>
             <div>

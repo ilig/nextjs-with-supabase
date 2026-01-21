@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Copy, MessageCircle, Mail } from "lucide-react";
+import { Check, Copy, MessageCircle, Mail, Lightbulb } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface ParentFormLinksTaskProps {
@@ -116,7 +116,7 @@ ${formUrl}
   if (loading) {
     return (
       <div className="p-4 text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand mx-auto"></div>
         <p className="text-sm text-muted-foreground mt-2">טוען...</p>
       </div>
     );
@@ -132,9 +132,9 @@ ${formUrl}
       </div>
 
       {/* Form URL Card */}
-      <Card className="p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+      <Card className="p-4 bg-brand/10 border-brand/20">
         <div className="space-y-3">
-          <div className="bg-card rounded p-3 border border-blue-300 dark:border-blue-700 font-mono text-sm break-all">
+          <div className="bg-card rounded-xl p-3 border border-brand/30 font-mono text-sm break-all">
             {formUrl}
           </div>
           <Button
@@ -167,7 +167,7 @@ ${formUrl}
             variant="outline"
             className="flex flex-col h-auto py-3 gap-1"
           >
-            <MessageCircle className="h-5 w-5 text-green-600" />
+            <MessageCircle className="h-5 w-5 text-success" />
             <span className="text-xs">WhatsApp</span>
           </Button>
 
@@ -176,7 +176,7 @@ ${formUrl}
             variant="outline"
             className="flex flex-col h-auto py-3 gap-1"
           >
-            <Mail className="h-5 w-5 text-blue-600" />
+            <Mail className="h-5 w-5 text-brand" />
             <span className="text-xs">Email</span>
           </Button>
         </div>
@@ -186,7 +186,7 @@ ${formUrl}
       <Card className="p-4 bg-muted">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-foreground">טיפ: העתיקו את הטקסט הזה:</p>
+            <p className="text-sm font-semibold text-foreground flex items-center gap-1"><Lightbulb className="h-4 w-4 text-warning" /> טיפ: העתיקו את הטקסט הזה:</p>
             <Button
               size="sm"
               variant="ghost"
@@ -203,9 +203,9 @@ ${formUrl}
       </Card>
 
       {/* Info box */}
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-        <p className="text-xs text-blue-700 dark:text-blue-300">
-          ההורים יבחרו את ילדם מהרשימה וימלאו את הפרטים. תוכלו לחזור לכאן בכל עת מלוח הבקרה.
+      <div className="bg-brand/10 border border-brand/20 rounded-xl p-3">
+        <p className="text-xs text-brand flex items-center gap-1">
+          <Lightbulb className="h-3 w-3" /> ההורים יבחרו את ילדם מהרשימה וימלאו את הפרטים. תוכלו לחזור לכאן בכל עת מלוח הבקרה.
         </p>
       </div>
 

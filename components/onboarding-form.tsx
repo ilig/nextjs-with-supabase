@@ -104,7 +104,7 @@ export function OnboardingForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-card text-card-foreground rounded-lg border p-8 shadow-sm">
+      <div className="bg-card text-card-foreground rounded-xl border p-8 shadow-sm">
         <h2 className="text-2xl font-bold mb-2">
           Welcome! Let&apos;s personalize your experience
         </h2>

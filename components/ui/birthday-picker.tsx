@@ -81,7 +81,7 @@ export function BirthdayPicker({ value, onSelect, className }: BirthdayPickerPro
   }
 
   return (
-    <div className={cn("p-3 bg-popover border border-border rounded-lg shadow-lg text-popover-foreground", className)} dir="rtl">
+    <div className={cn("p-3 bg-popover border border-border rounded-xl shadow-lg text-popover-foreground", className)} dir="rtl">
       <div className="flex items-center justify-between mb-2">
         <Button
           type="button"
