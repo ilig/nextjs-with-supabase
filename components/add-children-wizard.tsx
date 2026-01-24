@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,32 +39,27 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
   const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  // Track whether user has explicitly interacted - only then allow input focus
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
 
-  // Blur any focused input when entering manual-entry step to prevent keyboard auto-open on mobile
+  // Reset interaction state when entering manual-entry step
   useEffect(() => {
     if (step === "manual-entry") {
-      // Multiple blur attempts at different timings to handle iOS Safari timing issues
-      const blurActiveElement = () => {
-        if (document.activeElement instanceof HTMLElement && document.activeElement.tagName === 'INPUT') {
-          document.activeElement.blur();
-        }
-      };
-
-      // Immediate blur
-      blurActiveElement();
-
-      // Delayed blurs to catch any focus that happens after render
-      const timer1 = setTimeout(blurActiveElement, 0);
-      const timer2 = setTimeout(blurActiveElement, 50);
-      const timer3 = setTimeout(blurActiveElement, 100);
-
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-        clearTimeout(timer3);
-      };
+      setUserHasInteracted(false);
     }
   }, [step]);
+
+  // Handler to prevent unwanted focus on mobile
+  const handleInputFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    if (!userHasInteracted) {
+      e.target.blur();
+    }
+  }, [userHasInteracted]);
+
+  // Mark that user has explicitly interacted (clicked/tapped)
+  const handleInputClick = useCallback(() => {
+    setUserHasInteracted(true);
+  }, []);
 
   // Excel upload handler
   const processExcelFile = (file: File) => {
@@ -201,11 +196,6 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
 
   // Initialize with 5 empty rows when entering manual mode
   const initializeManualEntry = () => {
-    // Blur any focused element to prevent keyboard from opening on mobile
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-
     if (children.length === 0) {
       const initialChildren = Array.from({ length: 5 }, (_, i) => ({
         id: `child-${Date.now()}-${i}`,
@@ -457,6 +447,9 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                   value={child.name}
                   onChange={(e) => updateChild(child.id, "name", e.target.value)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
+                  onFocus={handleInputFocus}
+                  onClick={handleInputClick}
+                  onTouchStart={handleInputClick}
                   placeholder="שם הילד/ה"
                   className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-right"
                   autoFocus={false}
