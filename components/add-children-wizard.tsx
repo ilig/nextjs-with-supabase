@@ -43,13 +43,26 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
   // Blur any focused input when entering manual-entry step to prevent keyboard auto-open on mobile
   useEffect(() => {
     if (step === "manual-entry") {
-      // Small delay to ensure the DOM has updated
-      const timer = setTimeout(() => {
-        if (document.activeElement instanceof HTMLElement) {
+      // Multiple blur attempts at different timings to handle iOS Safari timing issues
+      const blurActiveElement = () => {
+        if (document.activeElement instanceof HTMLElement && document.activeElement.tagName === 'INPUT') {
           document.activeElement.blur();
         }
-      }, 0);
-      return () => clearTimeout(timer);
+      };
+
+      // Immediate blur
+      blurActiveElement();
+
+      // Delayed blurs to catch any focus that happens after render
+      const timer1 = setTimeout(blurActiveElement, 0);
+      const timer2 = setTimeout(blurActiveElement, 50);
+      const timer3 = setTimeout(blurActiveElement, 100);
+
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+      };
     }
   }, [step]);
 
@@ -446,6 +459,8 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   placeholder="שם הילד/ה"
                   className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-right"
+                  autoFocus={false}
+                  autoComplete="off"
                 />
 
                 <span className="text-sm text-muted-foreground w-6">{index + 1}</span>
