@@ -39,6 +39,8 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
   const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  // Track which input is currently active (editable) - prevents iOS keyboard auto-open
+  const [activeInputId, setActiveInputId] = useState<string | null>(null);
 
   // Excel upload handler
   const processExcelFile = (file: File) => {
@@ -384,26 +386,9 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
   // Count children with names filled in
   const filledChildrenCount = children.filter(c => c.name.trim()).length;
 
-  // Ref for focus trap element
-  const focusTrapRef = useRef<HTMLButtonElement>(null);
-
-  // Auto-focus the trap element when entering manual-entry to prevent keyboard
-  useEffect(() => {
-    if (step === "manual-entry" && focusTrapRef.current) {
-      focusTrapRef.current.focus();
-    }
-  }, [step]);
-
   // Render manual entry step
   const renderManualEntry = () => (
     <div className="space-y-4">
-      {/* Hidden focus trap to prevent iOS keyboard auto-open */}
-      <button
-        ref={focusTrapRef}
-        className="sr-only"
-        tabIndex={0}
-        aria-hidden="true"
-      />
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl md:text-2xl font-bold text-foreground">
@@ -443,8 +428,11 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                   value={child.name}
                   onChange={(e) => updateChild(child.id, "name", e.target.value)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
+                  onClick={() => setActiveInputId(child.id)}
+                  onBlur={() => setActiveInputId(null)}
+                  readOnly={activeInputId !== child.id}
                   placeholder="שם הילד/ה"
-                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-right"
+                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-right cursor-text"
                   autoFocus={false}
                   autoComplete="off"
                 />
