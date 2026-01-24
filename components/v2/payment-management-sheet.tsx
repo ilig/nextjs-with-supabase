@@ -142,20 +142,32 @@ ${signature}`;
   const getHeaderContent = () => {
     if (isFullyCollected) {
       return {
-        icon: <PartyPopper className="h-5 w-5 text-success" />,
+        icon: (
+          <div className="p-2 rounded-xl bg-muted">
+            <PartyPopper className="h-5 w-5 text-success" />
+          </div>
+        ),
         title: "איסוף הושלם בהצלחה!",
         description: `נאספו ₪${collected.toLocaleString()} מתוך ₪${total.toLocaleString()}`,
       };
     }
     if (isAllRegisteredPaid) {
       return {
-        icon: <UserPlus className="h-5 w-5 text-brand" />,
+        icon: (
+          <div className="p-2 rounded-xl bg-muted">
+            <UserPlus className="h-5 w-5 text-brand" />
+          </div>
+        ),
         title: "חסרים פרטים ותשלומים",
         description: `${notRegisteredCount} הורים טרם מילאו את פרטי ילדיהם ושילמו`,
       };
     }
     return {
-      icon: <Send className="h-5 w-5 text-warning" />,
+      icon: (
+        <div className="p-2 rounded-xl bg-muted">
+          <Send className="h-5 w-5 text-brand" />
+        </div>
+      ),
       title: "שליחת תזכורת תשלום",
       description: `שלחו תזכורת ל-${unpaidChildren.length} הורים שטרם שילמו`,
     };
@@ -167,7 +179,7 @@ ${signature}`;
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-xl flex items-center gap-2">
+          <DialogTitle className="text-xl flex items-center gap-3">
             {headerContent.icon}
             {headerContent.title}
           </DialogTitle>
@@ -182,7 +194,7 @@ ${signature}`;
             <div className="w-20 h-20 rounded-full bg-success/20 dark:bg-success/30 flex items-center justify-center mx-auto">
               <Check className="h-10 w-10 text-success" />
             </div>
-            <p className="text-xl font-semibold text-foreground">כל ההורים שילמו! 🎉</p>
+            <p className="text-xl font-semibold text-foreground">כל ההורים שילמו!</p>
             <p className="text-sm text-muted-foreground">
               {registeredCount} ילדים נרשמו ושילמו
             </p>
@@ -222,7 +234,7 @@ ${signature}`;
                 <div className="flex gap-2">
                   <Button
                     onClick={shareInviteViaWhatsApp}
-                    className="flex-1 gap-2 bg-success hover:bg-success/90 text-white"
+                    className="flex-1 gap-2 bg-brand hover:bg-brand/90 text-brand-foreground"
                   >
                     <MessageCircle className="h-4 w-4" />
                     שלחו בוואטסאפ
@@ -271,7 +283,7 @@ ${signature}`;
             <div className="flex gap-2">
               <Button
                 onClick={shareViaWhatsApp}
-                className="flex-1 gap-2 bg-success hover:bg-success/90 text-white"
+                className="flex-1 gap-2 bg-brand hover:bg-brand/90 text-brand-foreground"
               >
                 <MessageCircle className="h-4 w-4" />
                 שלחו בוואטסאפ

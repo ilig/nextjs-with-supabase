@@ -214,7 +214,7 @@ export function DirectorySettingsBlock({
                   ) : (
                     <Check className="h-4 w-4 ml-2" />
                   )}
-                  {isSubmitting ? "שומר..." : "שמור"}
+                  {isSubmitting ? "שומר..." : "שמירה"}
                 </Button>
               </div>
             )}

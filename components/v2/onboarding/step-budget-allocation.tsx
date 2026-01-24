@@ -329,7 +329,7 @@ export function StepBudgetAllocation({
                 size="sm"
                 className="rounded-xl bg-brand hover:bg-brand-hover"
               >
-                הוסף
+                הוספה
               </Button>
               <Button
                 onClick={() => {
@@ -350,7 +350,7 @@ export function StepBudgetAllocation({
             className="w-full p-4 bg-card rounded-2xl border-2 border-dashed border-border hover:border-brand/50 transition-colors flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
           >
             <Plus className="h-5 w-5" />
-            <span>הוסף אירוע מותאם אישית</span>
+            <span>הוספת אירוע מותאם אישית</span>
           </button>
         )}
 

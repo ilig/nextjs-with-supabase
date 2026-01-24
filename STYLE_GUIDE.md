@@ -38,7 +38,7 @@
 
 ### Core Rules
 1. **No hardcoded colors** - Always use semantic tokens
-2. **No emojis in UI** - Use Lucide icons only
+2. **No emojis in UI** - Use Lucide icons only (exception: emojis ARE allowed in message templates that will be copied/shared externally via WhatsApp, SMS, etc.)
 3. **No modals for editing** - Use expandable blocks
 4. **Mobile-first** - Design for mobile, enhance for desktop
 5. **RTL-native** - Hebrew is the primary language

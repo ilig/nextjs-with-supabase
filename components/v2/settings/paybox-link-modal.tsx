@@ -81,8 +81,10 @@ export function PayboxLinkModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-right">
-            <LinkIcon className="h-5 w-5 text-brand" />
+          <DialogTitle className="flex items-center gap-3 text-right">
+            <div className="p-2 rounded-xl bg-muted">
+              <LinkIcon className="h-5 w-5 text-brand" />
+            </div>
             הגדרת קישור תשלום
           </DialogTitle>
           <DialogDescription className="text-right">
@@ -164,7 +166,7 @@ export function PayboxLinkModal({
                   שומר...
                 </>
               ) : (
-                "שמור קישור"
+                "שמירת קישור"
               )}
             </Button>
             <Button

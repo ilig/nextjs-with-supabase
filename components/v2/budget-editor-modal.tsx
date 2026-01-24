@@ -295,8 +295,10 @@ export function BudgetEditorModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden flex flex-col" dir="rtl">
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="text-right flex items-center gap-2">
-            <Wallet className="h-5 w-5 text-brand" />
+          <DialogTitle className="text-right flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-muted">
+              <Wallet className="h-5 w-5 text-brand" />
+            </div>
             עריכת תקציב
           </DialogTitle>
           <DialogDescription className="text-right">
@@ -531,7 +533,7 @@ export function BudgetEditorModal({
                     size="sm"
                     className="rounded-xl bg-brand hover:bg-brand/90"
                   >
-                    הוסף
+                    הוספה
                   </Button>
                   <Button
                     onClick={() => {
@@ -552,7 +554,7 @@ export function BudgetEditorModal({
                 className="w-full p-3 bg-card rounded-xl border-2 border-dashed border-border hover:border-brand/50 transition-colors flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground"
               >
                 <Plus className="h-4 w-4" />
-                <span>הוסף אירוע מותאם אישית</span>
+                <span>הוספת אירוע מותאם אישית</span>
               </button>
             )}
           </div>
@@ -574,7 +576,7 @@ export function BudgetEditorModal({
             disabled={isPending}
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-            שמור שינויים
+            שמירת שינויים
           </Button>
         </div>
       </DialogContent>

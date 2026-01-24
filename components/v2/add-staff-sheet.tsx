@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Trash2, Lightbulb, Check } from "lucide-react";
+import { Trash2, Lightbulb, Check, UserPlus } from "lucide-react";
 import { addStaff } from "@/app/actions/manage-directory";
 
 type StaffMember = {
@@ -27,7 +27,8 @@ type AddStaffSheetProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  initialCount?: number;
+  currentCount?: number;
+  expectedCount?: number;
 };
 
 // Helper to create initial staff members array
@@ -49,18 +50,23 @@ export function AddStaffSheet({
   open,
   onOpenChange,
   onSuccess,
-  initialCount = 1,
+  currentCount = 0,
+  expectedCount = 0,
 }: AddStaffSheetProps) {
   const router = useRouter();
+  // Show only the remaining slots needed (expected - current), minimum 1
+  const remainingSlots = Math.max(1, expectedCount - currentCount);
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>(() =>
-    createInitialStaffMembers(initialCount)
+    createInitialStaffMembers(remainingSlots)
   );
   const [isSaving, setIsSaving] = useState(false);
 
   // Reset state when dialog opens
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) {
-      setStaffMembers(createInitialStaffMembers(initialCount));
+      // Show only the remaining slots needed (expected - current), minimum 1
+      const remainingSlots = Math.max(1, expectedCount - currentCount);
+      setStaffMembers(createInitialStaffMembers(remainingSlots));
     }
     onOpenChange(isOpen);
   };
@@ -158,12 +164,19 @@ export function AddStaffSheet({
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col" dir="rtl">
         <DialogHeader className="text-right pb-2">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold">
-              הוסיפו את אנשי הצוות
-            </DialogTitle>
-            <span className="text-sm text-muted-foreground">
-              {validStaffCount} אנשי צוות
-            </span>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-muted">
+                <UserPlus className="h-5 w-5 text-brand" />
+              </div>
+              <DialogTitle className="text-xl font-bold">
+                הוספת אנשי צוות
+              </DialogTitle>
+            </div>
+            {expectedCount > 0 && (
+              <span className="text-sm text-muted-foreground">
+                נוספו {currentCount}/{expectedCount}
+              </span>
+            )}
           </div>
         </DialogHeader>
 
@@ -242,13 +255,13 @@ export function AddStaffSheet({
               variant="outline"
               className="w-full border-dashed border-2 hover:border-solid"
             >
-              + הוסף איש צוות נוסף
+              + הוספת איש צוות נוסף
             </Button>
 
             {/* Info note */}
-            <div className="bg-warning/10 dark:bg-warning/20 border border-warning/20 dark:border-warning/30 rounded-xl p-2 flex items-center gap-2">
+            <div className="bg-warning-muted border border-warning/30 rounded-xl p-2 flex items-center gap-2">
               <Lightbulb className="h-4 w-4 text-warning flex-shrink-0" />
-              <p className="text-xs text-warning-foreground dark:text-warning">
+              <p className="text-xs text-warning-muted-foreground">
                 יום ההולדת אינו חובה, אך יעזור לכם לקבל תזכורות למתנות
               </p>
             </div>
@@ -265,7 +278,7 @@ export function AddStaffSheet({
               <Button
                 onClick={handleSave}
                 disabled={isSaving || validStaffCount === 0}
-                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="flex-1 bg-brand hover:bg-brand/90 text-brand-foreground"
               >
                 {isSaving ? (
                   "שומר..."

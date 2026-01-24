@@ -96,8 +96,10 @@ export function DirectorySettingsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-right flex items-center gap-2">
-            <Eye className="h-5 w-5 text-brand" />
+          <DialogTitle className="text-right flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-muted">
+              <Eye className="h-5 w-5 text-brand" />
+            </div>
             הגדרות דף קשר
           </DialogTitle>
         </DialogHeader>
@@ -170,7 +172,7 @@ export function DirectorySettingsModal({
               ביטול
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "שומר..." : "שמור"}
+              {isSubmitting ? "שומר..." : "שמירה"}
             </Button>
           </DialogFooter>
         </form>

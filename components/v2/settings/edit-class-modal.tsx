@@ -119,8 +119,10 @@ export function EditClassModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-right flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-brand" />
+          <DialogTitle className="text-right flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-muted">
+              <Building2 className="h-5 w-5 text-brand" />
+            </div>
             עריכת פרטי הכיתה
           </DialogTitle>
         </DialogHeader>
@@ -203,7 +205,7 @@ export function EditClassModal({
               ביטול
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "שומר..." : "שמור שינויים"}
+              {isSubmitting ? "שומר..." : "שמירת שינויים"}
             </Button>
           </DialogFooter>
         </form>

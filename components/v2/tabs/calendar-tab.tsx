@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -223,7 +223,7 @@ export function CalendarTab({
               className="gap-2"
             >
               <Plus className="h-4 w-4" />
-              <span>הוסף אירוע</span>
+              <span>הוספת אירוע</span>
             </Button>
           </div>
         )}
@@ -305,48 +305,59 @@ export function CalendarTab({
       <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-right flex items-center gap-2">
-              <Share2 className="h-5 w-5 text-brand" />
+            <DialogTitle className="text-right flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-muted">
+                <Share2 className="h-5 w-5 text-brand" />
+              </div>
               שיתוף לוח שנה
             </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
+            <DialogDescription className="text-right">
               שתפו את הקישור הזה עם ההורים כדי שיוכלו לצפות בלוח השנה של הכיתה.
               הקישור הוא לצפייה בלבד - אין אפשרות לערוך.
-            </p>
+            </DialogDescription>
+          </DialogHeader>
 
+          <div className="space-y-4 py-4">
             {inviteCode ? (
-              <div className="flex gap-2">
-                <div className="flex-1 bg-muted rounded-xl p-3 text-sm font-mono break-all">
-                  {shareUrl}
+              <>
+                <div className="p-4 bg-muted rounded-xl">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    קישור לצפייה:
+                  </p>
+                  <p className="text-sm font-mono break-all text-foreground">
+                    {shareUrl}
+                  </p>
                 </div>
+
                 <Button
-                  variant="outline"
-                  size="icon"
                   onClick={handleCopyShareLink}
-                  className="shrink-0"
+                  className={cn(
+                    "w-full rounded-xl gap-2",
+                    copied ? "" : "bg-brand hover:bg-brand/90 text-brand-foreground"
+                  )}
+                  variant={copied ? "outline" : "default"}
                 >
                   {copied ? (
-                    <Check className="h-4 w-4 text-success" />
+                    <>
+                      <Check className="h-4 w-4 text-success" />
+                      הועתק!
+                    </>
                   ) : (
-                    <Copy className="h-4 w-4" />
+                    <>
+                      <Copy className="h-4 w-4" />
+                      העתקת קישור
+                    </>
                   )}
                 </Button>
-              </div>
+              </>
             ) : (
-              <p className="text-sm text-destructive">
-                לא נמצא קוד הזמנה לכיתה. נא לבדוק את הגדרות הכיתה.
-              </p>
+              <div className="p-4 bg-warning-muted rounded-xl border border-warning/30">
+                <p className="text-sm text-warning-muted-foreground">
+                  לא נמצא קוד הזמנה לכיתה. נא לבדוק את הגדרות הכיתה.
+                </p>
+              </div>
             )}
           </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsShareModalOpen(false)}>
-              סגור
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

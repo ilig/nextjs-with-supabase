@@ -491,7 +491,7 @@ export function ContactsTab({
           className="gap-2"
         >
           <Plus className="h-4 w-4" />
-          <span>{activeSubTab === "kids" ? "הוסף ילד/ה" : "הוסף איש צוות"}</span>
+          <span>{activeSubTab === "kids" ? "הוספת ילד/ה" : "הוספת איש צוות"}</span>
         </Button>
       </div>
 
@@ -597,7 +597,7 @@ export function ContactsTab({
                   onClick={openAddChildModal}
                 >
                   <Plus className="h-4 w-4" />
-                  הוסף ילד/ה ראשון
+                  הוספת ילד/ה ראשון
                 </Button>
               )}
             </div>
@@ -653,7 +653,7 @@ export function ContactsTab({
                 onClick={openAddStaffModal}
               >
                 <Plus className="h-4 w-4" />
-                הוסף איש צוות ראשון
+                הוספת איש צוות ראשון
               </Button>
             )}
           </div>
@@ -795,7 +795,7 @@ export function ContactsTab({
               className="rounded-xl gap-2"
             >
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {editingChild ? "שמור שינויים" : "הוסף"}
+              {editingChild ? "שמירת שינויים" : "הוספה"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -920,7 +920,7 @@ export function ContactsTab({
               className="rounded-xl gap-2"
             >
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {editingStaff ? "שמור שינויים" : "הוסף"}
+              {editingStaff ? "שמירת שינויים" : "הוספה"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -954,7 +954,7 @@ export function ContactsTab({
               className="rounded-xl gap-2"
             >
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              מחק
+              מחיקה
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -964,7 +964,12 @@ export function ContactsTab({
       <Dialog open={shareModalOpen} onOpenChange={setShareModalOpen}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-right">שיתוף דף קשר</DialogTitle>
+            <DialogTitle className="text-right flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-muted">
+                <Share2 className="h-5 w-5 text-brand" />
+              </div>
+              שיתוף דף קשר
+            </DialogTitle>
             <DialogDescription className="text-right">
               שתפו קישור לצפייה בדף קשר עם הורים אחרים
             </DialogDescription>
@@ -985,7 +990,10 @@ export function ContactsTab({
 
                 <Button
                   onClick={copyShareLink}
-                  className="w-full rounded-xl gap-2"
+                  className={cn(
+                    "w-full rounded-xl gap-2",
+                    copied ? "" : "bg-brand hover:bg-brand/90 text-brand-foreground"
+                  )}
                   variant={copied ? "outline" : "default"}
                 >
                   {copied ? (
@@ -996,14 +1004,14 @@ export function ContactsTab({
                   ) : (
                     <>
                       <Copy className="h-4 w-4" />
-                      העתק קישור
+                      העתקת קישור
                     </>
                   )}
                 </Button>
               </>
             ) : (
-              <div className="p-4 bg-warning/10 rounded-xl border border-warning/20">
-                <p className="text-sm text-warning">
+              <div className="p-4 bg-warning-muted rounded-xl border border-warning/30">
+                <p className="text-sm text-warning-muted-foreground">
                   לא נמצא קוד הזמנה לכיתה. צור קישור בהגדרות.
                 </p>
               </div>
@@ -1088,7 +1096,8 @@ export function ContactsTab({
         open={addStaffSheetOpen}
         onOpenChange={setAddStaffSheetOpen}
         onSuccess={() => {}}
-        initialCount={expectedStaff}
+        currentCount={staff?.length || 0}
+        expectedCount={expectedStaff}
       />
     </div>
   );

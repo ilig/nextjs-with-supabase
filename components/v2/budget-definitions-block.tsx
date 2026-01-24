@@ -271,7 +271,7 @@ export function BudgetDefinitionsBlock({
               ) : (
                 <Check className="h-4 w-4" />
               )}
-              שמור
+              שמירה
             </Button>
           </div>
         </div>

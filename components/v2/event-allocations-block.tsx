@@ -518,7 +518,7 @@ export function EventAllocationsBlock({
                     className="rounded-xl bg-brand hover:bg-brand/90"
                     disabled={isPending}
                   >
-                    הוסף
+                    הוספה
                   </Button>
                   <Button
                     onClick={() => {
@@ -541,7 +541,7 @@ export function EventAllocationsBlock({
                 disabled={isPending}
               >
                 <Plus className="h-4 w-4" />
-                <span>הוסף אירוע מותאם אישית</span>
+                <span>הוספת אירוע מותאם אישית</span>
               </button>
             )}
           </div>
@@ -567,7 +567,7 @@ export function EventAllocationsBlock({
               ) : (
                 <Check className="h-4 w-4" />
               )}
-              שמור
+              שמירה
             </Button>
           </div>
         </div>

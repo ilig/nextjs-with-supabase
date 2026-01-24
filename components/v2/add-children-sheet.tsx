@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ChevronDown, Lightbulb, Info, Check } from "lucide-react";
+import { ChevronDown, Lightbulb, Info, Check, Users } from "lucide-react";
 import { addChild } from "@/app/actions/manage-directory";
 
 type Child = {
@@ -30,6 +30,8 @@ type AddChildrenSheetProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  currentCount?: number;
+  expectedCount?: number;
 };
 
 export function AddChildrenSheet({
@@ -37,6 +39,8 @@ export function AddChildrenSheet({
   open,
   onOpenChange,
   onSuccess,
+  currentCount = 0,
+  expectedCount = 0,
 }: AddChildrenSheetProps) {
   const router = useRouter();
   const [children, setChildren] = useState<Child[]>(() => createInitialChildren(5));
@@ -180,18 +184,25 @@ export function AddChildrenSheet({
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col" dir="rtl">
         <DialogHeader className="text-right pb-2">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold">הזנת שמות ילדים</DialogTitle>
-            <span className="text-sm text-muted-foreground">
-              {filledChildrenCount} מתוך {children.length} שורות
-            </span>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-muted">
+                <Users className="h-5 w-5 text-brand" />
+              </div>
+              <DialogTitle className="text-xl font-bold">הוספת ילדים</DialogTitle>
+            </div>
+            {expectedCount > 0 && (
+              <span className="text-sm text-muted-foreground">
+                נוספו {currentCount}/{expectedCount}
+              </span>
+            )}
           </div>
         </DialogHeader>
 
         <div className="space-y-3 flex-1 overflow-hidden flex flex-col">
           {/* Instructions */}
-          <div className="bg-warning/10 dark:bg-warning/20 border border-warning/20 dark:border-warning/30 rounded-xl p-2 flex items-center gap-2">
+          <div className="bg-warning-muted border border-warning/30 rounded-xl p-2 flex items-center gap-2">
             <Lightbulb className="h-4 w-4 text-warning flex-shrink-0" />
-            <p className="text-xs text-warning-foreground dark:text-warning">
+            <p className="text-xs text-warning-muted-foreground">
               הקלידו שמות ולחצו Enter למעבר לשורה הבאה. לחצו על{" "}
               <ChevronDown className="inline h-3 w-3" /> להוספת פרטים נוספים
               (הורים, יום הולדת).
@@ -346,13 +357,13 @@ export function AddChildrenSheet({
               variant="outline"
               className="w-full border-dashed border-2 hover:border-solid"
             >
-              + הוסף עוד 5 שורות
+              + הוספת עוד 5 שורות
             </Button>
 
             {/* Info note */}
-            <div className="bg-info/10 dark:bg-info/20 border border-info/20 dark:border-info/30 rounded-xl p-2 flex items-center gap-2">
+            <div className="bg-info-muted border border-info/30 rounded-xl p-2 flex items-center gap-2">
               <Info className="h-4 w-4 text-info flex-shrink-0" />
-              <p className="text-xs text-info-foreground dark:text-info">
+              <p className="text-xs text-info-muted-foreground">
                 אפשר להשלים פרטי הורים, כתובת וימי הולדת גם אחר כך דרך עריכת הילד
               </p>
             </div>
@@ -369,7 +380,7 @@ export function AddChildrenSheet({
               <Button
                 onClick={handleSave}
                 disabled={isSaving || filledChildrenCount === 0}
-                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="flex-1 bg-brand hover:bg-brand/90 text-brand-foreground"
               >
                 <Check className="h-4 w-4 ml-2" />
                 {isSaving ? "שומר..." : `אישור ושמירה`}

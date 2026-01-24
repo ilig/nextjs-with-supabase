@@ -158,8 +158,10 @@ export function AddEventModal({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-right flex items-center gap-2">
-            <Plus className="h-5 w-5 text-brand" />
+          <DialogTitle className="text-right flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-muted">
+              <Plus className="h-5 w-5 text-brand" />
+            </div>
             הוספת אירוע חדש
           </DialogTitle>
         </DialogHeader>
@@ -243,7 +245,7 @@ export function AddEventModal({
               ביטול
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "שומר..." : "הוסף אירוע"}
+              {isSubmitting ? "שומר..." : "הוספת אירוע"}
             </Button>
           </DialogFooter>
         </form>
