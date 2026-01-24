@@ -369,29 +369,29 @@ export function BudgetTab({
       )}
 
       {/* 3 Clickable Metric Blocks */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 md:gap-3">
         {/* Block 1: Budget (shows collected / target) */}
         <button
           onClick={() => handleBlockClick("budget")}
           className={cn(
-            "bg-card rounded-2xl p-4 border-2 shadow-sm transition-all text-right",
+            "bg-card rounded-2xl p-3 md:p-4 border-2 shadow-sm transition-all text-right flex flex-col",
             selectedBlock === "budget"
               ? "border-brand ring-2 ring-brand/20"
               : "border-border hover:border-brand/50"
           )}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <PiggyBank className="h-4 w-4 text-brand" />
-            <span className="text-xs font-medium text-muted-foreground">תקציב</span>
+          <div className="flex items-center gap-1.5 md:gap-2 mb-1 md:mb-2">
+            <PiggyBank className="h-4 w-4 text-brand flex-shrink-0" />
+            <span className="text-xs font-medium text-muted-foreground truncate">תקציב</span>
           </div>
-          <p className="text-xl md:text-2xl font-bold text-foreground">
+          <p className="text-lg md:text-2xl font-bold text-foreground leading-tight">
             ₪{collected.toLocaleString()}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-0.5">
             מתוך ₪{total.toLocaleString()}
           </p>
           {/* Mini progress bar */}
-          <div className="h-1 bg-muted rounded-full overflow-hidden mt-2">
+          <div className="h-1 bg-muted rounded-full overflow-hidden mt-auto pt-2">
             <div
               className="h-full bg-brand rounded-full transition-all duration-500"
               style={{ width: `${collectionPercentage}%` }}
@@ -403,51 +403,51 @@ export function BudgetTab({
         <button
           onClick={() => handleBlockClick("expenses")}
           className={cn(
-            "bg-card rounded-2xl p-4 border-2 shadow-sm transition-all text-right",
+            "bg-card rounded-2xl p-3 md:p-4 border-2 shadow-sm transition-all text-right flex flex-col",
             selectedBlock === "expenses"
               ? "border-brand ring-2 ring-brand/20"
               : "border-border hover:border-brand/50"
           )}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingDown className="h-4 w-4 text-destructive" />
-            <span className="text-xs font-medium text-muted-foreground">הוצאות</span>
+          <div className="flex items-center gap-1.5 md:gap-2 mb-1 md:mb-2">
+            <TrendingDown className="h-4 w-4 text-destructive flex-shrink-0" />
+            <span className="text-xs font-medium text-muted-foreground truncate">הוצאות</span>
           </div>
-          <p className="text-xl md:text-2xl font-bold text-foreground">
+          <p className="text-lg md:text-2xl font-bold text-foreground leading-tight">
             ₪{spent.toLocaleString()}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {expenses.length} הוצאות
           </p>
           {/* Spacer to match budget block height */}
-          <div className="h-1 mt-2" />
+          <div className="h-1 mt-auto pt-2" />
         </button>
 
         {/* Block 3: Balance */}
         <button
           onClick={() => handleBlockClick("balance")}
           className={cn(
-            "bg-card rounded-2xl p-4 border-2 shadow-sm transition-all text-right",
+            "bg-card rounded-2xl p-3 md:p-4 border-2 shadow-sm transition-all text-right flex flex-col",
             selectedBlock === "balance"
               ? "border-brand ring-2 ring-brand/20"
               : "border-border hover:border-brand/50"
           )}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <Wallet className="h-4 w-4 text-success" />
-            <span className="text-xs font-medium text-muted-foreground">יתרה</span>
+          <div className="flex items-center gap-1.5 md:gap-2 mb-1 md:mb-2">
+            <Wallet className="h-4 w-4 text-success flex-shrink-0" />
+            <span className="text-xs font-medium text-muted-foreground truncate">יתרה</span>
           </div>
           <p className={cn(
-            "text-xl md:text-2xl font-bold",
+            "text-lg md:text-2xl font-bold leading-tight",
             actualBalance >= 0 ? "text-foreground" : "text-destructive"
           )} dir="ltr">
             {actualBalance < 0 ? `-₪${Math.abs(actualBalance).toLocaleString()}` : `₪${actualBalance.toLocaleString()}`}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-0.5">
             מתוך ₪{allocated.toLocaleString()} מוקצה
           </p>
           {/* Spacer to match budget block height */}
-          <div className="h-1 mt-2" />
+          <div className="h-1 mt-auto pt-2" />
         </button>
       </div>
 
@@ -493,7 +493,7 @@ export function BudgetTab({
                         const item = budgetUtilizationPieData.find(d => d.name === value);
                         const total = budgetUtilizationPieData.reduce((sum, d) => sum + d.value, 0);
                         const percentage = total > 0 ? Math.round((item?.value || 0) / total * 100) : 0;
-                        return <span style={{ whiteSpace: 'nowrap' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
+                        return <span style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
                       }}
                     />
                   </PieChart>
@@ -547,7 +547,7 @@ export function BudgetTab({
                         const item = kidsStaffPieData.find(d => d.name === value);
                         const total = kidsStaffPieData.reduce((sum, d) => sum + d.value, 0);
                         const percentage = total > 0 ? Math.round((item?.value || 0) / total * 100) : 0;
-                        return <span style={{ whiteSpace: 'nowrap' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
+                        return <span style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
                       }}
                     />
                   </PieChart>
