@@ -156,10 +156,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
       birthday: "",
     };
     setChildren([...children, newChild]);
-    // Focus the new input after render
-    setTimeout(() => {
-      inputRefs.current[newChild.id]?.focus();
-    }, 0);
+    // Note: Removed auto-focus to prevent mobile keyboard from opening automatically
   };
 
   const addMultipleChildren = (count: number) => {
