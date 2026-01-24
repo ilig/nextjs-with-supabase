@@ -774,7 +774,7 @@ ${signature}`;
 
       {/* Share Link Dialog */}
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogContent className="sm:max-w-md max-h-[80vh] max-h-[80dvh] overflow-y-auto" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-right flex items-center gap-3">
               <div className="p-2 rounded-xl bg-muted">
@@ -847,7 +847,7 @@ ${signature}`;
                   <span>{copiedMessage ? "הועתק!" : "העתקה"}</span>
                 </button>
               </div>
-              <div className="bg-brand/10 dark:bg-brand/20 rounded-xl p-4 border border-brand/20 dark:border-brand/30">
+              <div className="bg-brand/10 dark:bg-brand/20 rounded-xl p-4 border border-brand/20 dark:border-brand/30 max-h-32 overflow-y-auto">
                 <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">
                   {getSuggestedMessage(shareMode === "with-payment")}
                 </p>
