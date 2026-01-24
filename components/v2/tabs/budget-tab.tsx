@@ -39,7 +39,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import {
   Dialog,
   DialogContent,
@@ -459,46 +459,50 @@ export function BudgetTab({
           <div className="bg-card rounded-2xl p-4 border-2 border-border shadow-sm">
             <h3 className="text-sm font-bold text-foreground mb-2">ניצול תקציב</h3>
             {budgetUtilizationPieData.length > 0 && collected > 0 ? (
-              <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={budgetUtilizationPieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={45}
-                      outerRadius={70}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {budgetUtilizationPieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value) => `₪${(value as number).toLocaleString()}`}
-                      contentStyle={{
-                        backgroundColor: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px",
-                      }}
-                    />
-                    <Legend
-                      verticalAlign="bottom"
-                      height={36}
-                      layout="horizontal"
-                      align="center"
-                      wrapperStyle={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
-                      formatter={(value) => {
-                        const item = budgetUtilizationPieData.find(d => d.name === value);
-                        const total = budgetUtilizationPieData.reduce((sum, d) => sum + d.value, 0);
-                        const percentage = total > 0 ? Math.round((item?.value || 0) / total * 100) : 0;
-                        return <span style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+              <>
+                <div className="h-44">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={budgetUtilizationPieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={45}
+                        outerRadius={70}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {budgetUtilizationPieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value) => `₪${(value as number).toLocaleString()}`}
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                {/* Custom Legend */}
+                <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
+                  {budgetUtilizationPieData.map((item) => {
+                    const total = budgetUtilizationPieData.reduce((sum, d) => sum + d.value, 0);
+                    const percentage = total > 0 ? Math.round(item.value / total * 100) : 0;
+                    return (
+                      <div key={item.name} className="flex items-center gap-1.5 text-xs whitespace-nowrap">
+                        <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: item.color }} />
+                        <span className="text-muted-foreground">{item.name}:</span>
+                        <span className="font-medium">₪{item.value.toLocaleString()}</span>
+                        <span className="text-muted-foreground">({percentage}%)</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
             ) : (
               <div className="h-56 flex items-center justify-center text-muted-foreground">
                 <div className="text-center">
@@ -513,46 +517,50 @@ export function BudgetTab({
           <div className="bg-card rounded-2xl p-4 border-2 border-border shadow-sm">
             <h3 className="text-sm font-bold text-foreground mb-2">חלוקת תקציב: ילדים מול צוות</h3>
             {kidsStaffPieData.length > 0 ? (
-              <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={kidsStaffPieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={45}
-                      outerRadius={70}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {kidsStaffPieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value) => `₪${(value as number).toLocaleString()}`}
-                      contentStyle={{
-                        backgroundColor: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px",
-                      }}
-                    />
-                    <Legend
-                      verticalAlign="bottom"
-                      height={36}
-                      layout="horizontal"
-                      align="center"
-                      wrapperStyle={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
-                      formatter={(value) => {
-                        const item = kidsStaffPieData.find(d => d.name === value);
-                        const total = kidsStaffPieData.reduce((sum, d) => sum + d.value, 0);
-                        const percentage = total > 0 ? Math.round((item?.value || 0) / total * 100) : 0;
-                        return <span style={{ whiteSpace: 'nowrap', marginRight: '6px' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+              <>
+                <div className="h-44">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={kidsStaffPieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={45}
+                        outerRadius={70}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {kidsStaffPieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value) => `₪${(value as number).toLocaleString()}`}
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                {/* Custom Legend */}
+                <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
+                  {kidsStaffPieData.map((item) => {
+                    const total = kidsStaffPieData.reduce((sum, d) => sum + d.value, 0);
+                    const percentage = total > 0 ? Math.round(item.value / total * 100) : 0;
+                    return (
+                      <div key={item.name} className="flex items-center gap-1.5 text-xs whitespace-nowrap">
+                        <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: item.color }} />
+                        <span className="text-muted-foreground">{item.name}:</span>
+                        <span className="font-medium">₪{item.value.toLocaleString()}</span>
+                        <span className="text-muted-foreground">({percentage}%)</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
             ) : (
               <div className="h-56 flex items-center justify-center text-muted-foreground">
                 <div className="text-center">
