@@ -774,8 +774,8 @@ ${signature}`;
 
       {/* Share Link Dialog */}
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-        <DialogContent className="sm:max-w-md max-h-[80vh] max-h-[80dvh] overflow-y-auto" dir="rtl">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-md max-h-[80vh] max-h-[80dvh] flex flex-col overflow-hidden" dir="rtl">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="text-right flex items-center gap-3">
               <div className="p-2 rounded-xl bg-muted">
                 <Share2 className="h-5 w-5 text-brand" />
@@ -787,7 +787,7 @@ ${signature}`;
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-5 py-2">
+          <div className="flex-1 overflow-y-auto space-y-4 py-2 min-h-0">
             {/* Link display and copy */}
             <div className="space-y-2">
               <div className="bg-muted/50 rounded-xl p-3 border border-border">
@@ -847,30 +847,29 @@ ${signature}`;
                   <span>{copiedMessage ? "הועתק!" : "העתקה"}</span>
                 </button>
               </div>
-              <div className="bg-brand/10 dark:bg-brand/20 rounded-xl p-4 border border-brand/20 dark:border-brand/30 max-h-32 overflow-y-auto">
+              <div className="bg-brand/10 dark:bg-brand/20 rounded-xl p-3 border border-brand/20 dark:border-brand/30 max-h-24 overflow-y-auto">
                 <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">
                   {getSuggestedMessage(shareMode === "with-payment")}
                 </p>
               </div>
             </div>
-
           </div>
 
-          {/* Close button */}
-          <div className="flex gap-3 pt-2">
+          {/* Footer buttons - always visible */}
+          <div className="flex gap-3 pt-3 border-t border-border flex-shrink-0">
             {shareMode === "with-payment" ? (
               <>
                 <Button
                   onClick={handlePaymentLinkSent}
                   className="flex-1 bg-brand text-white hover:bg-brand/90"
                 >
-                  שלחתי את הקישור
+                  סמנו כנשלח
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setShareDialogOpen(false)}
                 >
-                  אחר כך
+                  ביטול
                 </Button>
               </>
             ) : (
@@ -879,13 +878,13 @@ ${signature}`;
                   onClick={() => setShareDialogOpen(false)}
                   className="flex-1 bg-brand text-white hover:bg-brand/90"
                 >
-                  סיימתי לשלוח
+                  סיימתי
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setShareDialogOpen(false)}
                 >
-                  אחר כך
+                  ביטול
                 </Button>
               </>
             )}
