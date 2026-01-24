@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,19 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
   const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+
+  // Blur any focused input when entering manual-entry step to prevent keyboard auto-open on mobile
+  useEffect(() => {
+    if (step === "manual-entry") {
+      // Small delay to ensure the DOM has updated
+      const timer = setTimeout(() => {
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
 
   // Excel upload handler
   const processExcelFile = (file: File) => {
@@ -175,6 +188,11 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
 
   // Initialize with 5 empty rows when entering manual mode
   const initializeManualEntry = () => {
+    // Blur any focused element to prevent keyboard from opening on mobile
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
     if (children.length === 0) {
       const initialChildren = Array.from({ length: 5 }, (_, i) => ({
         id: `child-${Date.now()}-${i}`,
