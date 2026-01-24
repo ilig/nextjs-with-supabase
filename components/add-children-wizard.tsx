@@ -407,7 +407,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
       </div>
 
       {/* Children list */}
-      <div className="space-y-2 max-h-[350px] overflow-y-auto border border-border rounded-xl">
+      <div className="space-y-2 max-h-[40vh] max-h-[40dvh] overflow-y-auto border border-border rounded-xl">
         {children.map((child, index) => {
           const isExpanded = expandedChildId === child.id;
 

@@ -298,10 +298,10 @@ ${signature}`;
   return (
     <div className={cn("space-y-2", className)}>
       {/* Section Header */}
-      <div className="flex items-center gap-2 mb-1">
+      <div className="flex items-center flex-wrap gap-2 mb-1">
         <h2 className="text-2xl font-bold text-foreground">השלימו את הגדרת הכיתה</h2>
         {incompleteSections > 0 && (
-          <span className="text-sm text-muted-foreground">({incompleteSections} שלבים נותרו)</span>
+          <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0">({incompleteSections} שלבים נותרו)</span>
         )}
       </div>
 
@@ -669,8 +669,10 @@ ${signature}`;
       <Dialog open={payboxDialogOpen} onOpenChange={setPayboxDialogOpen}>
         <DialogContent className="sm:max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-right">
-              <Link className="h-5 w-5 text-brand" />
+            <DialogTitle className="flex items-center gap-3 text-right">
+              <div className="p-2 rounded-xl bg-muted">
+                <Link className="h-5 w-5 text-brand" />
+              </div>
               הגדרת קישור תשלום
             </DialogTitle>
             <DialogDescription className="text-right">
@@ -753,7 +755,7 @@ ${signature}`;
                   שומר...
                 </>
               ) : (
-                "שמור קישור"
+                "שמירת קישור"
               )}
             </Button>
             <Button
@@ -774,7 +776,10 @@ ${signature}`;
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-right">
+            <DialogTitle className="text-right flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-muted">
+                <Share2 className="h-5 w-5 text-brand" />
+              </div>
               קישור למילוי פרטי ילדים
             </DialogTitle>
             <DialogDescription className="text-right">
@@ -800,7 +805,7 @@ ${signature}`;
                 )}
               >
                 <Copy className="h-4 w-4" />
-                <span>{copiedLink ? "הקישור הועתק!" : "העתק קישור"}</span>
+                <span>{copiedLink ? "הקישור הועתק!" : "העתקת קישור"}</span>
               </button>
             </div>
 
@@ -839,7 +844,7 @@ ${signature}`;
                   )}
                 >
                   <Copy className="h-3 w-3" />
-                  <span>{copiedMessage ? "הועתק!" : "העתק"}</span>
+                  <span>{copiedMessage ? "הועתק!" : "העתקה"}</span>
                 </button>
               </div>
               <div className="bg-brand/10 dark:bg-brand/20 rounded-xl p-4 border border-brand/20 dark:border-brand/30">

@@ -349,8 +349,7 @@ export function BudgetTab({
               <Button
                 onClick={onOpenPaymentSheetWithoutList}
                 size="sm"
-                
-                className="gap-2"
+                className="gap-2 bg-brand hover:bg-brand/90 text-brand-foreground"
               >
                 <Send className="h-4 w-4" />
                 שלחו תזכורת לתשלום
@@ -359,8 +358,7 @@ export function BudgetTab({
               <Button
                 onClick={onOpenPaymentSheetInviteMode}
                 size="sm"
-                
-                className="gap-2"
+                className="gap-2 bg-brand hover:bg-brand/90 text-brand-foreground"
               >
                 <UserPlus className="h-4 w-4" />
                 שלחו קישור הרשמה ותשלום
@@ -407,8 +405,8 @@ export function BudgetTab({
           className={cn(
             "bg-card rounded-2xl p-4 border-2 shadow-sm transition-all text-right",
             selectedBlock === "expenses"
-              ? "border-destructive ring-2 ring-destructive/20"
-              : "border-border hover:border-destructive/50"
+              ? "border-brand ring-2 ring-brand/20"
+              : "border-border hover:border-brand/50"
           )}
         >
           <div className="flex items-center gap-2 mb-2">
@@ -418,6 +416,11 @@ export function BudgetTab({
           <p className="text-xl md:text-2xl font-bold text-foreground">
             ₪{spent.toLocaleString()}
           </p>
+          <p className="text-xs text-muted-foreground">
+            {expenses.length} הוצאות
+          </p>
+          {/* Spacer to match budget block height */}
+          <div className="h-1 mt-2" />
         </button>
 
         {/* Block 3: Balance */}
@@ -426,8 +429,8 @@ export function BudgetTab({
           className={cn(
             "bg-card rounded-2xl p-4 border-2 shadow-sm transition-all text-right",
             selectedBlock === "balance"
-              ? "border-success ring-2 ring-success/20"
-              : "border-border hover:border-success/50"
+              ? "border-brand ring-2 ring-brand/20"
+              : "border-border hover:border-brand/50"
           )}
         >
           <div className="flex items-center gap-2 mb-2">
@@ -440,6 +443,11 @@ export function BudgetTab({
           )} dir="ltr">
             {actualBalance < 0 ? `-₪${Math.abs(actualBalance).toLocaleString()}` : `₪${actualBalance.toLocaleString()}`}
           </p>
+          <p className="text-xs text-muted-foreground">
+            מתוך ₪{allocated.toLocaleString()} מוקצה
+          </p>
+          {/* Spacer to match budget block height */}
+          <div className="h-1 mt-2" />
         </button>
       </div>
 
@@ -482,7 +490,7 @@ export function BudgetTab({
                         const item = budgetUtilizationPieData.find(d => d.name === value);
                         const total = budgetUtilizationPieData.reduce((sum, d) => sum + d.value, 0);
                         const percentage = total > 0 ? Math.round((item?.value || 0) / total * 100) : 0;
-                        return <span style={{ marginRight: '8px' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
+                        return <span style={{ marginRight: '8px', whiteSpace: 'nowrap' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
                       }}
                     />
                   </PieChart>
@@ -533,7 +541,7 @@ export function BudgetTab({
                         const item = kidsStaffPieData.find(d => d.name === value);
                         const total = kidsStaffPieData.reduce((sum, d) => sum + d.value, 0);
                         const percentage = total > 0 ? Math.round((item?.value || 0) / total * 100) : 0;
-                        return <span style={{ marginRight: '8px' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
+                        return <span style={{ marginRight: '8px', whiteSpace: 'nowrap' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
                       }}
                     />
                   </PieChart>
@@ -559,7 +567,7 @@ export function BudgetTab({
               onClick={() => setSelectedBlock(null)}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              <span>סגור</span>
+              <span>סגירה</span>
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -617,7 +625,7 @@ export function BudgetTab({
               onClick={() => setSelectedBlock(null)}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              <span>סגור</span>
+              <span>סגירה</span>
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -632,7 +640,7 @@ export function BudgetTab({
                 className="bg-brand text-white rounded-xl py-2 px-4 text-sm font-medium hover:bg-brand/90 transition-colors flex items-center gap-1"
               >
                 <Plus className="h-4 w-4" />
-                הוסף
+                הוספה
               </button>
             </div>
 
@@ -714,7 +722,7 @@ export function BudgetTab({
                             <button
                               onClick={() => setDeleteExpenseId(expense.id)}
                               className="p-1.5 rounded-xl hover:bg-destructive/10 transition-colors"
-                              title="מחק"
+                              title="מחיקה"
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </button>
@@ -742,7 +750,7 @@ export function BudgetTab({
               onClick={() => setSelectedBlock(null)}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              <span>סגור</span>
+              <span>סגירה</span>
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -849,7 +857,7 @@ export function BudgetTab({
               <div className="flex items-start gap-2 p-3 bg-warning/10 rounded-xl border border-warning/20">
                 <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-foreground">
-                  שים לב: עדיין לא נאסף מלוא התקציב (₪{(total - collected).toLocaleString()} חסרים)
+                  שימו לב: עדיין לא נאסף מלוא התקציב (₪{(total - collected).toLocaleString()} חסרים)
                 </p>
               </div>
             )}
@@ -907,14 +915,14 @@ export function BudgetTab({
                       <div
                         className={cn(
                           "absolute bottom-0 left-0 right-0 transition-all duration-300",
-                          isOverBudget ? "bg-destructive/40" : "bg-success/40"
+                          isOverBudget ? "bg-destructive/40" : "bg-brand/30"
                         )}
                         style={{ height: `${spentPercentage}%` }}
                       />
                       <div className="absolute inset-0 flex flex-col items-center justify-start pt-2 pb-3 gap-1">
                         <Icon className={cn(
                           "h-5 w-5 flex-shrink-0 relative z-10",
-                          isOverBudget ? "text-destructive" : totalSpent > 0 ? "text-success" : "text-muted-foreground"
+                          isOverBudget ? "text-destructive" : "text-brand"
                         )} />
                         <div
                           className="flex-1 flex items-center justify-center overflow-hidden"
@@ -922,7 +930,7 @@ export function BudgetTab({
                         >
                           <span className={cn(
                             "text-xs font-medium whitespace-nowrap relative z-10",
-                            isOverBudget ? "text-destructive" : totalSpent > 0 ? "text-success" : "text-foreground"
+                            isOverBudget ? "text-destructive" : "text-foreground"
                           )}>
                             {event.name}
                           </span>
@@ -1063,7 +1071,7 @@ export function BudgetTab({
               className="rounded-xl gap-2"
             >
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              הוסף הוצאה
+              הוסיפו הוצאה
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1103,7 +1111,7 @@ export function BudgetTab({
               className="rounded-xl gap-2"
             >
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              מחק
+              מחיקה
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1123,8 +1131,10 @@ export function BudgetTab({
             return (
               <>
                 <DialogHeader>
-                  <DialogTitle className="text-right flex items-center gap-2">
-                    <EventIcon className="h-5 w-5 text-brand" />
+                  <DialogTitle className="text-right flex items-center gap-3">
+                    <div className="p-2 rounded-xl bg-muted">
+                      <EventIcon className="h-5 w-5 text-brand" />
+                    </div>
                     {selectedEvent.name}
                   </DialogTitle>
                   <DialogDescription className="text-right">
@@ -1142,7 +1152,7 @@ export function BudgetTab({
                       <span className="text-muted-foreground">סה״כ הוצאות</span>
                       <span className={cn(
                         "font-medium",
-                        eventIsOverBudget ? "text-destructive" : "text-success"
+                        eventIsOverBudget ? "text-destructive" : "text-brand"
                       )}>
                         ₪{eventTotalSpent.toLocaleString()}
                       </span>
@@ -1151,7 +1161,7 @@ export function BudgetTab({
                       <div
                         className={cn(
                           "h-full rounded-full transition-all duration-300",
-                          eventIsOverBudget ? "bg-destructive" : "bg-success"
+                          eventIsOverBudget ? "bg-destructive" : "bg-brand"
                         )}
                         style={{ width: `${Math.min((eventTotalSpent / eventBudget) * 100, 100)}%` }}
                       />
@@ -1208,7 +1218,7 @@ export function BudgetTab({
                     onClick={() => setSelectedEventId(null)}
                     className="rounded-xl"
                   >
-                    סגור
+                    סגירה
                   </Button>
                   <Button
                     onClick={() => {
@@ -1219,10 +1229,10 @@ export function BudgetTab({
                       });
                       setExpenseModalOpen(true);
                     }}
-                    className="rounded-xl gap-2"
+                    className="rounded-xl gap-2 bg-brand hover:bg-brand/90 text-brand-foreground"
                   >
                     <Plus className="h-4 w-4" />
-                    הוסף הוצאה
+                    הוסיפו הוצאה
                   </Button>
                 </DialogFooter>
               </>
@@ -1339,7 +1349,7 @@ export function BudgetTab({
               }}
               className="rounded-xl"
             >
-              סגור
+              סגירה
             </Button>
             {childrenListModal.type === "unpaid" && unpaidChildren.length > 0 && (
               <Button

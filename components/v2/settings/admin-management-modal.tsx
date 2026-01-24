@@ -164,8 +164,10 @@ export function AdminManagementModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-right flex items-center gap-2">
-            <Users className="h-5 w-5 text-brand" />
+          <DialogTitle className="text-right flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-muted">
+              <Users className="h-5 w-5 text-brand" />
+            </div>
             ניהול מנהלים
           </DialogTitle>
         </DialogHeader>
@@ -264,23 +266,22 @@ export function AdminManagementModal({
 
           {/* Invite New Admin */}
           <div className="space-y-3">
-            <Label>הזמן מנהל/ת חדש/ה</Label>
+            <Label>הזמנת מנהל/ת חדש/ה</Label>
 
             {/* Invite via Link */}
             {inviteLink && (
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">
-                  שלח קישור הזמנה למנהל/ת חדש/ה דרך וואטסאפ או העתק את הקישור:
+                  שליחת קישור הזמנה למנהל/ת חדש/ה דרך וואטסאפ או העתקת הקישור:
                 </p>
                 <div className="flex gap-2">
                   <Button
                     type="button"
-                    variant="outline"
-                    className="flex-1 gap-2 bg-success/10 border-success/30 text-success hover:bg-success/20"
+                    className="flex-1 gap-2 bg-brand hover:bg-brand/90 text-brand-foreground"
                     onClick={handleWhatsAppShare}
                   >
                     <MessageCircle className="h-4 w-4" />
-                    שלח בוואטסאפ
+                    שליחה בוואטסאפ
                   </Button>
                   <Button
                     type="button"
@@ -296,7 +297,7 @@ export function AdminManagementModal({
                     ) : (
                       <>
                         <Copy className="h-4 w-4" />
-                        העתק קישור
+                        העתקת קישור
                       </>
                     )}
                   </Button>
@@ -317,7 +318,7 @@ export function AdminManagementModal({
             {/* Add by Email (existing user) */}
             <form onSubmit={handleAddAdmin} className="space-y-2">
               <p className="text-xs text-muted-foreground">
-                הוסף משתמש קיים לפי כתובת אימייל:
+                הוספת משתמש/ת קיים/ת לפי כתובת אימייל:
               </p>
               <div className="flex gap-2">
                 <div className="flex-1 relative">
@@ -333,7 +334,7 @@ export function AdminManagementModal({
                 </div>
                 <Button type="submit" disabled={isAdding} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  {isAdding ? "מוסיף..." : "הוסף"}
+                  {isAdding ? "מוסיף..." : "הוספה"}
                 </Button>
               </div>
             </form>
@@ -354,7 +355,7 @@ export function AdminManagementModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            סגור
+            סגירה
           </Button>
         </DialogFooter>
       </DialogContent>

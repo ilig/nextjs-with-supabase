@@ -127,7 +127,7 @@ export function EventDetailModal({
   const [editedEvent, setEditedEvent] = useState<Partial<CalendarEvent>>({});
 
   // Determine what we're showing
-  const isHolidayView = !event && dayData && (dayData.holidays.length > 0 || dayData.schoolBreak);
+  const isHolidayView = !event && dayData && (dayData.holidays.length > 0 || dayData.schoolBreak || dayData.birthdays.length > 0);
   const isBudgetedEvent = event && (event.allocated_budget || event.amount_per_kid || event.amount_per_staff);
 
   const handleEdit = () => {
@@ -191,8 +191,10 @@ export function EventDetailModal({
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-right flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-brand" />
+            <DialogTitle className="text-right flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-muted">
+                <Calendar className="h-5 w-5 text-brand" />
+              </div>
               {formatDate(dayData.date)}
             </DialogTitle>
           </DialogHeader>
@@ -227,7 +229,7 @@ export function EventDetailModal({
 
           <DialogFooter>
             <Button variant="outline" onClick={handleClose}>
-              סגור
+              סגירה
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -242,10 +244,14 @@ export function EventDetailModal({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="text-right flex items-center gap-2">
+          <DialogTitle className="text-right flex items-center gap-3">
             {(() => {
               const Icon = getEventIconComponent(event.event_type);
-              return <Icon className="h-5 w-5 text-brand" />;
+              return (
+                <div className="p-2 rounded-xl bg-muted">
+                  <Icon className="h-5 w-5 text-brand" />
+                </div>
+              );
             })()}
             {isEditing ? (
               <Input
@@ -311,7 +317,7 @@ export function EventDetailModal({
                     className="text-brand"
                   >
                     <ExternalLink className="h-4 w-4 ml-1" />
-                    ערוך בתקציב
+                    עריכה בתקציב
                   </Button>
                 )}
               </div>
@@ -373,7 +379,7 @@ export function EventDetailModal({
                     ביטול
                   </Button>
                   <Button onClick={handleSave} disabled={isSaving}>
-                    {isSaving ? "שומר..." : "שמור"}
+                    {isSaving ? "שומר..." : "שמירה"}
                   </Button>
                 </>
               ) : (
@@ -387,10 +393,10 @@ export function EventDetailModal({
                     <Trash2 className="h-4 w-4" />
                   </Button>
                   <Button variant="outline" onClick={handleEdit}>
-                    ערוך
+                    עריכה
                   </Button>
                   <Button variant="outline" onClick={handleClose}>
-                    סגור
+                    סגירה
                   </Button>
                 </>
               )}
@@ -398,7 +404,7 @@ export function EventDetailModal({
           )}
           {!isAdmin && (
             <Button variant="outline" onClick={handleClose}>
-              סגור
+              סגירה
             </Button>
           )}
         </DialogFooter>
