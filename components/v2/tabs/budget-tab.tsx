@@ -486,11 +486,14 @@ export function BudgetTab({
                     <Legend
                       verticalAlign="bottom"
                       height={36}
+                      layout="horizontal"
+                      align="center"
+                      wrapperStyle={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
                       formatter={(value) => {
                         const item = budgetUtilizationPieData.find(d => d.name === value);
                         const total = budgetUtilizationPieData.reduce((sum, d) => sum + d.value, 0);
                         const percentage = total > 0 ? Math.round((item?.value || 0) / total * 100) : 0;
-                        return <span style={{ marginRight: '8px', whiteSpace: 'nowrap' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
+                        return <span style={{ whiteSpace: 'nowrap' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
                       }}
                     />
                   </PieChart>
@@ -537,11 +540,14 @@ export function BudgetTab({
                     <Legend
                       verticalAlign="bottom"
                       height={36}
+                      layout="horizontal"
+                      align="center"
+                      wrapperStyle={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
                       formatter={(value) => {
                         const item = kidsStaffPieData.find(d => d.name === value);
                         const total = kidsStaffPieData.reduce((sum, d) => sum + d.value, 0);
                         const percentage = total > 0 ? Math.round((item?.value || 0) / total * 100) : 0;
-                        return <span style={{ marginRight: '8px', whiteSpace: 'nowrap' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
+                        return <span style={{ whiteSpace: 'nowrap' }}>{`${value}: ₪${item?.value.toLocaleString() || 0} (${percentage}%)`}</span>;
                       }}
                     />
                   </PieChart>

@@ -407,7 +407,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
       </div>
 
       {/* Children list */}
-      <div className="space-y-2 max-h-[40vh] max-h-[40dvh] overflow-y-auto border border-border rounded-xl">
+      <div className="space-y-2 max-h-[30vh] max-h-[30dvh] overflow-y-auto border border-border rounded-xl">
         {children.map((child, index) => {
           const isExpanded = expandedChildId === child.id;
 
@@ -515,10 +515,10 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
       </Button>
 
       {/* Info note */}
-      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-3 flex items-start gap-2">
-        <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-blue-800 dark:text-blue-200">
-          אפשר להשלים פרטי הורים, כתובת וימי הולדת גם אחר כך דרך ניהול הכיתה
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-2 flex items-center gap-2">
+        <Info className="h-4 w-4 text-blue-500 flex-shrink-0" />
+        <p className="text-xs text-blue-800 dark:text-blue-200">
+          אפשר להשלים פרטים נוספים גם אחר כך דרך ניהול הכיתה
         </p>
       </div>
 
