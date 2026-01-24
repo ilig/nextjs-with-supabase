@@ -454,6 +454,7 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                   className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-right"
                   autoFocus={false}
                   autoComplete="off"
+                  tabIndex={userHasInteracted ? 0 : -1}
                 />
 
                 <span className="text-sm text-muted-foreground w-6">{index + 1}</span>
