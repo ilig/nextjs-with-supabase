@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,27 +39,6 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
   const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  // Track whether user has explicitly interacted - only then allow input focus
-  const [userHasInteracted, setUserHasInteracted] = useState(false);
-
-  // Reset interaction state when entering manual-entry step
-  useEffect(() => {
-    if (step === "manual-entry") {
-      setUserHasInteracted(false);
-    }
-  }, [step]);
-
-  // Handler to prevent unwanted focus on mobile
-  const handleInputFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-    if (!userHasInteracted) {
-      e.target.blur();
-    }
-  }, [userHasInteracted]);
-
-  // Mark that user has explicitly interacted (clicked/tapped)
-  const handleInputClick = useCallback(() => {
-    setUserHasInteracted(true);
-  }, []);
 
   // Excel upload handler
   const processExcelFile = (file: File) => {
@@ -405,9 +384,26 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
   // Count children with names filled in
   const filledChildrenCount = children.filter(c => c.name.trim()).length;
 
+  // Ref for focus trap element
+  const focusTrapRef = useRef<HTMLButtonElement>(null);
+
+  // Auto-focus the trap element when entering manual-entry to prevent keyboard
+  useEffect(() => {
+    if (step === "manual-entry" && focusTrapRef.current) {
+      focusTrapRef.current.focus();
+    }
+  }, [step]);
+
   // Render manual entry step
   const renderManualEntry = () => (
     <div className="space-y-4">
+      {/* Hidden focus trap to prevent iOS keyboard auto-open */}
+      <button
+        ref={focusTrapRef}
+        className="sr-only"
+        tabIndex={0}
+        aria-hidden="true"
+      />
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl md:text-2xl font-bold text-foreground">
@@ -447,14 +443,10 @@ export function AddChildrenWizard({ classId, onClose, onSuccess }: AddChildrenWi
                   value={child.name}
                   onChange={(e) => updateChild(child.id, "name", e.target.value)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
-                  onFocus={handleInputFocus}
-                  onClick={handleInputClick}
-                  onTouchStart={handleInputClick}
                   placeholder="שם הילד/ה"
                   className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-right"
                   autoFocus={false}
                   autoComplete="off"
-                  tabIndex={userHasInteracted ? 0 : -1}
                 />
 
                 <span className="text-sm text-muted-foreground w-6">{index + 1}</span>
