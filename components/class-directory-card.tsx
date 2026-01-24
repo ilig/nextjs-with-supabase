@@ -1283,7 +1283,10 @@ export function ClassDirectoryCard({
 
       {/* Add Children Wizard Dialog */}
       <Dialog open={showAddChildrenWizard} onOpenChange={setShowAddChildrenWizard}>
-        <DialogContent className="max-w-2xl max-h-[85vh] max-h-[85dvh] overflow-y-auto p-0">
+        <DialogContent
+          className="max-w-2xl max-h-[85vh] max-h-[85dvh] overflow-y-auto p-0"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <VisuallyHidden>
             <DialogTitle>הוספת ילדים</DialogTitle>
           </VisuallyHidden>
