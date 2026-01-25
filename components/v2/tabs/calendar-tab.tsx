@@ -17,6 +17,7 @@ import {
   HebrewCalendar,
   EventDetailModal,
   AddEventModal,
+  DaySummarySheet,
   type CalendarEvent,
   type CalendarDayData,
   type NewEventData,
@@ -66,6 +67,7 @@ export function CalendarTab({
   const [selectedDayData, setSelectedDayData] = useState<CalendarDayData | undefined>();
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | undefined>();
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [isDaySummaryOpen, setIsDaySummaryOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -96,20 +98,18 @@ export function CalendarTab({
     setSelectedDate(date);
     setSelectedDayData(dayData);
 
-    // If there's exactly one event on this day, open it directly
-    if (dayData.events.length === 1) {
-      setSelectedEvent(dayData.events[0]);
-      setIsEventModalOpen(true);
-    } else if (dayData.events.length > 1) {
-      // Multiple events - could show a picker, for now just show the first
-      setSelectedEvent(dayData.events[0]);
-      setIsEventModalOpen(true);
-    } else if (dayData.holidays.length > 0 || dayData.schoolBreak || dayData.birthdays.length > 0) {
-      // Show holiday/birthday info
-      setSelectedEvent(undefined);
-      setIsEventModalOpen(true);
+    // Check if day has any content (events, holidays, birthdays, school break)
+    const hasContent =
+      dayData.events.length > 0 ||
+      dayData.holidays.length > 0 ||
+      dayData.birthdays.length > 0 ||
+      dayData.schoolBreak;
+
+    if (hasContent) {
+      // Open day summary sheet to show all content with add/edit/delete options
+      setIsDaySummaryOpen(true);
     } else if (isAdmin) {
-      // Empty day - open add modal for admins
+      // Empty day - open add modal directly for admins
       setIsAddModalOpen(true);
     }
   }, [isAdmin]);
@@ -117,6 +117,19 @@ export function CalendarTab({
   const handleEventClick = useCallback((event: CalendarEvent) => {
     setSelectedEvent(event);
     setIsEventModalOpen(true);
+  }, []);
+
+  // Handler for editing event from day summary sheet
+  const handleEditEventFromSummary = useCallback((event: CalendarEvent) => {
+    setSelectedEvent(event);
+    setIsDaySummaryOpen(false);
+    setIsEventModalOpen(true);
+  }, []);
+
+  // Handler for adding event from day summary sheet
+  const handleAddEventFromSummary = useCallback(() => {
+    setIsDaySummaryOpen(false);
+    setIsAddModalOpen(true);
   }, []);
 
   const handleAddEvent = useCallback(async (eventData: NewEventData) => {
@@ -279,6 +292,19 @@ export function CalendarTab({
               ))}
           </div>
         </div>
+      )}
+
+      {/* Day Summary Sheet - shows all content for a day with actions */}
+      {selectedDayData && (
+        <DaySummarySheet
+          open={isDaySummaryOpen}
+          onOpenChange={setIsDaySummaryOpen}
+          dayData={selectedDayData}
+          isAdmin={isAdmin}
+          onAddEvent={handleAddEventFromSummary}
+          onEditEvent={handleEditEventFromSummary}
+          onDeleteEvent={handleDeleteEvent}
+        />
       )}
 
       {/* Event Detail Modal */}

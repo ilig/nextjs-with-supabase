@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import {
   HebrewCalendar,
   EventDetailModal,
+  DaySummarySheet,
   type CalendarEvent,
   type CalendarDayData,
 } from "@/components/v2/calendar";
@@ -56,6 +57,7 @@ export function PublicCalendarView({
   const [selectedDayData, setSelectedDayData] = useState<CalendarDayData | undefined>();
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | undefined>();
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [isDaySummaryOpen, setIsDaySummaryOpen] = useState(false);
 
   // Transform birthdays
   const kidBirthdays = children
@@ -71,16 +73,24 @@ export function PublicCalendarView({
     setSelectedDate(date);
     setSelectedDayData(dayData);
 
-    if (dayData.events.length === 1) {
-      setSelectedEvent(dayData.events[0]);
-      setIsEventModalOpen(true);
-    } else if (dayData.events.length > 1) {
-      setSelectedEvent(dayData.events[0]);
-      setIsEventModalOpen(true);
-    } else if (dayData.holidays.length > 0 || dayData.schoolBreak || dayData.birthdays.length > 0) {
-      setSelectedEvent(undefined);
-      setIsEventModalOpen(true);
+    // Check if day has any content
+    const hasContent =
+      dayData.events.length > 0 ||
+      dayData.holidays.length > 0 ||
+      dayData.birthdays.length > 0 ||
+      dayData.schoolBreak;
+
+    if (hasContent) {
+      // Open day summary sheet to show all content (view-only for public)
+      setIsDaySummaryOpen(true);
     }
+  }, []);
+
+  // Handler for viewing event details from day summary
+  const handleViewEventFromSummary = useCallback((event: CalendarEvent) => {
+    setSelectedEvent(event);
+    setIsDaySummaryOpen(false);
+    setIsEventModalOpen(true);
   }, []);
 
   const handleEventClick = useCallback((event: CalendarEvent) => {
@@ -192,6 +202,17 @@ export function PublicCalendarView({
           </p>
         </div>
       </footer>
+
+      {/* Day Summary Sheet (view only - no admin) */}
+      {selectedDayData && (
+        <DaySummarySheet
+          open={isDaySummaryOpen}
+          onOpenChange={setIsDaySummaryOpen}
+          dayData={selectedDayData}
+          isAdmin={false}
+          onEditEvent={handleViewEventFromSummary}
+        />
+      )}
 
       {/* Event Detail Modal (view only - no admin) */}
       <EventDetailModal
