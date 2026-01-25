@@ -313,6 +313,9 @@ export function HebrewCalendar({
         <span className="flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-muted-foreground"></span> חופשה
         </span>
+        <span className="flex items-center gap-1">
+          <span className="font-bold text-brand">₪</span> תקציב מוקצה
+        </span>
       </div>
     </div>
   );
@@ -334,6 +337,9 @@ function CalendarDay({ dayData, isSelected, onClick, onEventClick }: CalendarDay
 
   const hasContent = events.length > 0 || holidays.length > 0 || birthdays.length > 0;
   const isSchoolBreakDay = !!schoolBreak;
+
+  // Check if any event has a budget allocated
+  const hasBudgetedEvent = events.some((e) => e.allocated_budget && e.allocated_budget > 0);
 
   // Collect all icons to show
   const icons: string[] = [];
@@ -403,6 +409,13 @@ function CalendarDay({ dayData, isSelected, onClick, onEventClick }: CalendarDay
           {icons.length > 3 && (
             <span className="text-[10px] text-muted-foreground">+{icons.length - 3}</span>
           )}
+        </div>
+      )}
+
+      {/* Budget indicator */}
+      {hasBudgetedEvent && isCurrentMonth && (
+        <div className="absolute top-0.5 left-0.5">
+          <span className="text-[10px] font-bold text-brand">₪</span>
         </div>
       )}
 
