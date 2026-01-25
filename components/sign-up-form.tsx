@@ -38,11 +38,11 @@ export function SignUpForm({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/create-class`,
+          emailRedirectTo: `${window.location.origin}/onboarding-v2`,
         },
       });
       if (error) throw error;
-      router.push("/create-class");
+      router.push("/onboarding-v2");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "אירעה שגיאה");
     } finally {

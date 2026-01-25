@@ -25,7 +25,7 @@ export default async function Home() {
   }
 
   // Determine which page to link to
-  const ctaLink = hasClasses ? "/dashboard" : "/create-class";
+  const ctaLink = hasClasses ? "/dashboard-v2" : "/onboarding-v2";
   const ctaText = hasClasses ? "לדשבורד שלי" : "התחילו עכשיו";
   return (
     <main dir="rtl" className="text-right bg-surface text-foreground">
