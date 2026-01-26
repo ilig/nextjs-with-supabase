@@ -299,7 +299,7 @@ ${signature}`;
     <div className={cn("space-y-2", className)}>
       {/* Section Header */}
       <div className="flex items-center flex-wrap gap-2 mb-1">
-        <h2 className="text-2xl font-bold text-foreground">השלימו את הגדרת הכיתה</h2>
+        <h2 className="text-2xl font-bold text-foreground">השלמת הגדרת הכיתה</h2>
         {incompleteSections > 0 && (
           <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0">({incompleteSections} שלבים נותרו)</span>
         )}
@@ -360,19 +360,16 @@ ${signature}`;
               />
             </div>
 
-            {/* Dismiss button - outside the clickable area */}
-            <button
-              onClick={() => handleDismiss("payment")}
-              className={cn(
-                "p-1 rounded-xl transition-colors flex-shrink-0",
-                isPaymentComplete
-                  ? "hover:bg-success/30 dark:hover:bg-success/40"
-                  : "hover:bg-brand/20 dark:hover:bg-brand/30"
-              )}
-              aria-label="סגור התראה"
-            >
-              <X className="h-4 w-4 text-muted-foreground" />
-            </button>
+            {/* Dismiss button - only show when task is complete */}
+            {isPaymentComplete && (
+              <button
+                onClick={() => handleDismiss("payment")}
+                className="p-1 rounded-xl transition-colors flex-shrink-0 hover:bg-success/30 dark:hover:bg-success/40"
+                aria-label="סגור התראה"
+              >
+                <X className="h-4 w-4 text-muted-foreground" />
+              </button>
+            )}
           </div>
 
           {/* Collapsible Content */}
@@ -461,7 +458,7 @@ ${signature}`;
                   "font-semibold text-sm",
                   isContactsComplete ? "text-muted-foreground" : "text-foreground"
                 )}>
-                  יצירת דף קשר
+                  הוספת פרטי ילדים (דף קשר)
                 </h3>
               </div>
 
@@ -484,19 +481,16 @@ ${signature}`;
               />
             </div>
 
-            {/* Dismiss button - outside the clickable area */}
-            <button
-              onClick={() => handleDismiss("contacts")}
-              className={cn(
-                "p-1 rounded-xl transition-colors flex-shrink-0",
-                isContactsComplete
-                  ? "hover:bg-success/30 dark:hover:bg-success/40"
-                  : "hover:bg-brand/20 dark:hover:bg-brand/30"
-              )}
-              aria-label="סגור התראה"
-            >
-              <X className="h-4 w-4 text-muted-foreground" />
-            </button>
+            {/* Dismiss button - only show when task is complete */}
+            {isContactsComplete && (
+              <button
+                onClick={() => handleDismiss("contacts")}
+                className="p-1 rounded-xl transition-colors flex-shrink-0 hover:bg-success/30 dark:hover:bg-success/40"
+                aria-label="סגור התראה"
+              >
+                <X className="h-4 w-4 text-muted-foreground" />
+              </button>
+            )}
           </div>
 
           {/* Collapsible Content */}
@@ -598,7 +592,7 @@ ${signature}`;
                   "font-semibold text-sm",
                   isStaffComplete ? "text-muted-foreground" : "text-foreground"
                 )}>
-                  הוספת אנשי צוות
+                  הוספת פרטי אנשי צוות
                 </h3>
               </div>
 
@@ -621,19 +615,16 @@ ${signature}`;
               />
             </div>
 
-            {/* Dismiss button - outside the clickable area */}
-            <button
-              onClick={() => handleDismiss("staff")}
-              className={cn(
-                "p-1 rounded-xl transition-colors flex-shrink-0",
-                isStaffComplete
-                  ? "hover:bg-success/30 dark:hover:bg-success/40"
-                  : "hover:bg-brand/20 dark:hover:bg-brand/30"
-              )}
-              aria-label="סגור התראה"
-            >
-              <X className="h-4 w-4 text-muted-foreground" />
-            </button>
+            {/* Dismiss button - only show when task is complete */}
+            {isStaffComplete && (
+              <button
+                onClick={() => handleDismiss("staff")}
+                className="p-1 rounded-xl transition-colors flex-shrink-0 hover:bg-success/30 dark:hover:bg-success/40"
+                aria-label="סגור התראה"
+              >
+                <X className="h-4 w-4 text-muted-foreground" />
+              </button>
+            )}
           </div>
 
           {/* Collapsible Content */}
@@ -656,7 +647,7 @@ ${signature}`;
                     className="w-full inline-flex items-center justify-center gap-1.5 bg-brand text-white rounded-xl py-2.5 px-3 text-sm font-medium hover:bg-brand/90 transition-colors"
                   >
                     <UserPlus className="h-4 w-4" />
-                    <span>הוספת אנשי צוות</span>
+                    <span>הוספת פרטי אנשי צוות</span>
                   </button>
                 </div>
               </div>

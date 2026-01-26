@@ -922,7 +922,7 @@ export function BudgetTab({
                   <div key={event.id} className="flex flex-col items-center gap-2">
                     {isOverBudget && (
                       <span className="text-[10px] font-bold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded-full whitespace-nowrap">
-                        +₪{overage.toLocaleString()}
+                        ₪{overage.toLocaleString()}+
                       </span>
                     )}
                     {!isOverBudget && (
