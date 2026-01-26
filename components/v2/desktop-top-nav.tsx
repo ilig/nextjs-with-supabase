@@ -29,7 +29,7 @@ export function DesktopTopNav({
   return (
     <nav
       className={cn(
-        "hidden md:flex items-center justify-between",
+        "hidden md:flex items-center justify-between relative",
         "bg-card border-b-2 border-border px-6 h-16",
         className
       )}
@@ -50,8 +50,8 @@ export function DesktopTopNav({
         </span>
       </div>
 
-      {/* Navigation tabs */}
-      <div className="flex items-center gap-1">
+      {/* Navigation tabs - centered with absolute positioning */}
+      <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

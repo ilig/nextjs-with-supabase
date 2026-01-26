@@ -270,45 +270,63 @@ export function CalendarTab({
         />
       </div>
 
-      {/* Upcoming events list */}
-      {events.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-foreground">אירועים קרובים</h2>
-          <div className="space-y-2">
-            {events
-              .filter((e) => e.event_date && new Date(e.event_date) >= new Date())
+      {/* Upcoming budgeted events list */}
+      <div className="space-y-3">
+        <h3 className="text-base font-semibold text-foreground">אירועים מתוקצבים קרובים (ב-30 יום הבאים)</h3>
+        <div className="space-y-2">
+          {(() => {
+            const now = new Date();
+            const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+            const upcomingBudgetedEvents = events
+              .filter((e) => {
+                if (!e.event_date || !e.allocated_budget) return false;
+                const eventDate = new Date(e.event_date);
+                return eventDate >= now && eventDate <= thirtyDaysFromNow;
+              })
               .sort((a, b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime())
-              .slice(0, 5)
-              .map((event) => (
-                <button
-                  key={event.id}
-                  onClick={() => handleEventClick(event)}
-                  className="w-full bg-card rounded-xl p-4 border-2 border-border shadow-sm flex items-center justify-between hover:bg-accent transition-colors text-right"
-                >
-                  <div className="flex items-center gap-3">
-                    {(() => {
-                      const Icon = getEventIcon(event.event_type);
-                      return <Icon className="h-5 w-5 text-brand flex-shrink-0" />;
-                    })()}
-                    <div>
-                      <h3 className="font-medium text-foreground">{event.name}</h3>
-                      {event.event_date && (
-                        <p className="text-sm text-muted-foreground">
-                          {formatEventDate(event.event_date)}
-                        </p>
-                      )}
-                    </div>
+              .slice(0, 5);
+
+            if (upcomingBudgetedEvents.length === 0) {
+              return (
+                <div className="bg-muted/50 rounded-xl p-6 text-center">
+                  <CalendarIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    אין אירועים מתוקצבים ב-30 הימים הקרובים
+                  </p>
+                </div>
+              );
+            }
+
+            return upcomingBudgetedEvents.map((event) => (
+              <button
+                key={event.id}
+                onClick={() => handleEventClick(event)}
+                className="w-full bg-card rounded-xl p-4 border-2 border-border shadow-sm flex items-center justify-between hover:bg-accent transition-colors text-right"
+              >
+                <div className="flex items-center gap-3">
+                  {(() => {
+                    const Icon = getEventIcon(event.event_type);
+                    return <Icon className="h-5 w-5 text-brand flex-shrink-0" />;
+                  })()}
+                  <div>
+                    <h3 className="font-medium text-foreground">{event.name}</h3>
+                    {event.event_date && (
+                      <p className="text-sm text-muted-foreground">
+                        {formatEventDate(event.event_date)}
+                      </p>
+                    )}
                   </div>
-                  {event.allocated_budget && (
-                    <span className="text-sm font-medium text-brand">
-                      ₪{event.allocated_budget.toLocaleString()}
-                    </span>
-                  )}
-                </button>
-              ))}
-          </div>
+                </div>
+                {event.allocated_budget && (
+                  <span className="text-sm font-medium text-brand">
+                    ₪{event.allocated_budget.toLocaleString()}
+                  </span>
+                )}
+              </button>
+            ));
+          })()}
         </div>
-      )}
+      </div>
 
       {/* Day Summary Sheet - shows all content for a day with actions */}
       {selectedDayData && (
