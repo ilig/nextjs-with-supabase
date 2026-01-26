@@ -137,17 +137,11 @@ export default async function DashboardV2Page() {
   }
 
   // Transform events to include allocated_budget from V2 fields
-  const transformedEvents = (events || []).map((e: {
-    id: string;
-    allocated_budget?: number;
-    allocated_for_kids?: number;
-    allocated_for_staff?: number;
-    [key: string]: unknown;
-  }) => ({
+  const transformedEvents = (events || []).map((e) => ({
     ...e,
     allocated_budget:
       e.allocated_budget ||
-      (e.allocated_for_kids || 0) + (e.allocated_for_staff || 0),
+      ((e.allocated_for_kids as number | undefined) || 0) + ((e.allocated_for_staff as number | undefined) || 0),
   }));
 
   // Calculate budget metrics
