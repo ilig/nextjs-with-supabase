@@ -87,7 +87,7 @@ export function SignUpForm({
       <div className="bg-card rounded-3xl shadow-xl p-8 border-2 border-border">
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-extrabold text-foreground mb-2">הרשמה</h1>
-          <p className="text-muted-foreground">צור חשבון חדש</p>
+          <p className="text-muted-foreground">צרו חשבון חדש</p>
         </div>
         <div className="space-y-6">
           <Button
@@ -114,7 +114,7 @@ export function SignUpForm({
                 fill="#EA4335"
               />
             </svg>
-            הירשם עם Google
+            הרשמה עם Google
           </Button>
 
           <div className="relative">
@@ -123,7 +123,7 @@ export function SignUpForm({
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="bg-card px-4 text-muted-foreground font-semibold">
-                או המשך עם
+                או המשיכו עם
               </span>
             </div>
           </div>
@@ -155,7 +155,7 @@ export function SignUpForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="repeat-password" className="text-sm font-semibold text-foreground">אמת סיסמה</Label>
+              <Label htmlFor="repeat-password" className="text-sm font-semibold text-foreground">אימות סיסמה</Label>
               <Input
                 id="repeat-password"
                 type="password"
@@ -177,17 +177,17 @@ export function SignUpForm({
               className="w-full h-12 rounded-2xl bg-brand hover:bg-brand-hover text-brand-foreground font-bold shadow-lg hover:shadow-xl transition-all"
               disabled={isLoading}
             >
-              {isLoading ? "יוצר חשבון..." : "הירשם"}
+              {isLoading ? "יוצרים חשבון..." : "הרשמה"}
             </Button>
           </form>
 
           <div className="text-center text-sm">
-            <span className="text-muted-foreground">כבר יש לך חשבון?</span>{" "}
+            <span className="text-muted-foreground">כבר יש לכם חשבון?</span>{" "}
             <Link
               href="/auth/login"
               className="text-brand hover:text-brand-hover font-bold underline-offset-4 hover:underline transition-colors"
             >
-              התחבר
+              להתחברות
             </Link>
           </div>
         </div>

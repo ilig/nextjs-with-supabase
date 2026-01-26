@@ -1,5 +1,12 @@
 "use client";
 
+// TODO: Configure Google OAuth to show "ClassEase" instead of Supabase domain
+// Steps:
+// 1. Go to Google Cloud Console → APIs & Services → OAuth consent screen
+// 2. Set app name to "ClassEase"
+// 3. In Supabase Dashboard → Settings → Custom Domains, add your production domain
+// 4. Update Site URL in Supabase → Authentication → URL Configuration
+
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -77,7 +84,7 @@ export function LoginForm({
       <div className="bg-card rounded-3xl shadow-xl p-8 border-2 border-border">
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-extrabold text-foreground mb-2">התחברות</h1>
-          <p className="text-muted-foreground">הכנס את הפרטים שלך כדי להתחבר</p>
+          <p className="text-muted-foreground">הכניסו את הפרטים שלכם כדי להתחבר</p>
         </div>
         <div className="space-y-6">
           <Button
@@ -104,7 +111,7 @@ export function LoginForm({
                 fill="#EA4335"
               />
             </svg>
-            התחבר עם Google
+            התחברות עם Google
           </Button>
 
           <div className="relative">
@@ -113,7 +120,7 @@ export function LoginForm({
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="bg-card px-4 text-muted-foreground font-semibold">
-                או המשך עם
+                או המשיכו עם
               </span>
             </div>
           </div>
@@ -139,7 +146,7 @@ export function LoginForm({
                   href="/auth/forgot-password"
                   className="text-sm text-brand hover:text-brand-hover font-semibold transition-colors"
                 >
-                  שכחת סיסמה?
+                  שכחתם סיסמה?
                 </Link>
               </div>
               <Input
@@ -163,17 +170,17 @@ export function LoginForm({
               className="w-full h-12 rounded-2xl bg-brand hover:bg-brand-hover text-brand-foreground font-bold shadow-lg hover:shadow-xl transition-all"
               disabled={isLoading}
             >
-              {isLoading ? "מתחבר..." : "התחבר"}
+              {isLoading ? "מתחברים..." : "התחברות"}
             </Button>
           </form>
 
           <div className="text-center text-sm">
-            <span className="text-muted-foreground">אין לך חשבון?</span>{" "}
+            <span className="text-muted-foreground">אין לכם חשבון?</span>{" "}
             <Link
               href="/auth/sign-up"
               className="text-brand hover:text-brand-hover font-bold underline-offset-4 hover:underline transition-colors"
             >
-              הירשם
+              להרשמה
             </Link>
           </div>
         </div>
