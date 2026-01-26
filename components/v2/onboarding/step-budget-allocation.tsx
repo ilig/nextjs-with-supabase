@@ -19,6 +19,7 @@ import {
   TreeDeciduous,
   Flag,
   Heart,
+  Info,
 } from "lucide-react";
 
 // Default events in specified order - all unchecked by default with 0 amounts
@@ -146,6 +147,10 @@ export function StepBudgetAllocation({
           <div className="text-center mb-4">
             <h1 className="text-xl font-bold text-foreground">הקצאת תקציב לאירועים</h1>
             <p className="text-sm text-muted-foreground">הגדירו כמה להקצות לכל אירוע</p>
+            <div className="flex items-center justify-center gap-1.5 mt-2">
+              <Info className="h-3.5 w-3.5 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">אפשר לדלג ולהוסיף אירועים אח"כ</p>
+            </div>
           </div>
 
           {/* Budget Summary */}
@@ -368,7 +373,7 @@ export function StepBudgetAllocation({
             onClick={onNext}
             className="flex-1 h-12 rounded-xl bg-brand hover:bg-brand-hover text-brand-foreground font-bold shadow-lg transition-all"
           >
-            סיום והמשך
+            סיום והמשיכו
           </Button>
         </div>
         </div>

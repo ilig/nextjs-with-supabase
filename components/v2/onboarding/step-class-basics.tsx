@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { filterSettlements } from "@/lib/data/settlements";
 import { cn } from "@/lib/utils";
-import { School, MapPin, Users, UserCog } from "lucide-react";
+import { School, MapPin, Users, UserCog, Info } from "lucide-react";
 
 export type ClassBasicsData = {
   className: string;
@@ -86,11 +86,15 @@ export function StepClassBasics({ data, onChange, onNext }: StepClassBasicsProps
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand to-info mx-auto mb-4 flex items-center justify-center">
-          <School className="h-8 w-8 text-white" />
+        <div className="bg-brand-muted rounded-full p-4 w-fit mx-auto mb-4">
+          <School className="h-5 w-5 text-brand flex-shrink-0" />
         </div>
         <h1 className="text-2xl font-bold text-foreground">פרטי הכיתה</h1>
-        <p className="text-muted-foreground mt-2">ספרו לנו על הכיתה שלכם</p>
+        <p className="text-sm text-muted-foreground mt-2">ספרו לנו על הכיתה שלכם</p>
+        <div className="flex items-center justify-center gap-1.5 mt-3">
+          <Info className="h-3.5 w-3.5 text-muted-foreground" />
+          <p className="text-xs text-muted-foreground">לא בטוחים? אפשר להוסיף ולשנות הכל אח"כ</p>
+        </div>
       </div>
 
       {/* Form Fields */}
@@ -236,7 +240,7 @@ export function StepClassBasics({ data, onChange, onNext }: StepClassBasicsProps
         onClick={handleNext}
         className="w-full h-12 rounded-xl bg-brand hover:bg-brand-hover text-brand-foreground font-bold shadow-lg transition-all"
       >
-        המשך
+        המשיכו
       </Button>
     </div>
   );

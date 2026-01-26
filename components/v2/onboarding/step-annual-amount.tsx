@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Wallet, Calculator, ArrowRight } from "lucide-react";
+import { Wallet, Calculator, ArrowRight, Info } from "lucide-react";
 
 export type AnnualAmountData = {
   amountPerChild: number;
@@ -43,11 +43,15 @@ export function StepAnnualAmount({
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-brand mx-auto mb-4 flex items-center justify-center">
-          <Wallet className="h-8 w-8 text-brand-foreground" />
+        <div className="bg-brand-muted rounded-full p-4 w-fit mx-auto mb-4">
+          <Wallet className="h-5 w-5 text-brand flex-shrink-0" />
         </div>
         <h1 className="text-2xl font-bold text-foreground">כמה לאסוף לילד לשנה?</h1>
-        <p className="text-muted-foreground mt-2">קבעו את הסכום השנתי לכל ילד</p>
+        <p className="text-sm text-muted-foreground mt-2">קבעו את הסכום השנתי לכל ילד</p>
+        <div className="flex items-center justify-center gap-1.5 mt-3">
+          <Info className="h-3.5 w-3.5 text-muted-foreground" />
+          <p className="text-xs text-muted-foreground">לא בטוחים? אפשר להוסיף ולשנות הכל אח"כ</p>
+        </div>
       </div>
 
       {/* Amount Input */}
@@ -80,7 +84,7 @@ export function StepAnnualAmount({
         </div>
 
         {/* Budget Calculation Display */}
-        <div className="bg-gradient-to-br from-brand/10 to-info/10 rounded-2xl p-6 border-2 border-brand/20">
+        <div className="bg-brand-muted rounded-2xl p-6 border-2 border-brand/20">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Calculator className="h-5 w-5 text-brand" />
             <span className="text-sm font-semibold text-foreground">חישוב תקציב</span>
@@ -118,7 +122,7 @@ export function StepAnnualAmount({
           onClick={handleNext}
           className="flex-1 h-12 rounded-xl bg-brand hover:bg-brand-hover text-brand-foreground font-bold shadow-lg transition-all"
         >
-          המשך
+          המשיכו
         </Button>
       </div>
     </div>
