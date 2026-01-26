@@ -9,6 +9,7 @@ import { BudgetTab, ContactsTab, CalendarTab, GiftsTab, SettingsTab } from "./ta
 import { cn } from "@/lib/utils";
 import { PaymentManagementSheet } from "./payment-management-sheet";
 import { SetupBanners } from "./setup-banners";
+import { DirectorySettingsModal } from "./settings/directory-settings-modal";
 
 type Child = {
   id: string;
@@ -134,6 +135,7 @@ export function DashboardContent({
   const [openKidsModal, setOpenKidsModal] = useState(false);
   const [paymentLinkSent, setPaymentLinkSent] = useState(false);
   const [highlightedEventType, setHighlightedEventType] = useState<string | undefined>();
+  const [directorySettingsOpen, setDirectorySettingsOpen] = useState(false);
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -255,6 +257,22 @@ export function DashboardContent({
     }
   }, [activeTab]);
 
+  // Handler for saving directory settings
+  const handleSaveDirectorySettings = useCallback(async (settings: DirectorySettings) => {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("classes")
+      .update({ directory_settings: settings })
+      .eq("id", classData.id);
+
+    if (error) {
+      console.error("Failed to update directory settings:", error);
+      throw error;
+    }
+
+    router.refresh();
+  }, [classData.id, router]);
+
   // Get collected amount from budgetMetrics or calculate from paid children
   const collected = budgetMetrics?.collected ||
     children.filter(c => c.payment_status === "paid").length * (classData.annual_amount_per_child || 0);
@@ -324,6 +342,7 @@ export function DashboardContent({
             onStaffModalOpened={handleStaffModalOpened}
             onKidsModalOpened={handleKidsModalOpened}
             expectedStaff={classData.estimated_staff ?? 2}
+            onOpenDirectorySettings={() => setDirectorySettingsOpen(true)}
           />
         );
       case "calendar":
@@ -449,6 +468,20 @@ export function DashboardContent({
         onSendReminder={handleSendReminder}
         hideUnpaidList={hideUnpaidListInSheet}
         forceInviteMode={forceInviteModeInSheet}
+      />
+
+      {/* Directory Settings Modal */}
+      <DirectorySettingsModal
+        open={directorySettingsOpen}
+        onOpenChange={setDirectorySettingsOpen}
+        settings={classData.directory_settings || {
+          show_phone: true,
+          show_address: true,
+          show_birthday: true,
+          show_staff: true,
+          is_public: true,
+        }}
+        onSave={handleSaveDirectorySettings}
       />
     </div>
   );

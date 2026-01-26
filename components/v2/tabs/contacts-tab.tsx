@@ -19,6 +19,7 @@ import {
   UserPlus,
   Baby,
   Briefcase,
+  Settings,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -91,6 +92,7 @@ type ContactsTabProps = {
   expectedStaff?: number;
   onMarkAsPaid?: (childId: string) => void;
   onMarkAsUnpaid?: (childId: string) => void;
+  onOpenDirectorySettings?: () => void;
 };
 
 type SubTab = "kids" | "staff";
@@ -149,6 +151,7 @@ export function ContactsTab({
   expectedStaff,
   onMarkAsPaid,
   onMarkAsUnpaid,
+  onOpenDirectorySettings,
 }: ContactsTabProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -1041,6 +1044,20 @@ export function ContactsTab({
                     </>
                   )}
                 </Button>
+
+                {onOpenDirectorySettings && (
+                  <Button
+                    onClick={() => {
+                      setShareModalOpen(false);
+                      onOpenDirectorySettings();
+                    }}
+                    variant="outline"
+                    className="w-full rounded-xl gap-2"
+                  >
+                    <Settings className="h-4 w-4" />
+                    הגדרות דף קשר
+                  </Button>
+                )}
               </>
             ) : (
               <div className="p-4 bg-warning-muted rounded-xl border border-warning/30">
