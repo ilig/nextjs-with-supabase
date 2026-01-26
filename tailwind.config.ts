@@ -95,6 +95,19 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        "glow-ring": {
+          "0%, 100%": {
+            boxShadow: "0 0 0 0 hsl(var(--brand) / 0.7), 0 4px 20px hsl(var(--brand) / 0.4)",
+          },
+          "50%": {
+            boxShadow: "0 0 0 12px hsl(var(--brand) / 0), 0 4px 35px hsl(var(--brand) / 0.6)",
+          },
+        },
+      },
+      animation: {
+        "glow-ring": "glow-ring 6s ease-in-out infinite",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

@@ -3,8 +3,10 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { TestimonialsCarousel } from "@/components/testimonials-carousel";
+import { MobileDashboardCta } from "@/components/mobile-dashboard-cta";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { LayoutDashboard } from "lucide-react";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -48,7 +50,8 @@ export default async function Home() {
             </p>
             <div className="flex gap-4 flex-wrap">
               <Link href={ctaLink}>
-                <Button className="bg-brand hover:bg-brand-hover text-white text-lg px-10 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all font-bold">
+                <Button className={`text-white text-lg px-10 py-6 rounded-2xl transition-all font-bold flex items-center gap-3 ${hasClasses ? 'text-xl px-12 py-7 bg-brand dashboard-cta-glow' : 'bg-brand hover:bg-brand-hover shadow-lg hover:shadow-xl'}`}>
+                  {hasClasses && <LayoutDashboard className="h-6 w-6" />}
                   {ctaText}
                 </Button>
               </Link>
@@ -320,7 +323,8 @@ export default async function Home() {
           </p>
           <div className="pt-4">
             <Link href={ctaLink}>
-              <Button className="bg-brand hover:bg-brand-hover text-white text-xl md:text-2xl px-12 py-7 rounded-3xl shadow-2xl hover:shadow-3xl transition-all font-extrabold">
+              <Button className={`text-white text-xl md:text-2xl px-12 py-7 rounded-3xl transition-all font-extrabold flex items-center gap-3 ${hasClasses ? 'bg-brand dashboard-cta-glow' : 'bg-brand hover:bg-brand-hover shadow-2xl hover:shadow-3xl'}`}>
+                {hasClasses && <LayoutDashboard className="h-7 w-7" />}
                 {hasClasses ? "לדשבורד שלי" : "להתחיל עכשיו — בחינם"}
               </Button>
             </Link>
@@ -357,6 +361,9 @@ export default async function Home() {
       </section>
 
       <Footer />
+
+      {/* Fixed bottom CTA for logged-in users on mobile */}
+      {hasClasses && <MobileDashboardCta href={ctaLink} />}
     </main>
   );
 }

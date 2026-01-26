@@ -141,3 +141,19 @@
   }
 }
 
+/* Dashboard CTA button animation */
+@keyframes dashboard-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(var(--brand) / 0.8), 0 8px 30px hsl(var(--brand) / 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 16px hsl(var(--brand) / 0), 0 12px 50px hsl(var(--brand) / 0.7);
+    transform: scale(1.02);
+  }
+}
+
+.dashboard-cta-glow {
+  animation: dashboard-glow 2.5s ease-in-out infinite;
+}
+
