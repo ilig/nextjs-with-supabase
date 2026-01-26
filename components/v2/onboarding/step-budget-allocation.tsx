@@ -147,7 +147,7 @@ export function StepBudgetAllocation({
           <div className="text-center mb-4">
             <h1 className="text-xl font-bold text-foreground">הקצאת תקציב לאירועים</h1>
             <p className="text-sm text-muted-foreground">הגדירו כמה להקצות לכל אירוע</p>
-            <div className="flex items-center justify-center gap-1.5 mt-2">
+            <div className="flex items-center justify-center gap-1.5 mt-2 bg-muted/50 px-3 py-1.5 rounded-full w-fit mx-auto">
               <Info className="h-3.5 w-3.5 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">אפשר לדלג ולהוסיף אירועים אח"כ</p>
             </div>
