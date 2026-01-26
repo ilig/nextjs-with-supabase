@@ -33,6 +33,10 @@ import {
   Send,
   Info,
   UserPlus,
+  Upload,
+  FileText,
+  Download,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,7 +65,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { createExpense, deleteExpense } from "@/app/actions/budget";
+import { createExpense, deleteExpense, uploadReceipt, getReceiptUrl } from "@/app/actions/budget";
 import { getJewishHolidays } from "@/lib/jewish-holidays";
 import { BudgetDefinitionsBlock } from "@/components/v2/budget-definitions-block";
 import { EventAllocationsBlock } from "@/components/v2/event-allocations-block";
@@ -246,6 +250,64 @@ export function BudgetTab({
     event_id: "",
   });
   const [expenseFilter, setExpenseFilter] = useState<string>("all");
+
+  // Receipt upload state
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreviewUrl, setReceiptPreviewUrl] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
+  const [signedReceiptUrls, setSignedReceiptUrls] = useState<Record<string, string>>({});
+  const [loadingReceiptId, setLoadingReceiptId] = useState<string | null>(null);
+
+  // Receipt file handlers
+  const handleReceiptFile = (file: File) => {
+    if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+      return;
+    }
+    setReceiptFile(file);
+    if (file.type.startsWith("image/")) {
+      setReceiptPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setReceiptPreviewUrl(null);
+    }
+  };
+
+  const handleReceiptFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleReceiptFile(file);
+    }
+  };
+
+  const handleReceiptDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleReceiptDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleReceiptDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      handleReceiptFile(file);
+    }
+  };
+
+  const clearReceipt = () => {
+    setReceiptFile(null);
+    if (receiptPreviewUrl) {
+      URL.revokeObjectURL(receiptPreviewUrl);
+      setReceiptPreviewUrl(null);
+    }
+  };
 
   // Budget editor modal state - kept for backward compatibility but no longer used
   // const [budgetEditorOpen, setBudgetEditorOpen] = useState(false);
@@ -724,10 +786,31 @@ export function BudgetTab({
                               </span>
                             )}
                             {expense.receipt_url && (
-                              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                <Receipt className="h-3 w-3" />
-                                קבלה
-                              </span>
+                              <button
+                                onClick={async () => {
+                                  // Get signed URL and open in new tab
+                                  if (signedReceiptUrls[expense.id]) {
+                                    window.open(signedReceiptUrls[expense.id], '_blank');
+                                  } else {
+                                    setLoadingReceiptId(expense.id);
+                                    const result = await getReceiptUrl(expense.receipt_url!);
+                                    setLoadingReceiptId(null);
+                                    if (result.success && result.url) {
+                                      setSignedReceiptUrls(prev => ({ ...prev, [expense.id]: result.url! }));
+                                      window.open(result.url, '_blank');
+                                    }
+                                  }
+                                }}
+                                disabled={loadingReceiptId === expense.id}
+                                className="inline-flex items-center gap-1 text-xs bg-success/10 text-success hover:bg-success/20 px-2 py-0.5 rounded-full cursor-pointer transition-colors"
+                              >
+                                {loadingReceiptId === expense.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Receipt className="h-3 w-3" />
+                                )}
+                                צפה בקבלה
+                              </button>
                             )}
                           </div>
                         </div>
@@ -735,23 +818,13 @@ export function BudgetTab({
                           <span className="font-bold text-foreground">
                             ₪{expense.amount.toLocaleString()}
                           </span>
-                          <div className="flex gap-1">
-                            {expense.receipt_url && (
-                              <button
-                                className="p-1.5 rounded-xl hover:bg-muted transition-colors"
-                                title="צפה בקבלה"
-                              >
-                                <Eye className="h-4 w-4 text-muted-foreground" />
-                              </button>
-                            )}
-                            <button
-                              onClick={() => setDeleteExpenseId(expense.id)}
-                              className="p-1.5 rounded-xl hover:bg-destructive/10 transition-colors"
-                              title="מחיקה"
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </button>
-                          </div>
+                          <button
+                            onClick={() => setDeleteExpenseId(expense.id)}
+                            className="p-1.5 rounded-xl hover:bg-destructive/10 transition-colors"
+                            title="מחיקה"
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -1053,6 +1126,70 @@ export function BudgetTab({
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Receipt Upload */}
+            <div className="space-y-2">
+              <Label>צרף חשבונית / קבלה (אופציונלי)</Label>
+              {receiptFile ? (
+                <div className="border-2 border-dashed border-success/40 bg-success/5 rounded-xl p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {receiptPreviewUrl ? (
+                        <img
+                          src={receiptPreviewUrl}
+                          alt="Preview"
+                          className="h-12 w-12 object-cover rounded"
+                        />
+                      ) : (
+                        <FileText className="h-8 w-8 text-success" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-foreground truncate max-w-[180px]">
+                          {receiptFile.name}
+                        </p>
+                        <p className="text-xs text-success">
+                          {(receiptFile.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearReceipt}
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      title="הסר קובץ"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <label
+                  className={cn(
+                    "border-2 border-dashed rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer transition-all",
+                    isDragging
+                      ? "border-brand bg-brand/5 scale-[1.02]"
+                      : "border-border hover:border-brand hover:bg-brand/5"
+                  )}
+                  onDragOver={handleReceiptDragOver}
+                  onDragLeave={handleReceiptDragLeave}
+                  onDrop={handleReceiptDrop}
+                >
+                  <Upload className={cn("h-8 w-8", isDragging ? "text-brand" : "text-muted-foreground")} />
+                  <span className={cn("text-sm", isDragging ? "text-brand font-medium" : "text-muted-foreground")}>
+                    {isDragging ? "שחרר כאן" : "גרור קובץ או לחץ להעלאה"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">תמונה או PDF</span>
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={handleReceiptFileChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
           </div>
 
           <DialogFooter className="gap-2">
@@ -1066,6 +1203,7 @@ export function BudgetTab({
                   expense_date: new Date().toISOString().split("T")[0],
                   event_id: "",
                 });
+                clearReceipt();
               }}
               className="rounded-xl"
             >
@@ -1075,12 +1213,29 @@ export function BudgetTab({
               onClick={() => {
                 if (!classId || !expenseForm.description || !expenseForm.amount) return;
                 startTransition(async () => {
+                  let receiptUrl: string | undefined;
+
+                  // Upload receipt if provided
+                  if (receiptFile) {
+                    setIsUploadingReceipt(true);
+                    const formData = new FormData();
+                    formData.append("file", receiptFile);
+                    formData.append("classId", classId);
+
+                    const uploadResult = await uploadReceipt(formData);
+                    if (uploadResult.success && uploadResult.url) {
+                      receiptUrl = uploadResult.url;
+                    }
+                    setIsUploadingReceipt(false);
+                  }
+
                   await createExpense({
                     classId,
                     description: expenseForm.description,
                     amount: parseFloat(expenseForm.amount),
                     expense_date: expenseForm.expense_date,
                     event_id: expenseForm.event_id || undefined,
+                    receipt_url: receiptUrl,
                   });
                   setExpenseModalOpen(false);
                   setExpenseForm({
@@ -1089,14 +1244,15 @@ export function BudgetTab({
                     expense_date: new Date().toISOString().split("T")[0],
                     event_id: "",
                   });
+                  clearReceipt();
                   router.refresh();
                 });
               }}
-              disabled={!expenseForm.description || !expenseForm.amount || isPending}
+              disabled={!expenseForm.description || !expenseForm.amount || isPending || isUploadingReceipt}
               className="rounded-xl gap-2"
             >
-              {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              הוסיפו הוצאה
+              {(isPending || isUploadingReceipt) && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isUploadingReceipt ? "מעלה קובץ..." : "הוסיפו הוצאה"}
             </Button>
           </DialogFooter>
         </DialogContent>
