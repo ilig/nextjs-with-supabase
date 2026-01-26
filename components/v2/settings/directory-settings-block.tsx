@@ -12,6 +12,7 @@ type DirectorySettings = {
   show_phone: boolean;
   show_address: boolean;
   show_birthday: boolean;
+  show_staff: boolean;
   is_public: boolean;
 };
 

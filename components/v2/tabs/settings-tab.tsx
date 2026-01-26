@@ -34,6 +34,7 @@ type DirectorySettings = {
   show_phone: boolean;
   show_address: boolean;
   show_birthday: boolean;
+  show_staff: boolean;
   is_public: boolean;
 };
 
@@ -73,12 +74,17 @@ export function SettingsTab({
   const [isPayboxOpen, setIsPayboxOpen] = useState(false);
   const [isDirectoryOpen, setIsDirectoryOpen] = useState(false);
 
-  // Default directory settings
-  const directorySettings: DirectorySettings = classData.directory_settings || {
+  // Default directory settings - merge with stored settings to handle missing fields
+  const defaultSettings: DirectorySettings = {
     show_phone: true,
     show_address: true,
     show_birthday: true,
+    show_staff: true,
     is_public: true,
+  };
+  const directorySettings: DirectorySettings = {
+    ...defaultSettings,
+    ...classData.directory_settings,
   };
 
   // ============================================

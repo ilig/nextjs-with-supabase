@@ -28,6 +28,7 @@ type DirectorySettings = {
   show_phone: boolean;
   show_address: boolean;
   show_birthday: boolean;
+  show_staff: boolean;
   is_public: boolean;
 };
 
@@ -51,6 +52,7 @@ type Staff = {
   name: string;
   role: string;
   birthday: string | null;
+  phone: string | null;
 };
 
 type ClassData = {
@@ -79,12 +81,17 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("children");
 
-  // Default directory settings (all visible)
-  const settings: DirectorySettings = classData?.directory_settings || {
+  // Default directory settings (all visible) - merge with stored to handle missing fields
+  const defaultSettings: DirectorySettings = {
     show_phone: true,
     show_address: true,
     show_birthday: true,
+    show_staff: true,
     is_public: true,
+  };
+  const settings: DirectorySettings = {
+    ...defaultSettings,
+    ...(classData?.directory_settings || {}),
   };
 
   // Load data on mount
@@ -164,7 +171,7 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
       // Load staff
       const { data: staffData } = await supabase
         .from("staff")
-        .select("id, name, role, birthday")
+        .select("id, name, role, birthday, phone")
         .eq("class_id", classResult.id)
         .order("name");
 
@@ -320,7 +327,7 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full mb-4 rounded-xl">
+          <TabsList className={`w-full mb-4 rounded-xl ${!settings.show_staff ? 'hidden' : ''}`}>
             <TabsTrigger value="staff" className="flex-1 rounded-xl gap-2">
               <Users className="h-4 w-4" />
               צוות ({staff.length})
@@ -396,40 +403,54 @@ export function PublicDirectoryClient({ code }: PublicDirectoryClientProps) {
             )}
           </TabsContent>
 
-          {/* Staff Tab */}
-          <TabsContent value="staff" className="space-y-3">
-            {filteredStaff.length === 0 ? (
-              <Card className="p-6 text-center">
-                <p className="text-muted-foreground">
-                  {searchQuery ? "לא נמצאו תוצאות" : "אין אנשי צוות רשומים"}
-                </p>
-              </Card>
-            ) : (
-              filteredStaff.map((member) => (
-                <Card key={member.id} className="overflow-hidden">
-                  <CardContent className="p-4" dir="rtl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-brand/20 dark:bg-brand/30 flex items-center justify-center flex-shrink-0">
-                        <Users className="h-5 w-5 text-brand" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-foreground">{member.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {getRoleDisplay(member.role)}
-                        </p>
-                      </div>
-                      {settings.show_birthday && member.birthday && (
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Cake className="h-4 w-4" />
-                          <span>{formatStaffBirthday(member.birthday)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
+          {/* Staff Tab - only show if settings.show_staff is true */}
+          {settings.show_staff && (
+            <TabsContent value="staff" className="space-y-3">
+              {filteredStaff.length === 0 ? (
+                <Card className="p-6 text-center">
+                  <p className="text-muted-foreground">
+                    {searchQuery ? "לא נמצאו תוצאות" : "אין אנשי צוות רשומים"}
+                  </p>
                 </Card>
-              ))
-            )}
-          </TabsContent>
+              ) : (
+                filteredStaff.map((member) => (
+                  <Card key={member.id} className="overflow-hidden">
+                    <CardContent className="p-4" dir="rtl">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 rounded-full bg-brand/20 dark:bg-brand/30 flex items-center justify-center flex-shrink-0">
+                          <Users className="h-5 w-5 text-brand" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-foreground">{member.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {getRoleDisplay(member.role)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 mr-13">
+                        {settings.show_phone && member.phone && (
+                          <a
+                            href={`tel:${member.phone}`}
+                            className="flex items-center gap-1 text-sm text-brand hover:underline"
+                            dir="ltr"
+                          >
+                            <Phone className="h-3.5 w-3.5" />
+                            {member.phone}
+                          </a>
+                        )}
+                        {settings.show_birthday && member.birthday && (
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Cake className="h-4 w-4" />
+                            <span>{formatStaffBirthday(member.birthday)}</span>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </TabsContent>
+          )}
         </Tabs>
 
       </div>

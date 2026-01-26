@@ -11,12 +11,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Eye, Phone, MapPin, Calendar } from "lucide-react";
+import { Eye, Phone, MapPin, Calendar, Users } from "lucide-react";
 
 type DirectorySettings = {
   show_phone: boolean;
   show_address: boolean;
   show_birthday: boolean;
+  show_staff: boolean;
   is_public: boolean;
 };
 
@@ -33,14 +34,24 @@ export function DirectorySettingsModal({
   settings,
   onSave,
 }: DirectorySettingsModalProps) {
-  const [localSettings, setLocalSettings] = useState<DirectorySettings>(settings);
+  // Ensure all settings have values (merge with defaults for any missing fields)
+  const defaultSettings: DirectorySettings = {
+    show_phone: true,
+    show_address: true,
+    show_birthday: true,
+    show_staff: true,
+    is_public: true,
+  };
+  const mergedSettings: DirectorySettings = { ...defaultSettings, ...settings };
+
+  const [localSettings, setLocalSettings] = useState<DirectorySettings>(mergedSettings);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Reset form when modal opens
   useEffect(() => {
     if (open) {
-      setLocalSettings(settings);
+      setLocalSettings({ ...defaultSettings, ...settings });
       setError(null);
     }
   }, [open, settings]);
@@ -71,6 +82,12 @@ export function DirectorySettingsModal({
       icon: Eye,
       title: "דף קשר ציבורי",
       description: "אפשר לכל מי שיש לו את הקישור לצפות בדף הקשר",
+    },
+    {
+      key: "show_staff" as const,
+      icon: Users,
+      title: "הצג אנשי צוות",
+      description: "הצג את שמות ופרטי אנשי הצוות בדף הקשר הציבורי",
     },
     {
       key: "show_phone" as const,

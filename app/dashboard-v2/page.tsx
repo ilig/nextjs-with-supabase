@@ -173,6 +173,7 @@ export default async function DashboardV2Page() {
         estimated_children: currentClass.estimated_children,
         estimated_staff: currentClass.estimated_staff,
         annual_amount_per_child: currentClass.annual_amount_per_child,
+        directory_settings: currentClass.directory_settings,
       }}
       children={children || []}
       staff={staff || []}

@@ -69,6 +69,14 @@ type PendingInvitation = {
   created_at: string;
 };
 
+type DirectorySettings = {
+  show_phone: boolean;
+  show_address: boolean;
+  show_birthday: boolean;
+  show_staff: boolean;
+  is_public: boolean;
+};
+
 type ClassData = {
   id: string;
   name: string;
@@ -81,6 +89,7 @@ type ClassData = {
   estimated_children?: number;
   estimated_staff?: number;
   annual_amount_per_child?: number;
+  directory_settings?: DirectorySettings;
 };
 
 type DashboardContentProps = {
