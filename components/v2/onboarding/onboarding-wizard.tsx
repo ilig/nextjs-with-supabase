@@ -161,30 +161,49 @@ export function OnboardingWizard() {
       {/* Progress Steps - Fixed at top */}
       <div className="flex-shrink-0 bg-card border-b-2 border-border px-4 py-4">
         <div className="max-w-md mx-auto">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-start">
             {[1, 2, 3].map((step) => {
               const isVisited = step <= highestVisitedStep;
               const isCurrent = step === currentStep;
+              const hasConnector = step < 3;
               return (
-                <div key={step} className="flex items-center">
-                  <button
-                    onClick={() => goToStep(step as OnboardingStep)}
-                    disabled={!isVisited}
-                    className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all",
-                      isCurrent
-                        ? "bg-brand text-brand-foreground"
-                        : isVisited
-                          ? "bg-brand/70 text-brand-foreground hover:bg-brand-hover cursor-pointer active:scale-95"
-                          : "bg-muted text-muted-foreground cursor-not-allowed"
-                    )}
-                  >
-                    {step}
-                  </button>
-                  {step < 3 && (
+                <div key={step} className={cn("flex items-center", hasConnector && "flex-1")}>
+                  {/* Step column with circle and label */}
+                  <div className="flex flex-col items-center">
+                    <button
+                      onClick={() => goToStep(step as OnboardingStep)}
+                      disabled={!isVisited}
+                      className={cn(
+                        "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all",
+                        isCurrent
+                          ? "bg-brand text-brand-foreground"
+                          : isVisited
+                            ? "bg-brand/70 text-brand-foreground hover:bg-brand-hover cursor-pointer active:scale-95"
+                            : "bg-muted text-muted-foreground cursor-not-allowed"
+                      )}
+                    >
+                      {step}
+                    </button>
+                    <button
+                      onClick={() => goToStep(step as OnboardingStep)}
+                      disabled={!isVisited}
+                      className={cn(
+                        "text-xs mt-2 transition-colors whitespace-nowrap",
+                        isCurrent
+                          ? "text-brand font-medium"
+                          : isVisited
+                            ? "text-muted-foreground hover:text-brand cursor-pointer"
+                            : "text-muted-foreground/50 cursor-not-allowed"
+                      )}
+                    >
+                      {STEP_TITLES[step as OnboardingStep]}
+                    </button>
+                  </div>
+                  {/* Connector line between steps */}
+                  {hasConnector && (
                     <div
                       className={cn(
-                        "w-16 md:w-24 h-1 mx-2 rounded-full transition-colors",
+                        "flex-1 h-1 mx-2 rounded-full transition-colors self-start mt-3.5",
                         step < highestVisitedStep ? "bg-brand" : "bg-muted"
                       )}
                     />
@@ -193,85 +212,69 @@ export function OnboardingWizard() {
               );
             })}
           </div>
-          <div className="flex justify-between text-xs">
-            {[1, 2, 3].map((step) => {
-              const isVisited = step <= highestVisitedStep;
-              const isCurrent = step === currentStep;
-              return (
-                <button
-                  key={step}
-                  onClick={() => goToStep(step as OnboardingStep)}
-                  disabled={!isVisited}
-                  className={cn(
-                    "transition-colors",
-                    isCurrent
-                      ? "text-brand font-medium"
-                      : isVisited
-                        ? "text-muted-foreground hover:text-brand cursor-pointer"
-                        : "text-muted-foreground/50 cursor-not-allowed"
-                  )}
-                >
-                  {STEP_TITLES[step as OnboardingStep]}
-                </button>
-              );
-            })}
-          </div>
         </div>
       </div>
 
       {/* Step Content - Scrollable area */}
-      <div className="flex-1 overflow-auto">
-        {/* Steps 1 & 2 with padding */}
-        {(currentStep === 1 || currentStep === 2 || isSubmitting || error) && (
-          <div className="max-w-md mx-auto px-4 py-6">
-            {error && (
-              <div className="mb-4 p-4 bg-destructive/10 border-2 border-destructive/20 rounded-xl text-destructive text-center">
-                {error}
-              </div>
-            )}
+      <div className="flex-1 overflow-auto flex flex-col">
+        <div className="flex-1">
+          {/* Steps 1 & 2 with padding */}
+          {(currentStep === 1 || currentStep === 2 || isSubmitting || error) && (
+            <div className="max-w-md mx-auto px-4 py-6">
+              {error && (
+                <div className="mb-4 p-4 bg-destructive/10 border-2 border-destructive/20 rounded-xl text-destructive text-center">
+                  {error}
+                </div>
+              )}
 
-            {isSubmitting ? (
-              <div className="flex flex-col items-center justify-center py-12">
-                <Loader2 className="h-12 w-12 text-brand animate-spin mb-4" />
-                <p className="text-lg font-semibold text-foreground">יוצרים את הכיתה...</p>
-                <p className="text-sm text-muted-foreground">רק עוד רגע</p>
-              </div>
-            ) : (
-              <>
-                {currentStep === 1 && (
-                  <StepClassBasics
-                    data={classBasics}
-                    onChange={setClassBasics}
-                    onNext={() => advanceToStep(2)}
-                  />
-                )}
+              {isSubmitting ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="h-12 w-12 text-brand animate-spin mb-4" />
+                  <p className="text-lg font-semibold text-foreground">יוצרים את הכיתה...</p>
+                  <p className="text-sm text-muted-foreground">רק עוד רגע</p>
+                </div>
+              ) : (
+                <>
+                  {currentStep === 1 && (
+                    <StepClassBasics
+                      data={classBasics}
+                      onChange={setClassBasics}
+                      onNext={() => advanceToStep(2)}
+                    />
+                  )}
 
-                {currentStep === 2 && (
-                  <StepAnnualAmount
-                    data={annualAmount}
-                    estimatedChildren={classBasics.estimatedChildren}
-                    onChange={setAnnualAmount}
-                    onNext={() => advanceToStep(3)}
-                    onBack={() => goToStep(1)}
-                  />
-                )}
-              </>
-            )}
-          </div>
-        )}
+                  {currentStep === 2 && (
+                    <StepAnnualAmount
+                      data={annualAmount}
+                      estimatedChildren={classBasics.estimatedChildren}
+                      onChange={setAnnualAmount}
+                      onNext={() => advanceToStep(3)}
+                      onBack={() => goToStep(1)}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
-        {/* Step 3 - inside scroll container for sticky to work */}
-        {currentStep === 3 && !isSubmitting && (
-          <StepBudgetAllocation
-            data={budgetAllocation}
-            estimatedChildren={classBasics.estimatedChildren}
-            estimatedStaff={classBasics.estimatedStaff}
-            totalBudget={totalBudget}
-            onChange={setBudgetAllocation}
-            onNext={handleComplete}
-            onBack={() => goToStep(2)}
-          />
-        )}
+          {/* Step 3 - inside scroll container for sticky to work */}
+          {currentStep === 3 && !isSubmitting && (
+            <StepBudgetAllocation
+              data={budgetAllocation}
+              estimatedChildren={classBasics.estimatedChildren}
+              estimatedStaff={classBasics.estimatedStaff}
+              totalBudget={totalBudget}
+              onChange={setBudgetAllocation}
+              onNext={handleComplete}
+              onBack={() => goToStep(2)}
+            />
+          )}
+        </div>
+
+        {/* Footer */}
+        <footer className="py-6 px-4 text-center text-xs text-muted-foreground border-t border-border mt-auto">
+          <p>ClassEase © 2025 | נוצר על ידי הורים, בשביל הורים</p>
+        </footer>
       </div>
     </div>
   );
