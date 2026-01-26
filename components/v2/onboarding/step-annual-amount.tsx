@@ -48,7 +48,7 @@ export function StepAnnualAmount({
         </div>
         <h1 className="text-2xl font-bold text-foreground">כמה לאסוף לילד לשנה?</h1>
         <p className="text-sm text-muted-foreground mt-2">קבעו את הסכום השנתי לכל ילד</p>
-        <div className="flex items-center justify-center gap-1.5 mt-3 bg-muted/50 px-3 py-1.5 rounded-full w-fit mx-auto">
+        <div className="flex items-center justify-center gap-1.5 mt-3 bg-muted px-3 py-1.5 rounded-full w-fit mx-auto">
           <Info className="h-3.5 w-3.5 text-muted-foreground" />
           <p className="text-xs text-muted-foreground">לא בטוחים? אפשר להוסיף ולשנות הכל אח"כ</p>
         </div>

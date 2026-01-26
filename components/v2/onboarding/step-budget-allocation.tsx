@@ -146,8 +146,8 @@ export function StepBudgetAllocation({
           {/* Header */}
           <div className="text-center mb-4">
             <h1 className="text-xl font-bold text-foreground">הקצאת תקציב לאירועים</h1>
-            <p className="text-sm text-muted-foreground">הגדירו כמה להקצות לכל אירוע</p>
-            <div className="flex items-center justify-center gap-1.5 mt-2 bg-muted/50 px-3 py-1.5 rounded-full w-fit mx-auto">
+            <p className="text-sm text-muted-foreground mt-1">הגדירו כמה להקצות לכל אירוע</p>
+            <div className="flex items-center justify-center gap-1.5 mt-3 bg-muted px-3 py-1.5 rounded-full w-fit mx-auto">
               <Info className="h-3.5 w-3.5 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">אפשר לדלג ולהוסיף אירועים אח"כ</p>
             </div>
@@ -268,10 +268,11 @@ export function StepBudgetAllocation({
                       <Input
                         type="number"
                         min="0"
+                        step="0.1"
                         value={event.amountPerKid || ""}
                         onChange={(e) =>
                           updateEvent(event.eventId, {
-                            amountPerKid: parseInt(e.target.value) || 0,
+                            amountPerKid: parseFloat(e.target.value) || 0,
                           })
                         }
                         className="h-9 w-20 rounded-xl border text-center"
@@ -293,10 +294,11 @@ export function StepBudgetAllocation({
                       <Input
                         type="number"
                         min="0"
+                        step="0.1"
                         value={event.amountPerStaff || ""}
                         onChange={(e) =>
                           updateEvent(event.eventId, {
-                            amountPerStaff: parseInt(e.target.value) || 0,
+                            amountPerStaff: parseFloat(e.target.value) || 0,
                           })
                         }
                         className="h-9 w-20 rounded-xl border text-center"
