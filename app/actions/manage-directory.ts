@@ -221,6 +221,7 @@ export async function addStaff(data: {
   name: string;
   role: "teacher" | "assistant";
   birthday?: string; // DD/MM format
+  phone?: string;
 }) {
   const supabase = await createClient();
 
@@ -242,6 +243,7 @@ export async function addStaff(data: {
         name: data.name,
         role: data.role,
         birthday: birthdayDate,
+        phone: data.phone || null,
       })
       .select()
       .single();
@@ -260,6 +262,7 @@ export async function updateStaff(data: {
   name: string;
   role: "teacher" | "assistant";
   birthday?: string; // DD/MM format
+  phone?: string;
 }) {
   const supabase = await createClient();
 
@@ -280,6 +283,7 @@ export async function updateStaff(data: {
         name: data.name,
         role: data.role,
         birthday: birthdayDate,
+        phone: data.phone || null,
       })
       .eq("id", data.staffId);
 

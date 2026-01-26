@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Trash2, Lightbulb, Check, UserPlus } from "lucide-react";
+import { Trash2, Lightbulb, Check, UserPlus, Phone } from "lucide-react";
 import { addStaff } from "@/app/actions/manage-directory";
 
 type StaffMember = {
@@ -20,6 +20,7 @@ type StaffMember = {
   name: string;
   role: "teacher" | "assistant";
   birthday: string;
+  phone: string;
 };
 
 type AddStaffSheetProps = {
@@ -40,6 +41,7 @@ const createInitialStaffMembers = (count: number): StaffMember[] => {
       name: "",
       role: i === 0 ? "teacher" : "assistant",
       birthday: "",
+      phone: "",
     });
   }
   return members;
@@ -75,7 +77,7 @@ export function AddStaffSheet({
   const addStaffMember = () => {
     setStaffMembers([
       ...staffMembers,
-      { id: `staff-${Date.now()}`, name: "", role: "assistant", birthday: "" },
+      { id: `staff-${Date.now()}`, name: "", role: "assistant", birthday: "", phone: "" },
     ]);
   };
 
@@ -103,6 +105,11 @@ export function AddStaffSheet({
       }
     }
 
+    // Format phone - allow digits, dashes, and plus sign
+    if (field === "phone") {
+      validatedValue = value.replace(/[^0-9\-+\s]/g, "");
+    }
+
     setStaffMembers(
       staffMembers.map((member) =>
         member.id === id ? { ...member, [field]: validatedValue } : member
@@ -115,7 +122,7 @@ export function AddStaffSheet({
     if (staffMembers.length === 1) {
       // Don't remove the last one, just clear it
       setStaffMembers([
-        { id: `staff-${Date.now()}`, name: "", role: "teacher", birthday: "" },
+        { id: `staff-${Date.now()}`, name: "", role: "teacher", birthday: "", phone: "" },
       ]);
       return;
     }
@@ -138,6 +145,7 @@ export function AddStaffSheet({
           name: member.name,
           role: member.role,
           birthday: member.birthday,
+          phone: member.phone,
         });
 
         if (!result.success) {
@@ -198,7 +206,7 @@ export function AddStaffSheet({
                   איש צוות #{index + 1}
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div>
                     <Label className="text-xs">שם מלא *</Label>
                     <Input
@@ -228,6 +236,20 @@ export function AddStaffSheet({
                       <option value="kindergarten_teacher">גננת</option>
                       <option value="assistant">סייע/ת</option>
                     </select>
+                  </div>
+
+                  <div>
+                    <Label className="text-xs">טלפון</Label>
+                    <Input
+                      value={member.phone}
+                      onChange={(e) =>
+                        updateStaffMember(member.id, "phone", e.target.value)
+                      }
+                      placeholder="050-1234567"
+                      type="tel"
+                      dir="ltr"
+                      className="text-left"
+                    />
                   </div>
 
                   <div>

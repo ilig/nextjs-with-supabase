@@ -66,6 +66,7 @@ type Staff = {
   name: string;
   role: string;
   birthday?: string;
+  phone?: string;
 };
 
 type ChildParent = {
@@ -190,6 +191,7 @@ export function ContactsTab({
     name: "",
     role: "assistant" as "teacher" | "assistant",
     birthday: "",
+    phone: "",
   });
 
   // Share state
@@ -314,6 +316,7 @@ export function ContactsTab({
       name: member.name,
       role: member.role as "teacher" | "assistant",
       birthday: formatStaffBirthdayEdit(member.birthday),
+      phone: member.phone || "",
     });
     setStaffModalOpen(true);
   };
@@ -371,6 +374,7 @@ export function ContactsTab({
           name: staffForm.name,
           role: staffForm.role,
           birthday: staffForm.birthday,
+          phone: staffForm.phone,
         });
       } else {
         await addStaff({
@@ -378,6 +382,7 @@ export function ContactsTab({
           name: staffForm.name,
           role: staffForm.role,
           birthday: staffForm.birthday,
+          phone: staffForm.phone,
         });
       }
 
@@ -633,6 +638,19 @@ export function ContactsTab({
                 <span>{roleLabels[member.role] || member.role}</span>
               </div>
 
+              {member.phone && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                  <Phone className="h-4 w-4 flex-shrink-0" />
+                  <a
+                    href={`tel:${member.phone}`}
+                    className="hover:text-brand transition-colors"
+                    dir="ltr"
+                  >
+                    {member.phone}
+                  </a>
+                </div>
+              )}
+
               {member.birthday && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Cake className="h-4 w-4" />
@@ -845,6 +863,21 @@ export function ContactsTab({
                   <SelectItem value="assistant">סייע/ת</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="staffPhone">טלפון</Label>
+              <Input
+                id="staffPhone"
+                value={staffForm.phone}
+                onChange={(e) =>
+                  setStaffForm({ ...staffForm, phone: e.target.value })
+                }
+                placeholder="050-1234567"
+                type="tel"
+                dir="ltr"
+                className="rounded-xl text-left"
+              />
             </div>
 
             <div className="space-y-2">
