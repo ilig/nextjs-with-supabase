@@ -124,6 +124,7 @@ export function DashboardContent({
   const [openStaffModal, setOpenStaffModal] = useState(false);
   const [openKidsModal, setOpenKidsModal] = useState(false);
   const [paymentLinkSent, setPaymentLinkSent] = useState(false);
+  const [highlightedEventType, setHighlightedEventType] = useState<string | undefined>();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -232,6 +233,19 @@ export function DashboardContent({
     setOpenKidsModal(false);
   }, []);
 
+  // Handler for navigating to budget tab from calendar (with optional event type to highlight)
+  const handleNavigateToBudget = useCallback((eventType?: string) => {
+    setHighlightedEventType(eventType);
+    setActiveTab("budget");
+  }, []);
+
+  // Clear highlighted event type when leaving budget tab
+  useEffect(() => {
+    if (activeTab !== "budget") {
+      setHighlightedEventType(undefined);
+    }
+  }, [activeTab]);
+
   // Get collected amount from budgetMetrics or calculate from paid children
   const collected = budgetMetrics?.collected ||
     children.filter(c => c.payment_status === "paid").length * (classData.annual_amount_per_child || 0);
@@ -268,6 +282,7 @@ export function DashboardContent({
             estimatedChildren={classData.estimated_children}
             estimatedStaff={classData.estimated_staff}
             classId={classData.id}
+            highlightedEventType={highlightedEventType}
             onOpenPaymentSheet={() => {
               setHideUnpaidListInSheet(false);
               setForceInviteModeInSheet(false);
@@ -311,6 +326,7 @@ export function DashboardContent({
             children={children}
             staff={staff}
             isAdmin={true}
+            onNavigateToBudget={handleNavigateToBudget}
           />
         );
       case "gifts":

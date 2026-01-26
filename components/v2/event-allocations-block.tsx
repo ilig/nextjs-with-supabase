@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,6 +72,8 @@ type EventAllocationsBlockProps = {
   totalBudget: number;
   estimatedChildren: number;
   estimatedStaff: number;
+  /** Event type to highlight and auto-expand (navigated from calendar) */
+  highlightedEventType?: string;
   onAllocationsChange?: () => void;
 };
 
@@ -92,11 +94,17 @@ export function EventAllocationsBlock({
   totalBudget,
   estimatedChildren,
   estimatedStaff,
+  highlightedEventType,
   onAllocationsChange,
 }: EventAllocationsBlockProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Ref to the highlighted event row for scrolling
+  const highlightedRowRef = useRef<HTMLDivElement>(null);
+  // Ref to the block container for scrolling into view
+  const blockRef = useRef<HTMLDivElement>(null);
 
   // Event allocations state
   const [allocations, setAllocations] = useState<EventAllocation[]>([]);
@@ -110,6 +118,27 @@ export function EventAllocationsBlock({
     (sum, e) => sum + (e.allocated_budget || 0),
     0
   );
+
+  // Auto-expand when a highlighted event type is provided (navigated from calendar)
+  useEffect(() => {
+    if (highlightedEventType) {
+      setIsExpanded(true);
+      // Scroll the block into view after a short delay to allow render
+      setTimeout(() => {
+        blockRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [highlightedEventType]);
+
+  // Scroll to the highlighted row once allocations are loaded and expanded
+  useEffect(() => {
+    if (highlightedEventType && isExpanded && allocations.length > 0) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        highlightedRowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 200);
+    }
+  }, [highlightedEventType, isExpanded, allocations]);
 
   // Initialize allocations from events
   const initializeAllocations = () => {
@@ -297,6 +326,7 @@ export function EventAllocationsBlock({
 
   return (
     <div
+      ref={blockRef}
       className={cn(
         "bg-card rounded-2xl border-2 shadow-sm transition-all overflow-hidden",
         isExpanded ? "border-brand" : "border-border hover:border-brand/50"
@@ -391,12 +421,16 @@ export function EventAllocationsBlock({
               const eventStaffTotal = alloc.amountPerStaff * estimatedStaff;
               const eventTotal = eventKidsTotal + eventStaffTotal;
 
+              const isHighlighted = highlightedEventType === alloc.eventType;
+
               return (
                 <div
                   key={alloc.eventType}
+                  ref={isHighlighted ? highlightedRowRef : undefined}
                   className={cn(
-                    "bg-background rounded-xl border transition-all",
-                    alloc.enabled ? "border-border" : "border-border/50 opacity-60"
+                    "bg-background rounded-xl border-2 transition-all",
+                    alloc.enabled ? "border-border" : "border-border/50 opacity-60",
+                    isHighlighted && "border-brand bg-brand/5 shadow-md"
                   )}
                 >
                   {/* Event Header */}

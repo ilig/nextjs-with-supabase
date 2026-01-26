@@ -43,6 +43,8 @@ export type CalendarDayData = {
 
 type HebrewCalendarProps = {
   events?: CalendarEvent[];
+  /** All events including those without dates - used to check if holidays have budgets */
+  allEvents?: CalendarEvent[];
   kidBirthdays?: { name: string; birthday: string }[];
   staffBirthdays?: { name: string; birthday: string }[];
   onDateClick?: (date: Date, dayData: CalendarDayData) => void;
@@ -104,6 +106,7 @@ function getEventIcon(eventType: string): string {
 
 export function HebrewCalendar({
   events = [],
+  allEvents,
   kidBirthdays = [],
   staffBirthdays = [],
   onDateClick,
@@ -156,6 +159,20 @@ export function HebrewCalendar({
 
     return map;
   }, [kidBirthdays, staffBirthdays]);
+
+  // Build a map of event types to their budgets (for events without dates)
+  // This is used to show budget indicator on holidays that have budgeted events
+  const budgetedEventTypes = useMemo(() => {
+    const eventsToCheck = allEvents || events;
+    const map = new Map<string, number>();
+    eventsToCheck.forEach((event) => {
+      const budget = event.allocated_budget || 0;
+      if (budget > 0 && event.event_type) {
+        map.set(event.event_type, budget);
+      }
+    });
+    return map;
+  }, [allEvents, events]);
 
   // Get holidays and breaks for current month
   const monthHolidays = useMemo(
@@ -295,6 +312,7 @@ export function HebrewCalendar({
             isSelected={selectedDate ? isSameDay(dayData.date, selectedDate) : false}
             onClick={() => onDateClick?.(dayData.date, dayData)}
             onEventClick={onEventClick}
+            budgetedEventTypes={budgetedEventTypes}
           />
         ))}
       </div>
@@ -330,9 +348,11 @@ type CalendarDayProps = {
   isSelected: boolean;
   onClick: () => void;
   onEventClick?: (event: CalendarEvent) => void;
+  /** Map of event types to their budgets - used to show budget indicator on holidays */
+  budgetedEventTypes?: Map<string, number>;
 };
 
-function CalendarDay({ dayData, isSelected, onClick, onEventClick }: CalendarDayProps) {
+function CalendarDay({ dayData, isSelected, onClick, onEventClick, budgetedEventTypes }: CalendarDayProps) {
   const { date, isCurrentMonth, isToday, isWeekend, events, holidays, schoolBreak, birthdays } = dayData;
 
   const hasContent = events.length > 0 || holidays.length > 0 || birthdays.length > 0;
@@ -340,6 +360,66 @@ function CalendarDay({ dayData, isSelected, onClick, onEventClick }: CalendarDay
 
   // Check if any event has a budget allocated
   const hasBudgetedEvent = events.some((e) => e.allocated_budget && e.allocated_budget > 0);
+
+  // Check if any holiday on this day has a budgeted event type
+  // This handles cases where budget is allocated to a holiday type but the event has no specific date
+  const hasHolidayWithBudget = budgetedEventTypes && holidays.some((holiday) => {
+    // Map Hebrew holiday names to event types (support both hyphen and underscore variants)
+    // Note: holiday.name contains Hebrew text from jewish-holidays.ts (metadata.hebrewName)
+    const holidayToEventType: Record<string, string[]> = {
+      // Passover (פסח)
+      "פסח": ["passover"],
+      "פסח א׳": ["passover"],
+      "פסח ב׳": ["passover"],
+      "פסח ג׳ (חול המועד)": ["passover"],
+      "פסח ד׳ (חול המועד)": ["passover"],
+      "פסח ה׳ (חול המועד)": ["passover"],
+      "פסח ו׳ (חול המועד)": ["passover"],
+      "פסח ז׳": ["passover"],
+      // Hanukkah (חנוכה)
+      "חנוכה": ["hanukkah", "chanukah"],
+      "חנוכה: נר א׳": ["hanukkah", "chanukah"],
+      "חנוכה: נר ב׳": ["hanukkah", "chanukah"],
+      "חנוכה: נר ג׳": ["hanukkah", "chanukah"],
+      "חנוכה: נר ד׳": ["hanukkah", "chanukah"],
+      "חנוכה: נר ה׳": ["hanukkah", "chanukah"],
+      "חנוכה: נר ו׳": ["hanukkah", "chanukah"],
+      "חנוכה: נר ז׳": ["hanukkah", "chanukah"],
+      "חנוכה: נר ח׳": ["hanukkah", "chanukah"],
+      "חנוכה: יום ח׳": ["hanukkah", "chanukah"],
+      // Purim (פורים)
+      "פורים": ["purim"],
+      "שושן פורים": ["purim"],
+      // Rosh Hashana (ראש השנה)
+      "ראש השנה": ["rosh_hashana", "rosh-hashana"],
+      "ראש השנה א׳": ["rosh_hashana", "rosh-hashana"],
+      "ראש השנה ב׳": ["rosh_hashana", "rosh-hashana"],
+      // Sukkot (סוכות)
+      "סוכות": ["sukkot"],
+      "סוכות א׳": ["sukkot"],
+      "סוכות ב׳": ["sukkot"],
+      "סוכות ג׳ (חול המועד)": ["sukkot"],
+      "סוכות ד׳ (חול המועד)": ["sukkot"],
+      "סוכות ה׳ (חול המועד)": ["sukkot"],
+      "סוכות ו׳ (חול המועד)": ["sukkot"],
+      "הושענא רבה": ["sukkot"],
+      "שמיני עצרת": ["sukkot"],
+      "שמחת תורה": ["sukkot"],
+      // Shavuot (שבועות)
+      "שבועות": ["shavuot"],
+      // Tu BiShvat (ט״ו בשבט)
+      "ט״ו בשבט": ["tu_bishvat", "tu-bishvat"],
+      // Independence Day (יום העצמאות)
+      "יום העצמאות": ["independence_day", "independence-day"],
+      // Yom Kippur (יום כיפור)
+      "יום כיפור": ["yom_kippur", "yom-kippur"],
+      "ערב יום כיפור": ["yom_kippur", "yom-kippur"],
+    };
+    const eventTypes = holidayToEventType[holiday.name];
+    return eventTypes && eventTypes.some(et => budgetedEventTypes.has(et));
+  });
+
+  const showBudgetIndicator = hasBudgetedEvent || hasHolidayWithBudget;
 
   // Collect all icons to show
   const icons: string[] = [];
@@ -413,7 +493,7 @@ function CalendarDay({ dayData, isSelected, onClick, onEventClick }: CalendarDay
       )}
 
       {/* Budget indicator */}
-      {hasBudgetedEvent && isCurrentMonth && (
+      {showBudgetIndicator && isCurrentMonth && (
         <div className="absolute top-0.5 left-0.5">
           <span className="text-[10px] font-bold text-brand">₪</span>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Wallet,
@@ -120,6 +120,8 @@ type BudgetTabProps = {
   estimatedStaff?: number;
   className?: string;
   classId?: string;
+  /** Event type to highlight in the allocations block (navigated from calendar) */
+  highlightedEventType?: string;
   onOpenPaymentSheet?: () => void;
   onOpenPaymentSheetWithoutList?: () => void;
   onOpenPaymentSheetInviteMode?: () => void;
@@ -216,6 +218,7 @@ export function BudgetTab({
   estimatedStaff = 0,
   className,
   classId,
+  highlightedEventType,
   onOpenPaymentSheet,
   onOpenPaymentSheetWithoutList,
   onOpenPaymentSheetInviteMode,
@@ -225,6 +228,13 @@ export function BudgetTab({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [selectedBlock, setSelectedBlock] = useState<SelectedBlock>(null);
+
+  // Auto-select budget block when a highlighted event type is provided (navigated from calendar)
+  useEffect(() => {
+    if (highlightedEventType) {
+      setSelectedBlock("budget");
+    }
+  }, [highlightedEventType]);
 
   // Expense modal state
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
@@ -608,6 +618,7 @@ export function BudgetTab({
                 totalBudget={total}
                 estimatedChildren={estimatedChildren}
                 estimatedStaff={estimatedStaff}
+                highlightedEventType={highlightedEventType}
               />
             )}
 

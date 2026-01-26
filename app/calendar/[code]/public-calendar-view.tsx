@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Calendar as CalendarIcon, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -67,6 +67,18 @@ export function PublicCalendarView({
   const staffBirthdays = staff
     .filter((s) => s.birthday)
     .map((s) => ({ name: s.name, birthday: s.birthday! }));
+
+  // Build a map of event types to their budgets (for holidays without specific dates)
+  const budgetedEventTypes = useMemo(() => {
+    const map = new Map<string, number>();
+    events.forEach((event) => {
+      const budget = event.allocated_budget || 0;
+      if (budget > 0 && event.event_type) {
+        map.set(event.event_type, budget);
+      }
+    });
+    return map;
+  }, [events]);
 
   // Handlers
   const handleDateClick = useCallback((date: Date, dayData: CalendarDayData) => {
@@ -141,6 +153,7 @@ export function PublicCalendarView({
         <div className="bg-card rounded-2xl p-4 md:p-6 border-2 border-border shadow-sm">
           <HebrewCalendar
             events={events}
+            allEvents={events}
             kidBirthdays={kidBirthdays}
             staffBirthdays={staffBirthdays}
             onDateClick={handleDateClick}
@@ -210,6 +223,7 @@ export function PublicCalendarView({
           onOpenChange={setIsDaySummaryOpen}
           dayData={selectedDayData}
           isAdmin={false}
+          budgetedEventTypes={budgetedEventTypes}
           onEditEvent={handleViewEventFromSummary}
         />
       )}

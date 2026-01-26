@@ -136,9 +136,23 @@ export default async function DashboardV2Page() {
     childParents = childParentsData || [];
   }
 
+  // Transform events to include allocated_budget from V2 fields
+  const transformedEvents = (events || []).map((e: {
+    id: string;
+    allocated_budget?: number;
+    allocated_for_kids?: number;
+    allocated_for_staff?: number;
+    [key: string]: unknown;
+  }) => ({
+    ...e,
+    allocated_budget:
+      e.allocated_budget ||
+      (e.allocated_for_kids || 0) + (e.allocated_for_staff || 0),
+  }));
+
   // Calculate budget metrics
   const totalBudget = currentClass.total_budget || 0;
-  const allocatedBudget = events?.reduce((sum: number, event: { allocated_budget?: number }) =>
+  const allocatedBudget = transformedEvents.reduce((sum: number, event: { allocated_budget?: number }) =>
     sum + (event.allocated_budget || 0), 0) || 0;
   const spentBudget = expenses?.reduce((sum: number, expense: { amount?: number }) =>
     sum + (expense.amount || 0), 0) || 0;
@@ -168,7 +182,7 @@ export default async function DashboardV2Page() {
       }}
       children={children || []}
       staff={staff || []}
-      events={events || []}
+      events={transformedEvents}
       expenses={expenses || []}
       childParents={childParents || []}
       admins={admins}

@@ -32,10 +32,78 @@ type DaySummarySheetProps = {
   onOpenChange: (open: boolean) => void;
   dayData: CalendarDayData;
   isAdmin?: boolean;
+  /** Map of event types to their allocated budgets */
+  budgetedEventTypes?: Map<string, number>;
   onAddEvent?: () => void;
   onEditEvent?: (event: CalendarEvent) => void;
   onDeleteEvent?: (eventId: string) => Promise<void>;
+  /** Callback to navigate to budget tab with the event type to highlight */
+  onNavigateToBudget?: (eventType: string) => void;
 };
+
+// Map Hebrew holiday names to event types for budget lookup
+const holidayToEventType: Record<string, string[]> = {
+  // Passover (פסח)
+  "פסח": ["passover"],
+  "פסח א׳": ["passover"],
+  "פסח ב׳": ["passover"],
+  "פסח ג׳ (חול המועד)": ["passover"],
+  "פסח ד׳ (חול המועד)": ["passover"],
+  "פסח ה׳ (חול המועד)": ["passover"],
+  "פסח ו׳ (חול המועד)": ["passover"],
+  "פסח ז׳": ["passover"],
+  // Hanukkah (חנוכה)
+  "חנוכה": ["hanukkah", "chanukah"],
+  "חנוכה: נר א׳": ["hanukkah", "chanukah"],
+  "חנוכה: נר ב׳": ["hanukkah", "chanukah"],
+  "חנוכה: נר ג׳": ["hanukkah", "chanukah"],
+  "חנוכה: נר ד׳": ["hanukkah", "chanukah"],
+  "חנוכה: נר ה׳": ["hanukkah", "chanukah"],
+  "חנוכה: נר ו׳": ["hanukkah", "chanukah"],
+  "חנוכה: נר ז׳": ["hanukkah", "chanukah"],
+  "חנוכה: נר ח׳": ["hanukkah", "chanukah"],
+  "חנוכה: יום ח׳": ["hanukkah", "chanukah"],
+  // Purim (פורים)
+  "פורים": ["purim"],
+  "שושן פורים": ["purim"],
+  // Rosh Hashana (ראש השנה)
+  "ראש השנה": ["rosh_hashana", "rosh-hashana"],
+  "ראש השנה א׳": ["rosh_hashana", "rosh-hashana"],
+  "ראש השנה ב׳": ["rosh_hashana", "rosh-hashana"],
+  // Sukkot (סוכות)
+  "סוכות": ["sukkot"],
+  "סוכות א׳": ["sukkot"],
+  "סוכות ב׳": ["sukkot"],
+  "סוכות ג׳ (חול המועד)": ["sukkot"],
+  "סוכות ד׳ (חול המועד)": ["sukkot"],
+  "סוכות ה׳ (חול המועד)": ["sukkot"],
+  "סוכות ו׳ (חול המועד)": ["sukkot"],
+  "הושענא רבה": ["sukkot"],
+  "שמיני עצרת": ["sukkot"],
+  "שמחת תורה": ["sukkot"],
+  // Shavuot (שבועות)
+  "שבועות": ["shavuot"],
+  // Tu BiShvat (ט״ו בשבט)
+  "ט״ו בשבט": ["tu_bishvat", "tu-bishvat"],
+  // Independence Day (יום העצמאות)
+  "יום העצמאות": ["independence_day", "independence-day"],
+  // Yom Kippur (יום כיפור)
+  "יום כיפור": ["yom_kippur", "yom-kippur"],
+  "ערב יום כיפור": ["yom_kippur", "yom-kippur"],
+};
+
+/** Get the allocated budget and event type for a holiday based on its name */
+function getHolidayBudgetInfo(holidayName: string, budgetedEventTypes?: Map<string, number>): { budget: number; eventType: string } | undefined {
+  if (!budgetedEventTypes) return undefined;
+  const eventTypes = holidayToEventType[holidayName];
+  if (!eventTypes) return undefined;
+
+  for (const eventType of eventTypes) {
+    const budget = budgetedEventTypes.get(eventType);
+    if (budget && budget > 0) return { budget, eventType };
+  }
+  return undefined;
+}
 
 // ============================================
 // Helper Functions
@@ -98,9 +166,11 @@ export function DaySummarySheet({
   onOpenChange,
   dayData,
   isAdmin = false,
+  budgetedEventTypes,
   onAddEvent,
   onEditEvent,
   onDeleteEvent,
+  onNavigateToBudget,
 }: DaySummarySheetProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -151,9 +221,19 @@ export function DaySummarySheet({
           )}
 
           {/* Holidays */}
-          {dayData.holidays.map((holiday) => (
-            <HolidayItem key={holiday.id} holiday={holiday} />
-          ))}
+          {dayData.holidays.map((holiday) => {
+            const budgetInfo = getHolidayBudgetInfo(holiday.name, budgetedEventTypes);
+            return (
+              <HolidayItem
+                key={holiday.id}
+                holiday={holiday}
+                allocatedBudget={budgetInfo?.budget}
+                eventType={budgetInfo?.eventType}
+                isAdmin={isAdmin}
+                onNavigateToBudget={onNavigateToBudget}
+              />
+            );
+          })}
 
           {/* Birthdays */}
           {dayData.birthdays.length > 0 && (
@@ -238,14 +318,28 @@ export function DaySummarySheet({
 // Sub-components
 // ============================================
 
-function HolidayItem({ holiday }: { holiday: JewishHoliday }) {
+function HolidayItem({
+  holiday,
+  allocatedBudget,
+  eventType,
+  isAdmin,
+  onNavigateToBudget,
+}: {
+  holiday: JewishHoliday;
+  allocatedBudget?: number;
+  eventType?: string;
+  isAdmin?: boolean;
+  onNavigateToBudget?: (eventType: string) => void;
+}) {
+  const hasBudget = allocatedBudget && allocatedBudget > 0;
+
   return (
     <div className="bg-amber-50 dark:bg-amber-950/30 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
       <div className="flex items-center gap-3">
         <span className="text-2xl">{holiday.icon}</span>
         <div className="flex-1">
           <h4 className="font-medium text-amber-800 dark:text-amber-200">{holiday.hebrewName}</h4>
-          <div className="flex gap-2 mt-1">
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
             <Badge
               variant={holiday.isSchoolOff ? "default" : "secondary"}
               className={cn(
@@ -255,8 +349,26 @@ function HolidayItem({ holiday }: { holiday: JewishHoliday }) {
             >
               {holiday.isSchoolOff ? "יום חופש" : "יום רגיל"}
             </Badge>
+            {hasBudget && (
+              <span className="text-xs text-brand font-medium flex items-center gap-1">
+                <Coins className="h-3 w-3" />
+                ₪{allocatedBudget.toLocaleString()} מוקצה
+              </span>
+            )}
           </div>
         </div>
+        {/* Edit budget button - only shown for admins when there's a budget */}
+        {isAdmin && hasBudget && eventType && onNavigateToBudget && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-amber-600 hover:text-amber-800 hover:bg-amber-100"
+            onClick={() => onNavigateToBudget(eventType)}
+            title="עריכת תקציב"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     </div>
   );

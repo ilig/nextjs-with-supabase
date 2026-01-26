@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar as CalendarIcon, Plus, Share2, Copy, Check, Cake, Gift, Star, Sparkles, TreeDeciduous, PartyPopper, Sun, Heart, Flag, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,8 @@ type CalendarTabProps = {
   children?: Child[];
   staff?: Staff[];
   isAdmin?: boolean;
+  /** Callback to navigate to budget tab with optional event type to highlight */
+  onNavigateToBudget?: (eventType?: string) => void;
   className?: string;
 };
 
@@ -60,6 +62,7 @@ export function CalendarTab({
   children = [],
   staff = [],
   isAdmin = true, // Default to admin for dashboard
+  onNavigateToBudget,
   className,
 }: CalendarTabProps) {
   const router = useRouter();
@@ -83,6 +86,18 @@ export function CalendarTab({
     amount_per_staff: e.amount_per_staff,
     is_paid: e.is_paid,
   }));
+
+  // Build a map of event types to their budgets (for holidays without specific dates)
+  const budgetedEventTypes = useMemo(() => {
+    const map = new Map<string, number>();
+    calendarEvents.forEach((event) => {
+      const budget = event.allocated_budget || 0;
+      if (budget > 0 && event.event_type) {
+        map.set(event.event_type, budget);
+      }
+    });
+    return map;
+  }, [calendarEvents]);
 
   // Transform birthdays
   const kidBirthdays = children
@@ -246,6 +261,7 @@ export function CalendarTab({
       <div className="bg-card rounded-2xl p-4 md:p-6 border-2 border-border shadow-sm">
         <HebrewCalendar
           events={calendarEvents}
+          allEvents={calendarEvents}
           kidBirthdays={kidBirthdays}
           staffBirthdays={staffBirthdays}
           onDateClick={handleDateClick}
@@ -301,9 +317,14 @@ export function CalendarTab({
           onOpenChange={setIsDaySummaryOpen}
           dayData={selectedDayData}
           isAdmin={isAdmin}
+          budgetedEventTypes={budgetedEventTypes}
           onAddEvent={handleAddEventFromSummary}
           onEditEvent={handleEditEventFromSummary}
           onDeleteEvent={handleDeleteEvent}
+          onNavigateToBudget={onNavigateToBudget ? (eventType) => {
+            setIsDaySummaryOpen(false);
+            onNavigateToBudget(eventType);
+          } : undefined}
         />
       )}
 
