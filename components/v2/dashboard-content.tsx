@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { PaymentManagementSheet } from "./payment-management-sheet";
 import { SetupBanners } from "./setup-banners";
 import { DirectorySettingsModal } from "./settings/directory-settings-modal";
+import { Footer } from "@/components/footer";
 
 type Child = {
   id: string;
@@ -441,6 +442,11 @@ export function DashboardContent({
         {renderTabContent()}
         </div>
       </main>
+
+      {/* Footer - visible on desktop only */}
+      <div className="hidden md:block">
+        <Footer />
+      </div>
 
       {/* Mobile navigation */}
       <MobileBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
